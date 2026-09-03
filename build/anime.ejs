@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <% if (base) { %><base href="<%= base %>" /><% } %>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Anime - Media Vault</title>
+    <meta name="description" content="Track your progress through every film and television universe you care about." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/universes.css" />
+    <link rel="stylesheet" href="assets/css/home.css" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23c2453f'/%3E%3C/svg%3E" />
+  </head>
+  <body data-mode="<%= vault.mode %>">
+    <div class="page">
+      <header class="topbar">
+        <div class="wrap topbar-inner">
+          <a class="brand" href="<%= vault.home %>">
+            <span class="brand-mark">MV</span>
+            <span>Media Vault</span>
+          </a>
+          <span class="topbar-spacer"></span>
+          <button class="btn btn-ghost" id="ongoingBtn" aria-pressed="false" hidden>◉ Ongoing</button>
+          <button class="btn" id="addShow">+ Add anime</button>
+        </div>
+      </header>
+
+      <section class="hero wrap">
+        <p class="eyebrow reveal">Anime vault</p>
+        <h1 class="reveal" style="--d:60ms">
+          Anime,<br /><span class="hero-accent">episode by episode.</span>
+        </h1>
+        <p class="lede reveal" style="--d:130ms">
+          Every series tracked episode by episode, with its ratings laid out season
+          by season. Progress is stored locally, the same as everywhere else.
+        </p>
+
+        <div class="hero-stats reveal" style="--d:200ms">
+          <div class="hstat"><b id="hsUniverses">0</b><span>series</span></div>
+          <div class="hstat"><b id="hsTitles">0</b><span>episodes</span></div>
+          <div class="hstat"><b id="hsWatched">0</b><span>marked watched</span></div>
+          <div class="hstat"><b id="hsHours">-</b><span>episodes left</span></div>
+        </div>
+      </section>
+
+<% sections.forEach(function (s) { %>
+      <section class="wrap section" id="<%= s.id %>">
+        <div class="section-bar reveal">
+          <h2><%= s.title %></h2>
+          <input class="section-search" type="search" data-search="<%= s.kind %>"
+                 placeholder="Search <%= s.title.toLowerCase() %>…" aria-label="Search <%= s.title.toLowerCase() %>" />
+          <div class="carousel-nav">
+            <button class="cbtn" data-car="<%= s.kind %>" data-dir="-1" aria-label="Previous">‹</button>
+            <span class="cpage" data-page="<%= s.kind %>">1 / 1</span>
+            <button class="cbtn" data-car="<%= s.kind %>" data-dir="1" aria-label="Next">›</button>
+          </div>
+        </div>
+        <div class="carousel" data-track="<%= s.kind %>"><div class="carousel-inner" id="<%= s.kind %>Grid"></div></div>
+        <p class="no-results" data-empty="<%= s.kind %>" hidden>Nothing matches that search.</p>
+      </section>
+<% }); %>
+      <footer class="footer">
+        <div class="wrap footer-inner">
+          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <span>Media Vault · <%= totalEntries %> titles across <%= universes.length %> universes</span>
+          <span><a href="pages/anime.html#anime">Back to top ↑</a></span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="assets/js/store.js"></script>
+    <script src="assets/js/data/merges.js"></script>
+    <script src="assets/js/data/series/_counts.js"></script>
+    <script src="assets/js/lightbox.js"></script>
+    <script src="assets/js/data/_films.js"></script>
+    <script src="assets/js/modes.js"></script>
+    <script src="assets/js/data/universes.js"></script>
+    <script src="assets/js/data/collections.js"></script>
+    <script src="assets/js/data/countries.js"></script>
+<% universes.forEach(function (u) { %>    <script src="assets/js/data/<%= u.id %>.js"></script>
+<% }); %>    <script src="assets/js/home.js"></script>
+    <script src="assets/js/addshow.js"></script>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "media-vault",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A local-first viewing tracker. Static output, no runtime dependencies.",
+  "scripts": {
+    "build": "node build/build.js",
+    "posters": "node build/omdb-posters.js",
+    "links": "node build/link-duplicates.js --write",
+    "sweep": "node build/apply-sweep.js",
+    "serve": "python3 -m http.server 8000",
+    "series": "node build/seriesgraph.js",
+    "wiki": "node build/wiki-posters.js",
+    "covers": "node build/list-covers.js",
+    "list": "node build/import-list.js",
+    "rg": "node build/ratingraph.js"
+  },
+  "devDependencies": {
+    "ejs": "^3.1.10"
+  }
+}

@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+
+# Local scratch from the enrichment and poster scripts. The results are
+# committed inside assets/js/data; these are just the working files.
+build/.rg-cache.json
+build/*.tsv
+sweep_out.tsv
+*.log
+CLAUDE.MD
+AGENTS.MD

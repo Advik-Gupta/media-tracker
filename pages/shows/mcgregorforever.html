@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>McGREGOR FOREVER - Media Vault</title>
+    <meta name="description" content="Every episode of McGREGOR FOREVER, with ratings and progress tracking." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/base.css?v=48e5b954" />
+    <link rel="stylesheet" href="assets/css/universes.css?v=a4c4d4fc" />
+    <link rel="stylesheet" href="assets/css/tracker.css?v=93533e21" />
+    <link rel="stylesheet" href="assets/css/series.css?v=747b308c" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236a9ee8'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body data-mode="show" data-universe="mcgregorforever" class="u-mcgregorforever">
+    <div class="page">
+      <header class="topbar">
+        <div class="wrap topbar-inner">
+          <a class="brand" href="pages/shows.html">
+            <span class="brand-mark">MV</span>
+            <span>Media Vault</span>
+          </a>
+          <span class="crumb">/ McGREGOR FOREVER</span>
+          <span class="topbar-spacer"></span>
+          
+          <button class="btn btn-ghost" id="jumpNext" title="Jump to the next unwatched episode">
+            Next up ↓
+          </button>
+        </div>
+      </header>
+
+      <section class="hero wrap">
+        <p class="eyebrow reveal">McGREGOR FOREVER</p>
+        <h1 class="reveal" style="--d:60ms">
+          Every season<br /><span class="hero-accent">of McGREGOR FOREVER</span>
+        </h1>
+        <p class="lede reveal" style="--d:130ms">Every season of McGREGOR FOREVER, tracked episode by episode.</p>
+      </section>
+
+      <div class="controls">
+        <div class="progress-rail"><i id="progressRail"></i></div>
+        <div class="wrap ctrl-summary">
+          <div class="ring-wrap">
+            <svg class="ring" viewBox="0 0 44 44" aria-hidden="true">
+              <circle class="ring-bg" cx="22" cy="22" r="19" />
+              <circle class="ring-fg" cx="22" cy="22" r="19" id="ringFg" />
+            </svg>
+            <span class="ring-label" id="ringLabel">0%</span>
+          </div>
+          <div class="summary-figures">
+            <div class="figure"><b id="figWatched">0</b><span>watched</span></div>
+            <div class="figure"><b id="figTotal">0</b><span>episodes</span></div>
+            <div class="figure"><b id="figLeft">0</b><span>remaining</span></div>
+            <div class="figure"><b id="figTime">0h</b><span>left to watch</span></div>
+          </div>
+          <span class="topbar-spacer"></span>
+          <div class="ctrl-buttons">
+            <button class="btn btn-ghost" id="markOngoing" aria-pressed="false">Mark ongoing</button>
+            <button class="btn btn-ghost" id="hideWatched" aria-pressed="false">Hide watched</button>
+            <button class="btn btn-ghost" id="denseView" aria-pressed="false" title="Ratings only">Compact</button>
+            <button class="btn btn-ghost" id="collapseAll">Collapse all</button>
+            <button class="btn btn-ghost danger" id="resetShow">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <main class="wrap series-wrap">
+        <p class="rating-key reveal">
+          <i class="r-cinema">Absolute Cinema</i>
+          <i class="r-awesome">Awesome</i>
+          <i class="r-great">Great</i>
+          <i class="r-good">Good</i>
+          <i class="r-average">Average</i>
+          <i class="r-bad">Bad</i>
+          <i class="r-garbage">Garbage</i>
+        </p>
+        <div id="seriesRoot"></div>
+      </main>
+
+      <footer class="footer">
+        <div class="wrap footer-inner">
+          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <span>McGREGOR FOREVER - progress stored locally</span>
+          <span><a href="pages/shows.html">← All shows</a></span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="assets/js/store.js?v=01c221b3"></script>
+    <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
+    <script src="assets/js/lightbox.js?v=b2ed6be1"></script>
+    <script src="assets/js/data/_films.js?v=05577110"></script>
+    <script src="assets/js/modes.js?v=51fb5a1c"></script>
+    <script src="assets/js/data/mcgregorforever.js?v=bf80e5d9"></script>
+    <script src="assets/js/data/series/mcgregorforever.js?v=c4a9b5e7"></script>
+    <script src="assets/js/series.js?v=61f5eea1"></script>
+  </body>
+</html>

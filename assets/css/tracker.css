@@ -1,0 +1,1224 @@
+/* ============================================================
+   TRACKER - hero, control bar, timeline, compact list, detail sheet
+   Design per design.md: flat fills, 1px rules, no gradients, no shadows.
+   The timeline's geometry is deliberately untouched - only its palette
+   and type were restated in the new system.
+   ============================================================ */
+
+/* ---------- hero ---------- */
+
+.hero {
+  padding: var(--s6) 0 var(--s4);
+}
+.hero-accent {
+  color: var(--gold);
+}
+.hero .lede {
+  margin-top: var(--s3);
+}
+
+.countdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s4);
+  margin-top: var(--s4);
+  align-items: flex-end;
+}
+.cd-box b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+}
+.cd-box span {
+  display: block;
+  margin-top: var(--s1);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+.cd-box.target b {
+  font-size: 16px;
+  color: var(--gold);
+  padding-bottom: 8px;
+}
+
+/* ---------- control bar ---------- */
+
+.controls {
+  position: sticky;
+  top: 56px;
+  z-index: 60;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.progress-rail {
+  height: 2px;
+  background: var(--line);
+}
+.progress-rail i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--gold);
+  transition: width 0.3s var(--ease-out);
+}
+
+.ctrl-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 12px 0;
+  flex-wrap: wrap;
+}
+
+.ring-wrap {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: none;
+}
+.ring {
+  width: 44px;
+  height: 44px;
+  transform: rotate(-90deg);
+}
+.ring circle {
+  fill: none;
+  stroke-width: 2;
+}
+.ring-bg {
+  stroke: var(--line);
+}
+.ring-fg {
+  stroke: var(--gold);
+  stroke-linecap: butt;
+  stroke-dasharray: 119.4;
+  stroke-dashoffset: 119.4;
+  transition: stroke-dashoffset 0.3s var(--ease-out);
+}
+.ring-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-figures {
+  display: flex;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+.figure b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.figure span {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+.ctrl-buttons {
+  display: flex;
+  gap: var(--s1);
+  align-items: center;
+}
+
+.search {
+  height: 36px;
+  width: 190px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--slate);
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--bone);
+  transition: border-color 0.12s var(--ease-out);
+}
+.search::placeholder {
+  color: var(--fog);
+}
+.search:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.chev {
+  display: inline-block;
+  transition: transform 0.12s var(--ease-out);
+  font-size: 11px;
+}
+[aria-expanded="true"] .chev {
+  transform: rotate(180deg);
+}
+
+/* view switch */
+.viewswitch {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--slate);
+}
+.viewswitch button {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 2px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fog);
+  transition:
+    background 0.12s var(--ease-out),
+    color 0.12s var(--ease-out);
+}
+.viewswitch button.active {
+  background: var(--gold);
+  color: var(--ink);
+}
+.viewswitch button:not(.active):hover {
+  color: var(--bone);
+}
+
+/* filter drawer */
+.ctrl-drawer {
+  border-top: 1px solid var(--line);
+  padding: var(--s2) 0 var(--s3);
+}
+
+.filter-group {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  padding: 6px 0;
+}
+.filter-label {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--fog);
+  width: 104px;
+  flex: none;
+  padding-top: 9px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Chips carry their meaning as text - design.md rules out the colour dot. */
+.chip {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--fog);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition:
+    border-color 0.12s var(--ease-out),
+    color 0.12s var(--ease-out);
+}
+.chip:hover {
+  border-color: var(--gold);
+  color: var(--bone);
+}
+.chip.active {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.chip.icon {
+  width: 32px;
+  padding: 0;
+  justify-content: center;
+}
+.chip .dot {
+  display: none;
+}
+.chip .n {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+}
+.chip.active .n {
+  color: var(--gold);
+}
+
+.drawer-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  margin-top: var(--s2);
+  padding-top: var(--s2);
+  padding-left: 120px;
+  border-top: 1px solid var(--line);
+}
+.btn.danger {
+  color: var(--cinder);
+}
+.btn.danger:hover {
+  color: var(--cinder);
+  border-color: var(--cinder);
+}
+
+/* ============================================================
+   TIMELINE - layout unchanged; palette restated
+   ============================================================ */
+
+.list-wrap {
+  padding-top: var(--s3);
+  padding-bottom: var(--s5);
+}
+
+.tl {
+  position: relative;
+  padding: 20px 0 40px;
+}
+
+/* the spine */
+.tl::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--line);
+}
+/* the filled portion, driven by scroll */
+.tl-fill {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  margin-left: -1px;
+  height: 0;
+  background: var(--gold);
+  z-index: 1;
+  transition: height 0.15s linear;
+}
+
+/* ---------- era marker ---------- */
+
+.tl-era {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  margin: 54px 0 40px;
+}
+.tl-era:first-child {
+  margin-top: 0;
+}
+.tl-era-inner {
+  text-align: center;
+  background: var(--bg);
+  padding: 10px 26px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color 0.12s var(--ease-out);
+}
+.tl-era-inner:hover {
+  border-color: var(--gold);
+}
+.tl-era h2 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+}
+.tl-era .gsub {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: var(--fog);
+  text-transform: uppercase;
+}
+.tl-era .gcount {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- timeline item ---------- */
+
+.tl-item {
+  position: relative;
+  z-index: 2;
+  width: 50%;
+  padding: 0 40px 14px 0;
+  opacity: 0;
+  transform: translateX(-34px);
+  transition:
+    opacity 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out);
+}
+.tl-item.right {
+  margin-left: 50%;
+  padding: 0 0 14px 40px;
+  transform: translateX(34px);
+}
+.tl-item.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* node on the spine */
+.tl-node {
+  position: absolute;
+  top: 26px;
+  right: -7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--rc);
+  z-index: 4;
+  transition: background 0.12s var(--ease-out);
+}
+.tl-item.right .tl-node {
+  right: auto;
+  left: -7px;
+}
+.tl-item.done .tl-node {
+  background: var(--rc);
+}
+
+/* connector from node to card */
+.tl-item::after {
+  content: "";
+  position: absolute;
+  top: 32px;
+  right: 0;
+  width: 44px;
+  height: 1px;
+  background: var(--line);
+}
+.tl-item.right::after {
+  right: auto;
+  left: 0;
+}
+
+/* ---------- card ---------- */
+
+.tl-card {
+  position: relative;
+  display: flex;
+  gap: var(--s2);
+  padding: var(--s2);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--slate);
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color 0.12s var(--ease-out);
+}
+.tl-card:hover {
+  border-color: var(--rc);
+}
+
+.tl-item.done .tl-card {
+  opacity: 0.55;
+}
+.tl-item.done .tl-card:hover {
+  opacity: 0.85;
+}
+.tl-item.done .tl-title {
+  text-decoration: line-through;
+  text-decoration-color: var(--fog);
+}
+
+/* poster */
+.tl-poster {
+  position: relative;
+  width: 78px;
+  height: 117px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.tl-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.tl-item.done .tl-poster img {
+  filter: grayscale(1);
+}
+
+.tl-poster .ph-init {
+  font-size: 20px;
+}
+.row-poster .ph-init {
+  font-size: 13px;
+}
+.tl-poster.ph,
+.row-poster.ph {
+  background: var(--surface-2);
+}
+
+/* ---------- the Stamp (design.md §4) ----------
+   Sits at the bottom-left of the cover, flat at rest, and tilts only when
+   the card it belongs to is hovered. */
+.stamp {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  z-index: 3;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 1px;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--ink);
+  border: 1px solid var(--gold);
+  border-radius: 2px;
+  padding: 3px 6px;
+  opacity: 0;
+  pointer-events: none;
+  transform: rotate(0deg) scale(1);
+}
+.done .stamp,
+.row.done .stamp {
+  opacity: 1;
+}
+.tl-card:hover .stamp,
+.row:hover .stamp {
+  transform: rotate(-2deg) scale(1);
+  animation: stampPress 80ms var(--ease-out);
+}
+@keyframes stampPress {
+  from {
+    transform: rotate(-2deg) scale(1.05);
+  }
+  to {
+    transform: rotate(-2deg) scale(1);
+  }
+}
+
+/* body */
+.tl-body {
+  min-width: 0;
+  flex: 1;
+  padding-right: 26px;
+}
+
+.tl-title {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+  line-height: 1.2;
+}
+.tl-sub {
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--fog);
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* the badge row - relevance is spelled out, not just a dot */
+.tl-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--s1);
+}
+
+.tl-note {
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--fog);
+  line-height: 1.6;
+  margin-top: var(--s1);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* big index number */
+.tl-num {
+  position: absolute;
+  right: 10px;
+  bottom: 2px;
+  z-index: -1;
+  font-family: var(--mono);
+  font-size: 46px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  color: var(--bone);
+  opacity: 0.07;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/* watched toggle */
+.tl-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 4;
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+  background: var(--slate);
+  display: grid;
+  place-items: center;
+  transition:
+    border-color 0.12s var(--ease-out),
+    background 0.12s var(--ease-out);
+}
+.tl-check:hover {
+  border-color: var(--rc);
+}
+.tl-check:active {
+  transform: scale(0.9);
+}
+.tl-check svg {
+  width: 12px;
+  height: 12px;
+  stroke: var(--fog);
+  stroke-width: 2.4;
+  fill: none;
+  transition: stroke 0.12s var(--ease-out);
+}
+.tl-check:hover svg {
+  stroke: var(--rc);
+}
+.tl-item.done .tl-check,
+.row.done .tl-check {
+  background: var(--rc);
+  border-color: var(--rc);
+}
+.tl-item.done .tl-check svg,
+.row.done .tl-check svg {
+  stroke: var(--ink);
+}
+
+/* ============================================================
+   COMPACT LIST VIEW
+   ============================================================ */
+
+.rows .tl-era {
+  margin: var(--s4) 0 var(--s2);
+  justify-content: flex-start;
+}
+.rows .tl-era-inner {
+  border: none;
+  border-left: 2px solid var(--gold);
+  border-radius: 0;
+  padding: 2px 0 2px var(--s2);
+  text-align: left;
+  background: none;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px 44px 1fr auto;
+  align-items: center;
+  gap: var(--s2);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    border-color 0.12s var(--ease-out),
+    opacity 0.12s var(--ease-out);
+}
+.row + .row {
+  margin-top: 2px;
+}
+.row:hover {
+  background: var(--slate);
+  border-color: var(--line);
+}
+.row.done {
+  opacity: 0.5;
+}
+.row.done:hover {
+  opacity: 0.85;
+}
+.row.done .r-title {
+  text-decoration: line-through;
+  text-decoration-color: var(--fog);
+}
+
+.row .tl-check {
+  position: static;
+  width: 22px;
+  height: 22px;
+  margin: 0 auto;
+}
+.row-poster {
+  position: relative;
+  width: 44px;
+  height: 62px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--surface-2);
+  flex: none;
+  border: 1px solid var(--line);
+}
+.row-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.row.done .row-poster img {
+  filter: grayscale(1);
+}
+.row-poster .stamp {
+  left: 3px;
+  bottom: 3px;
+  font-size: 16px;
+  padding: 1px 3px;
+}
+
+.r-main {
+  min-width: 0;
+}
+.r-title {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+  line-height: 1.2;
+}
+.r-sub {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  margin-top: 2px;
+}
+.r-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  white-space: nowrap;
+}
+.r-index {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  font-variant-numeric: tabular-nums;
+  min-width: 30px;
+  text-align: right;
+}
+
+.empty {
+  text-align: center;
+  color: var(--fog);
+  font-size: 15px;
+  padding: var(--s7) 0;
+}
+
+/* ---------- detail sheet ---------- */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(20, 22, 28, 0.82);
+  opacity: 0;
+  transition: opacity 0.12s var(--ease-out);
+}
+.sheet-backdrop.show {
+  opacity: 1;
+}
+
+.sheet {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 160;
+  width: min(450px, 100%);
+  background: var(--slate);
+  border-left: 1px solid var(--line);
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.3s var(--ease-out);
+}
+.sheet.show {
+  transform: none;
+}
+
+.sheet-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  z-index: 5;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  border: 1px solid var(--line);
+  color: var(--bone);
+  font-size: 13px;
+  transition: border-color 0.12s var(--ease-out);
+}
+.sheet-close:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* poster banner */
+.sheet-hero {
+  position: relative;
+  height: 260px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.sheet-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+}
+.sheet-hero.ph {
+  background: var(--surface-2);
+}
+.sheet-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+}
+.sheet-inner {
+  padding: var(--s3) var(--s4) var(--s7);
+  position: relative;
+  z-index: 2;
+}
+
+.sheet-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: var(--s2);
+}
+.sheet h2 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: 0.5px;
+  line-height: 1.15;
+}
+.sheet-sub {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  margin-top: var(--s1);
+}
+
+.sheet-rel {
+  display: block;
+  margin-top: var(--s3);
+  padding: var(--s2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--rc);
+}
+.sheet-rel .rel-pip {
+  display: none;
+}
+.sheet-rel b {
+  color: var(--rc);
+  display: block;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+.sheet-rel p {
+  color: var(--fog);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+.sheet-facts {
+  margin-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+.fact {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s2);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+.fact dt {
+  color: var(--fog);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+.fact dd {
+  text-align: right;
+  color: var(--bone);
+}
+
+.sheet-note {
+  margin-top: var(--s3);
+  color: var(--fog);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.sheet-actions {
+  margin-top: var(--s3);
+  display: flex;
+  gap: var(--s1);
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   RESPONSIVE - the spine moves to the left edge on narrow screens
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .tl::before,
+  .tl-fill {
+    left: 18px;
+    margin-left: 0;
+  }
+  .tl-item,
+  .tl-item.right {
+    width: 100%;
+    margin-left: 0;
+    padding: 0 0 22px 46px;
+    transform: translateX(24px);
+  }
+  .tl-item.in {
+    transform: none;
+  }
+  .tl-node,
+  .tl-item.right .tl-node {
+    left: 12px;
+    right: auto;
+  }
+  .tl-item::after,
+  .tl-item.right::after {
+    left: 26px;
+    right: auto;
+    width: 20px;
+    background: var(--line);
+  }
+  .tl-era {
+    justify-content: flex-start;
+    padding-left: 4px;
+  }
+}
+
+@media (max-width: 820px) {
+  .filter-label {
+    width: 100%;
+    padding-top: 0;
+  }
+  .filter-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .drawer-foot {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .ctrl-summary {
+    gap: var(--s2);
+  }
+  .summary-figures {
+    gap: var(--s2);
+  }
+  .search {
+    width: 130px;
+  }
+  .tl-poster {
+    width: 62px;
+    height: 93px;
+  }
+  .tl-body {
+    padding-right: 20px;
+  }
+  .tl-num {
+    font-size: 34px;
+  }
+  .tl-note {
+    -webkit-line-clamp: 2;
+  }
+  .row {
+    grid-template-columns: 26px 36px 1fr;
+  }
+  .row .r-meta {
+    grid-column: 3;
+    margin-top: 5px;
+  }
+  .row-poster {
+    width: 36px;
+    height: 51px;
+  }
+  .sheet-inner {
+    padding: var(--s3) var(--s3) var(--s6);
+  }
+  .sheet-hero {
+    height: 200px;
+  }
+}
+
+/* ============================================================
+   POSTER GRID — the default for curated lists,
+   where there is no watch order to lay out along a spine.
+   ============================================================ */
+
+.poster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: var(--s3);
+  padding: var(--s2) 0 var(--s5);
+}
+
+/* Era headers span the full row rather than sitting in a column. */
+.poster-grid .tl-era {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+  margin: var(--s4) 0 0;
+}
+.poster-grid .tl-era:first-child { margin-top: 0; }
+.poster-grid .tl-era-inner {
+  border: none;
+  border-left: 2px solid var(--gold);
+  border-radius: 0;
+  padding: 2px 0 2px var(--s2);
+  text-align: left;
+  background: none;
+}
+
+.pcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.pcard-poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-2);
+  transition: border-color .12s var(--ease-out);
+}
+.pcard:hover .pcard-poster,
+.pcard:focus-visible .pcard-poster { border-color: var(--rc); }
+.pcard-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pcard.done .pcard-poster img {
+  filter: grayscale(1) brightness(0.65);
+}
+.pcard.done .pcard-poster {
+  opacity: 0.5;
+  border-color: var(--line);
+}
+.pcard.done:hover .pcard-poster {
+  opacity: 0.8;
+}
+.pcard-poster .ph-init { font-size: 26px; }
+
+/* The tick sits on artwork here rather than on a card, so it needs its own
+   ground to stay legible against a bright poster. */
+.pcard .tl-check {
+  top: 8px;
+  right: 8px;
+  background: rgba(20, 22, 28, 0.72);
+  border-color: rgba(237, 233, 221, 0.35);
+}
+.pcard .tl-check svg {
+  stroke: rgba(237, 233, 221, 0.75);
+}
+.pcard:hover .tl-check {
+  background: rgba(20, 22, 28, 0.9);
+}
+
+.pcard-body { padding-top: 10px; min-width: 0; }
+.pcard-title {
+  font-family: var(--display);
+  font-size: 18px; font-weight: 700; letter-spacing: .25px; line-height: 1.2;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pcard.done .pcard-title { text-decoration: line-through; text-decoration-color: var(--fog); }
+.pcard-meta {
+  display: flex; align-items: center; gap: var(--s1);
+  margin-top: 4px;
+  font-family: var(--mono); font-size: 16px; letter-spacing: .5px; color: var(--fog);
+}
+.pcard-meta b { color: var(--gold); font-weight: 500; }
+
+@media (max-width: 640px) {
+  .poster-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--s2); }
+  .pcard-title { font-size: 15px; }
+}
+
+/* ---------- poster override, in the detail sheet ---------- */
+.sheet-poster {
+  margin-top: var(--s3);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--line);
+}
+.sheet-poster label {
+  display: block;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  letter-spacing: .2px; text-transform: uppercase; color: var(--fog);
+  margin-bottom: 6px;
+}
+.sheet-poster input {
+  width: 100%; height: 34px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--ink); color: var(--bone);
+  font-family: var(--mono); font-size: 16px; letter-spacing: .5px;
+}
+.sheet-poster input:focus { outline: none; border-color: var(--gold); }
+.sheet-poster-row {
+  display: flex; align-items: center; gap: var(--s1);
+  margin-top: var(--s1);
+}
+.sheet-poster-note {
+  font-family: var(--sans); font-size: 13px; color: var(--gold);
+  margin-left: auto;
+}
+
+/* ---------- a list entry that is tracked elsewhere ----------
+   Breaking Bad sits in Top Rated Shows and also has its own page. If it is
+   finished there, the tile reads as watched here; if it is partway through,
+   exactly that share of the poster is greyed, so the list doubles as a
+   picture of how much of it you have seen. */
+.pcard.part .pcard-poster { position: relative; }
+.pcard-part {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: var(--radius-sm);
+  /* the watched share is desaturated from the bottom up */
+  -webkit-backdrop-filter: grayscale(1) brightness(0.6);
+  backdrop-filter: grayscale(1) brightness(0.6);
+  clip-path: inset(calc(100% - var(--pct)) 0 0 0);
+  border-bottom: 2px solid var(--gold);
+}
+.pcard.part .pcard-title { color: var(--fog); }
+
+/* The share is also stated, for anyone who cannot see the difference. */
+.pcard.part .pcard-meta::after {
+  content: attr(data-part);
+  margin-left: auto;
+  color: var(--gold);
+}
+
+/* ---------- adding a series straight from a list entry ---------- */
+.sheet-series {
+  margin-top: var(--s3);
+  padding: var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.sheet-series .rlabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+.sheet-series p { margin: 6px 0 var(--s2); font-size: 14px; color: var(--fog); }
+.sheet-series code {
+  display: block;
+  margin-bottom: var(--s1);
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: .5px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* An expanded My List row grows a second line for its panel. */
+.row.open {
+  grid-template-rows: auto auto;
+  align-items: start;
+}

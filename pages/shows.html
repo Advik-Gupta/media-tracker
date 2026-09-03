@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shows - Media Vault</title>
+    <meta name="description" content="Track your progress through every film and television universe you care about." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/base.css?v=48e5b954" />
+    <link rel="stylesheet" href="assets/css/universes.css?v=a4c4d4fc" />
+    <link rel="stylesheet" href="assets/css/home.css?v=1459006f" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23c2453f'/%3E%3C/svg%3E" />
+  </head>
+  <body data-mode="show">
+    <div class="page">
+      <header class="topbar">
+        <div class="wrap topbar-inner">
+          <a class="brand" href="pages/shows.html">
+            <span class="brand-mark">MV</span>
+            <span>Media Vault</span>
+          </a>
+          <span class="topbar-spacer"></span>
+          <button class="btn btn-ghost" id="ongoingBtn" aria-pressed="false" hidden>◉ Ongoing</button>
+          <button class="btn" id="addShow">+ Add show</button>
+        </div>
+      </header>
+
+      <section class="hero wrap">
+        <p class="eyebrow reveal">Shows vault</p>
+        <h1 class="reveal" style="--d:60ms">
+          Television,<br /><span class="hero-accent">season by season.</span>
+        </h1>
+        <p class="lede reveal" style="--d:130ms">
+          Series tracked season by season, with the same orderings and relevance
+          markings as the film side. Progress is shared across both.
+        </p>
+
+        <div class="hero-stats reveal" style="--d:200ms">
+          <div class="hstat"><b id="hsUniverses">0</b><span>shows</span></div>
+          <div class="hstat"><b id="hsTitles">0</b><span>episodes</span></div>
+          <div class="hstat"><b id="hsWatched">0</b><span>marked watched</span></div>
+          <div class="hstat"><b id="hsHours">-</b><span>episodes left</span></div>
+        </div>
+      </section>
+
+
+      <section class="wrap section" id="lists">
+        <div class="section-bar reveal">
+          <h2>Lists</h2>
+          <input class="section-search" type="search" data-search="collection"
+                 placeholder="Search lists…" aria-label="Search lists" />
+          <div class="carousel-nav">
+            <button class="cbtn" data-car="collection" data-dir="-1" aria-label="Previous">‹</button>
+            <span class="cpage" data-page="collection">1 / 1</span>
+            <button class="cbtn" data-car="collection" data-dir="1" aria-label="Next">›</button>
+          </div>
+        </div>
+        <div class="carousel" data-track="collection"><div class="carousel-inner" id="collectionGrid"></div></div>
+        <p class="no-results" data-empty="collection" hidden>Nothing matches that search.</p>
+      </section>
+
+      <section class="wrap section" id="shows">
+        <div class="section-bar reveal">
+          <h2>Show universes</h2>
+          <input class="section-search" type="search" data-search="show"
+                 placeholder="Search show universes…" aria-label="Search show universes" />
+          <div class="carousel-nav">
+            <button class="cbtn" data-car="show" data-dir="-1" aria-label="Previous">‹</button>
+            <span class="cpage" data-page="show">1 / 1</span>
+            <button class="cbtn" data-car="show" data-dir="1" aria-label="Next">›</button>
+          </div>
+        </div>
+        <div class="carousel" data-track="show"><div class="carousel-inner" id="showGrid"></div></div>
+        <p class="no-results" data-empty="show" hidden>Nothing matches that search.</p>
+      </section>
+
+      <footer class="footer">
+        <div class="wrap footer-inner">
+          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <span>Media Vault · 0 titles across 31 universes</span>
+          <span><a href="pages/shows.html#shows">Back to top ↑</a></span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="assets/js/store.js?v=01c221b3"></script>
+    <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
+    <script src="assets/js/data/series/_counts.js?v=28d57ec6"></script>
+    <script src="assets/js/lightbox.js?v=b2ed6be1"></script>
+    <script src="assets/js/data/_films.js?v=05577110"></script>
+    <script src="assets/js/modes.js?v=51fb5a1c"></script>
+    <script src="assets/js/data/universes.js?v=f79a986f"></script>
+    <script src="assets/js/data/collections.js?v=c20e8ffd"></script>
+    <script src="assets/js/data/countries.js?v=a70621df"></script>
+    <script src="assets/js/data/theboys.js?v=4b510c20"></script>
+    <script src="assets/js/data/got.js?v=0d7d1f60"></script>
+    <script src="assets/js/data/peaky.js?v=99652897"></script>
+    <script src="assets/js/data/suits.js?v=0573e051"></script>
+    <script src="assets/js/data/breakingbad.js?v=83627e40"></script>
+    <script src="assets/js/data/supernatural.js?v=6d83d106"></script>
+    <script src="assets/js/data/drifters.js?v=2b59d510"></script>
+    <script src="assets/js/data/severance.js?v=fd46da74"></script>
+    <script src="assets/js/data/onepiece.js?v=ec0f4d2d"></script>
+    <script src="assets/js/data/thementalist.js?v=3f1eda0c"></script>
+    <script src="assets/js/data/thefamilyman.js?v=29510026"></script>
+    <script src="assets/js/data/pluribus.js?v=0716d451"></script>
+    <script src="assets/js/data/moneyheist.js?v=87213c78"></script>
+    <script src="assets/js/data/strangerthings.js?v=019c706b"></script>
+    <script src="assets/js/data/from.js?v=140aa972"></script>
+    <script src="assets/js/data/thesopranos.js?v=b358bb20"></script>
+    <script src="assets/js/data/house.js?v=ec9ef0d3"></script>
+    <script src="assets/js/data/sherlock.js?v=c0f0c39d"></script>
+    <script src="assets/js/data/chernobyl.js?v=e3aa16ea"></script>
+    <script src="assets/js/data/succession.js?v=ad7d0a77"></script>
+    <script src="assets/js/data/dark.js?v=b3c8ea3a"></script>
+    <script src="assets/js/data/truedetective.js?v=1476b365"></script>
+    <script src="assets/js/data/thequeensgambit.js?v=f3572b51"></script>
+    <script src="assets/js/data/dahmermonsterthejeffreyd.js?v=c9c7e6f5"></script>
+    <script src="assets/js/data/mirzapur.js?v=3e2162ee"></script>
+    <script src="assets/js/data/farzi.js?v=1ccedfd4"></script>
+    <script src="assets/js/data/paatallok.js?v=fe4d9dcb"></script>
+    <script src="assets/js/data/mcgregorforever.js?v=bf80e5d9"></script>
+    <script src="assets/js/data/rickandmorty.js?v=37b21bda"></script>
+    <script src="assets/js/data/adarshbaalvidyalaya.js?v=870b1608"></script>
+    <script src="assets/js/data/pritamandpedro.js?v=9ab97ed1"></script>
+    <script src="assets/js/home.js?v=fe7aae67"></script>
+    <script src="assets/js/addshow.js?v=ffc9531b"></script>
+  </body>
+</html>

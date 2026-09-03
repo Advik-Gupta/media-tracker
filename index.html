@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Media Vault - Universe Trackers</title>
+    <meta name="description" content="Track your progress through every film and television universe you care about." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/base.css?v=48e5b954" />
+    <link rel="stylesheet" href="assets/css/universes.css?v=bf950331" />
+    <link rel="stylesheet" href="assets/css/home.css?v=1459006f" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23c2453f'/%3E%3C/svg%3E" />
+  </head>
+  <body data-mode="movie">
+    <div class="page">
+      <header class="topbar">
+        <div class="wrap topbar-inner">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">MV</span>
+            <span>Media Vault</span>
+          </a>
+          <span class="topbar-spacer"></span>
+          <a class="btn" href="pages/watchlist.html">★ My List</a>
+          <a class="btn" href="pages/countries.html">🗺 Countries</a>
+          <button class="btn btn-accent" data-random-open>🎲 Surprise me</button>
+        </div>
+      </header>
+
+      <section class="hero wrap">
+        <p class="eyebrow reveal">Personal viewing archive</p>
+        <h1 class="reveal" style="--d:60ms">
+          Every universe,<br />
+          <span class="hero-accent">in the right order.</span>
+        </h1>
+        <p class="lede reveal" style="--d:130ms">
+          One place to track what you have watched, what is worth watching, and what
+          you can safely skip. Progress is saved on this device - no accounts,
+          no sign-in, nothing leaves your browser.
+        </p>
+
+        <div class="hero-stats reveal" style="--d:200ms">
+          <div class="hstat"><b id="hsUniverses">0</b><span>universes</span></div>
+          <div class="hstat"><b id="hsTitles">0</b><span>titles catalogued</span></div>
+          <div class="hstat"><b id="hsWatched">0</b><span>marked watched</span></div>
+          <div class="hstat"><b id="hsHours">-</b><span>runtime logged</span></div>
+        </div>
+      </section>
+
+
+      <section class="wrap section" id="lists">
+        <div class="section-bar reveal">
+          <h2>Lists</h2>
+          <input class="section-search" type="search" data-search="list"
+                 placeholder="Search lists…" aria-label="Search lists" />
+          <div class="carousel-nav">
+            <button class="cbtn" data-car="list" data-dir="-1" aria-label="Previous">‹</button>
+            <span class="cpage" data-page="list">1 / 1</span>
+            <button class="cbtn" data-car="list" data-dir="1" aria-label="Next">›</button>
+          </div>
+        </div>
+        <div class="carousel" data-track="list"><div class="carousel-inner" id="listGrid"></div></div>
+        <p class="no-results" data-empty="list" hidden>Nothing matches that search.</p>
+      </section>
+
+      <section class="wrap section" id="movies">
+        <div class="section-bar reveal">
+          <h2>Movie universes</h2>
+          <input class="section-search" type="search" data-search="movie"
+                 placeholder="Search movie universes…" aria-label="Search movie universes" />
+          <div class="carousel-nav">
+            <button class="cbtn" data-car="movie" data-dir="-1" aria-label="Previous">‹</button>
+            <span class="cpage" data-page="movie">1 / 1</span>
+            <button class="cbtn" data-car="movie" data-dir="1" aria-label="Next">›</button>
+          </div>
+        </div>
+        <div class="carousel" data-track="movie"><div class="carousel-inner" id="movieGrid"></div></div>
+        <p class="no-results" data-empty="movie" hidden>Nothing matches that search.</p>
+      </section>
+
+      <section class="wrap section">
+        <div class="data-panel reveal">
+          <div>
+            <h2>Your data</h2>
+            <p class="section-sub" style="margin-top:8px">
+              Progress is saved in this browser and mirrored to IndexedDB, so a
+              cleared cache does not usually lose it. It is tied to this exact
+              address though - <code>localhost</code> and <code>127.0.0.1</code>
+              are separate stores. Export a backup before switching machines.
+            </p>
+            <p class="storage-note" id="storageNote"></p>
+          </div>
+          <div class="data-actions">
+            <button class="btn" id="exportBtn">Export backup</button>
+            <button class="btn" id="importBtn">Import backup</button>
+            <input type="file" id="importFile" accept="application/json" hidden />
+            <button class="btn btn-ghost" id="resetBtn">Reset everything</button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="wrap footer-inner">
+          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <span>Media Vault · 2112 titles across 94 universes</span>
+          <span><a href="#lists">Back to top ↑</a></span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Must sit before the scripts so random.js finds it on load. -->
+    <div class="rnd-backdrop" id="rndBackdrop" hidden></div>
+    <aside class="rnd-modal" id="rndModal" hidden aria-label="Random pick">
+      <div class="rnd-head">
+        <h3>Random pick</h3>
+        <button class="rnd-close" id="rndClose" aria-label="Close">✕</button>
+      </div>
+      <div id="rndBody"></div>
+    </aside>
+
+    <script src="assets/js/store.js?v=01c221b3"></script>
+    <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
+    <script src="assets/js/lightbox.js?v=b2ed6be1"></script>
+    <script src="assets/js/data/_films.js?v=05577110"></script>
+    <script src="assets/js/modes.js?v=51fb5a1c"></script>
+    <script src="assets/js/data/universes.js?v=f79a986f"></script>
+    <script src="assets/js/data/collections.js?v=c20e8ffd"></script>
+    <script src="assets/js/data/countries.js?v=a70621df"></script>
+    <script src="assets/js/data/imdb250.js?v=9126b34d"></script>
+    <script src="assets/js/data/romcom.js?v=5d58866b"></script>
+    <script src="assets/js/data/feelgood.js?v=e6914333"></script>
+    <script src="assets/js/data/crime.js?v=0f23896e"></script>
+    <script src="assets/js/data/foreign.js?v=09399074"></script>
+    <script src="assets/js/data/bestpic.js?v=4bd22ced"></script>
+    <script src="assets/js/data/horror.js?v=a1b06f90"></script>
+    <script src="assets/js/data/animated.js?v=eeaf7693"></script>
+    <script src="assets/js/data/scifi.js?v=53c4af20"></script>
+    <script src="assets/js/data/war.js?v=344e7fc9"></script>
+    <script src="assets/js/data/sports.js?v=c8976d3a"></script>
+    <script src="assets/js/data/french.js?v=e4e3eafe"></script>
+    <script src="assets/js/data/german.js?v=6c48d219"></script>
+    <script src="assets/js/data/danish.js?v=602cecdc"></script>
+    <script src="assets/js/data/dutch.js?v=198d5453"></script>
+    <script src="assets/js/data/india.js?v=224cd927"></script>
+    <script src="assets/js/data/marvel.js?v=e7391801"></script>
+    <script src="assets/js/data/starwars.js?v=b9426d42"></script>
+    <script src="assets/js/data/bond.js?v=15b22dd8"></script>
+    <script src="assets/js/data/mi.js?v=179cc4fe"></script>
+    <script src="assets/js/data/fast.js?v=2b1a0757"></script>
+    <script src="assets/js/data/jurassic.js?v=66132bfe"></script>
+    <script src="assets/js/data/monsterverse.js?v=0669ac0c"></script>
+    <script src="assets/js/data/bourne.js?v=1f003a0b"></script>
+    <script src="assets/js/data/johnwick.js?v=ca39bdd5"></script>
+    <script src="assets/js/data/conjuring.js?v=cb52a9ca"></script>
+    <script src="assets/js/data/insidious.js?v=4c93ab76"></script>
+    <script src="assets/js/data/scream.js?v=77eee97c"></script>
+    <script src="assets/js/data/finaldestination.js?v=a5a4e41b"></script>
+    <script src="assets/js/data/saw.js?v=7c7b4ab1"></script>
+    <script src="assets/js/data/nolan.js?v=6bcc5643"></script>
+    <script src="assets/js/data/tarantino.js?v=d5c90877"></script>
+    <script src="assets/js/data/spielberg.js?v=1463edf0"></script>
+    <script src="assets/js/data/dicaprio.js?v=29ab52a0"></script>
+    <script src="assets/js/data/lotr.js?v=fec2e866"></script>
+    <script src="assets/js/data/potc.js?v=6f3bd12f"></script>
+    <script src="assets/js/data/dc.js?v=42464dff"></script>
+    <script src="assets/js/data/theboys.js?v=4b510c20"></script>
+    <script src="assets/js/data/got.js?v=0d7d1f60"></script>
+    <script src="assets/js/data/peaky.js?v=99652897"></script>
+    <script src="assets/js/data/suits.js?v=0573e051"></script>
+    <script src="assets/js/data/aot.js?v=8013c925"></script>
+    <script src="assets/js/data/naruto.js?v=0bf7e9a3"></script>
+    <script src="assets/js/data/vinland.js?v=bd7c13ba"></script>
+    <script src="assets/js/data/rocky.js?v=0f04e240"></script>
+    <script src="assets/js/data/despicable.js?v=22a74126"></script>
+    <script src="assets/js/data/evildead.js?v=accb0a18"></script>
+    <script src="assets/js/data/gyllenhaal.js?v=6357b2a9"></script>
+    <script src="assets/js/data/breakingbad.js?v=83627e40"></script>
+    <script src="assets/js/data/supernatural.js?v=6d83d106"></script>
+    <script src="assets/js/data/drifters.js?v=2b59d510"></script>
+    <script src="assets/js/data/animemovies.js?v=945bf4f1"></script>
+    <script src="assets/js/data/psychthriller.js?v=90242087"></script>
+    <script src="assets/js/data/toprated.js?v=089ca22f"></script>
+    <script src="assets/js/data/severance.js?v=fd46da74"></script>
+    <script src="assets/js/data/onepiece.js?v=ec0f4d2d"></script>
+    <script src="assets/js/data/thementalist.js?v=3f1eda0c"></script>
+    <script src="assets/js/data/thefamilyman.js?v=29510026"></script>
+    <script src="assets/js/data/pluribus.js?v=0716d451"></script>
+    <script src="assets/js/data/moneyheist.js?v=87213c78"></script>
+    <script src="assets/js/data/strangerthings.js?v=019c706b"></script>
+    <script src="assets/js/data/onepiece-anime.js?v=995c2390"></script>
+    <script src="assets/js/data/from.js?v=140aa972"></script>
+    <script src="assets/js/data/minianime.js?v=c1c12554"></script>
+    <script src="assets/js/data/thesopranos.js?v=b358bb20"></script>
+    <script src="assets/js/data/house.js?v=ec9ef0d3"></script>
+    <script src="assets/js/data/sherlock.js?v=c0f0c39d"></script>
+    <script src="assets/js/data/miniseries.js?v=36181fc6"></script>
+    <script src="assets/js/data/chernobyl.js?v=e3aa16ea"></script>
+    <script src="assets/js/data/succession.js?v=ad7d0a77"></script>
+    <script src="assets/js/data/dark.js?v=b3c8ea3a"></script>
+    <script src="assets/js/data/truedetective.js?v=1476b365"></script>
+    <script src="assets/js/data/thequeensgambit.js?v=f3572b51"></script>
+    <script src="assets/js/data/dahmermonsterthejeffreyd.js?v=c9c7e6f5"></script>
+    <script src="assets/js/data/mirzapur.js?v=3e2162ee"></script>
+    <script src="assets/js/data/farzi.js?v=1ccedfd4"></script>
+    <script src="assets/js/data/paatallok.js?v=fe4d9dcb"></script>
+    <script src="assets/js/data/onepunchman.js?v=c80d5be8"></script>
+    <script src="assets/js/data/fightingspiritrising.js?v=c2506117"></script>
+    <script src="assets/js/data/neongenesisevangelion.js?v=525d8b1e"></script>
+    <script src="assets/js/data/steinsgate.js?v=8fbf72e8"></script>
+    <script src="assets/js/data/mcgregorforever.js?v=bf80e5d9"></script>
+    <script src="assets/js/data/rickandmorty.js?v=37b21bda"></script>
+    <script src="assets/js/data/violetevergarden.js?v=ed92cf9b"></script>
+    <script src="assets/js/data/fatezero.js?v=deabf919"></script>
+    <script src="assets/js/data/rezerostartinglifeinanot.js?v=79874bb1"></script>
+    <script src="assets/js/data/mobpsycho100.js?v=c8e940b8"></script>
+    <script src="assets/js/data/mushokutenseijoblessrein.js?v=ad81940f"></script>
+    <script src="assets/js/data/fullmetalalchemistbrothe.js?v=9aad4fd4"></script>
+    <script src="assets/js/data/demonslayerkimetsunoyaib.js?v=9b125eed"></script>
+    <script src="assets/js/data/jujutsukaisen.js?v=4e27067c"></script>
+    <script src="assets/js/data/dororo.js?v=535928b2"></script>
+    <script src="assets/js/data/adarshbaalvidyalaya.js?v=870b1608"></script>
+    <script src="assets/js/data/pritamandpedro.js?v=9ab97ed1"></script>
+    <script src="assets/js/home.js?v=fe7aae67"></script>
+    <script src="assets/js/random.js?v=6decdddc"></script>
+  </body>
+</html>

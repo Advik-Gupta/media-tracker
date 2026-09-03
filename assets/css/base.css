@@ -1,0 +1,798 @@
+/* ============================================================
+   BASE - tokens, reset and shared primitives.
+
+   Follows design.md: library-ledger / ticket-stub. Flat colour,
+   1px borders, small radii, no gradients, no drop shadows.
+   ============================================================ */
+
+:root {
+  /* ---- dark mode (default) ---- */
+  --ink: #14161c; /* app background            */
+  --slate: #1d212b; /* card / surface            */
+  --line: #2b303d; /* borders, dividers         */
+  --bone: #ede9dd; /* primary text, warm white  */
+  --fog: #8c90a0; /* secondary text, metadata  */
+  --gold: #e3a83b; /* primary accent            */
+  --cinder: #c24430; /* watched / destructive     */
+  --teal: #3d8c79; /* in progress               */
+
+  /* semantic aliases used through the app */
+  --bg: var(--ink);
+  --surface: var(--slate);
+  --surface-2: #232834;
+  --surface-3: #2b303d;
+  --line-strong: #39404f;
+  --text: var(--bone);
+  --muted: var(--fog);
+  --dim: #6e7280;
+  --faint: #4a4f5c;
+
+  --accent: var(--gold);
+  --accent-2: #8a6522;
+  --accent-soft: rgba(227, 168, 59, 0.12);
+
+  /* relevance - gold for the essentials, fog for the rest, so no screen
+     ever carries more than two accents (design.md §7.6) */
+  --rel-essential: var(--gold);
+  --rel-recommended: var(--bone);
+  --rel-optional: var(--fog);
+  --rel-skippable: #5c606c;
+
+  /* radii stay small and consistent, 2–6px */
+  --radius: 4px;
+  --radius-sm: 2px;
+  --radius-lg: 6px;
+
+  --sans: "Montserrat", system-ui, -apple-system, sans-serif;
+  --display: "Fjalla One", "Arial Narrow", sans-serif;
+  --mono: "Agdasima", ui-monospace, "SF Mono", monospace;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: ease-out;
+
+  /* 8px spacing scale */
+  --s1: 8px;
+  --s2: 16px;
+  --s3: 24px;
+  --s4: 32px;
+  --s5: 48px;
+  --s6: 64px;
+  --s7: 96px;
+}
+
+[data-theme="light"] {
+  --ink: #f7f4ec;
+  --slate: #ede8dc;
+  --line: #d8d2c2;
+  --bone: #14161c;
+  --fog: #6b6f7c;
+  --gold: #b8842a;
+  --cinder: #a83a28;
+  --teal: #2f6e5d;
+
+  --surface-2: #e4decf;
+  --surface-3: #d8d2c2;
+  --line-strong: #c4bca8;
+  --dim: #6b6f7c;
+  --faint: #9a9382;
+  --accent-2: #8a6522;
+  --accent-soft: rgba(184, 132, 42, 0.14);
+  --rel-recommended: #14161c;
+  --rel-skippable: #8a8578;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 130px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.page {
+  position: relative;
+  z-index: 2;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+@media (min-width: 900px) {
+  .wrap {
+    padding: 0 64px;
+  }
+}
+.wrap-narrow {
+  max-width: 880px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ---------- typography primitives ---------- */
+
+.eyebrow {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+h1 {
+  font-family: var(--display);
+  font-size: clamp(32px, 4.6vw, 48px);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.15;
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+  line-height: 1.15;
+}
+
+/* Agdasima is the numeric face and has a hard 16px floor (design.md §2). */
+.data,
+.mono {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.lede {
+  color: var(--fog);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.4;
+  max-width: 62ch;
+}
+
+/* ---------- shared chrome ---------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar-inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: color 0.12s var(--ease-out);
+}
+.brand:hover {
+  color: var(--gold);
+}
+
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gold);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--gold);
+  flex: none;
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
+.crumb {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fog);
+  letter-spacing: 0.2px;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  height: 36px;
+  padding: 0 var(--s2);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--bone);
+  transition:
+    border-color 0.12s var(--ease-out),
+    color 0.12s var(--ease-out),
+    background 0.12s var(--ease-out);
+}
+.btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Marquee Gold is the only colour allowed on a primary action. */
+.btn-accent {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+.btn-accent:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+  filter: brightness(1.08);
+}
+.btn-ghost {
+  background: transparent;
+}
+.btn.danger {
+  color: var(--cinder);
+  border-color: var(--line);
+}
+.btn.danger:hover {
+  border-color: var(--cinder);
+  color: var(--cinder);
+}
+
+/* ---------- status tags ----------
+   Rectangular, 2px radius, border and text colour only - no fill, no
+   leading dot (design.md §5). Agdasima, uppercase, at its 16px floor. */
+
+.badge {
+  font-family: var(--mono);
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--bc, var(--line));
+  background: transparent;
+  color: var(--bc, var(--fog));
+  white-space: nowrap;
+}
+.badge.rel {
+  border-color: var(--rc);
+  color: var(--rc);
+}
+.badge.plain {
+  border-color: var(--line);
+  color: var(--fog);
+}
+.badge.up {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Poster placeholder, layered under the image so a missing or failed file
+   degrades to a tile rather than a broken-image icon. */
+.ph-init {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--fog);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  z-index: 0;
+}
+
+/* ---------- reveal-on-scroll ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- footer ---------- */
+
+.footer {
+  border-top: 1px solid var(--line);
+  margin-top: 100px;
+  padding: 34px 0 60px;
+}
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--faint);
+  letter-spacing: 0.05em;
+}
+.footer a {
+  color: var(--dim);
+  transition: color 0.2s;
+}
+.footer a:hover {
+  color: var(--text);
+}
+
+/* ---------- toast ---------- */
+
+.toast {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translate(-50%, 90px);
+  z-index: 200;
+  background: var(--surface-3);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  padding: 11px 18px;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.45s var(--ease),
+    opacity 0.3s var(--ease);
+}
+.toast.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  /* A toast carrying an Undo has to be clickable while it is up. */
+  pointer-events: auto;
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    padding: 0 18px;
+  }
+  body {
+    font-size: 14.5px;
+  }
+}
+body.u-watchlist {
+  --accent: #6a9ee8;
+  --accent-2: #22436b;
+  --accent-soft: color-mix(in srgb, #6a9ee8 14%, transparent);
+}
+
+/* The hidden attribute must beat any display rule a component sets for
+   itself - the lightbox is display:flex, and without this it stayed on
+   screen as an invisible click-blocker after closing. */
+[hidden] {
+  display: none !important;
+}
+
+/* ============================================================
+   MODE SWITCHER - opened by clicking the logo
+   ============================================================ */
+
+.mode-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 170;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease);
+}
+.mode-backdrop.show {
+  opacity: 1;
+}
+
+.mode-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 180;
+  width: min(620px, calc(100vw - 32px));
+  transform: translate(-50%, -46%) scale(0.97);
+  opacity: 0;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  transition:
+    transform 0.35s var(--ease),
+    opacity 0.28s var(--ease);
+}
+.mode-modal.show {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.mode-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.mode-head h3 {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.mode-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  color: var(--dim);
+  font-size: 13px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.mode-close:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+.mode-sub {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-top: 6px;
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 22px;
+}
+.mode-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  transition:
+    transform 0.3s var(--ease),
+    border-color 0.25s var(--ease),
+    background 0.25s var(--ease);
+}
+.mode-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  background: var(--surface-3);
+}
+.mode-card.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.mode-icon {
+  font-size: 26px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.mode-card b {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.mode-tagline {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.mode-blurb {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+.mode-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+.brand {
+  cursor: pointer;
+}
+
+@media (max-width: 560px) {
+  .mode-grid {
+    grid-template-columns: 1fr;
+  }
+}
+body.u-countries {
+  --accent: #4ea8a0;
+  --accent-2: #1c4a46;
+  --accent-soft: color-mix(in srgb, #4ea8a0 14%, transparent);
+}
+/* the library switcher chip that sits beside the logo */
+.mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  font-size: 12px;
+  line-height: 1;
+  transition:
+    background 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.mode-switch i {
+  font-style: normal;
+  font-size: 9px;
+  color: var(--dim);
+}
+.mode-switch:hover {
+  background: var(--surface-3);
+  border-color: var(--accent);
+}
+
+/* ============================================================
+   POSTER LIGHTBOX
+   ============================================================ */
+
+.lb-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(20, 22, 28, 0.92);
+  opacity: 0;
+  transition: opacity 0.12s var(--ease-out);
+}
+.lb-backdrop.show {
+  opacity: 1;
+}
+
+.lb {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  padding: var(--s5) var(--s6);
+  opacity: 0;
+  transition: opacity 0.12s var(--ease-out);
+}
+.lb.show {
+  opacity: 1;
+}
+
+.lb-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  flex: 1;
+}
+.lb img {
+  max-width: min(78vw, 620px);
+  max-height: 76vh;
+  width: auto;
+  height: auto;
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--slate);
+}
+
+.lb-cap {
+  text-align: center;
+  flex: none;
+}
+.lb-cap b {
+  display: block;
+  font-family: var(--display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--bone);
+}
+.lb-cap span {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+}
+
+.lb-close,
+.lb-nav {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  background: var(--slate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--bone);
+  transition:
+    border-color 0.12s var(--ease-out),
+    color 0.12s var(--ease-out);
+}
+.lb-close:hover,
+.lb-nav:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.lb-close {
+  top: var(--s3);
+  right: var(--s3);
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+}
+
+.lb-nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 56px;
+  font-size: 24px;
+  line-height: 1;
+}
+.lb-prev {
+  left: var(--s2);
+}
+.lb-next {
+  right: var(--s2);
+}
+
+/* A poster is now an affordance rather than decoration. */
+.tl-poster,
+.row-poster,
+.rnd-poster {
+  cursor: zoom-in;
+}
+.tl-poster.ph,
+.row-poster.ph,
+.rnd-poster.ph {
+  cursor: inherit;
+}
+
+@media (max-width: 640px) {
+  .lb {
+    padding: var(--s6) var(--s2) var(--s4);
+  }
+  .lb img {
+    max-width: 92vw;
+    max-height: 66vh;
+  }
+  .lb-cap b {
+    font-size: 22px;
+  }
+  .lb-nav {
+    width: 34px;
+    height: 46px;
+    font-size: 20px;
+  }
+}
+
+/* A quiet link to the analytics page, in every footer. */
+.foot-link {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  color: var(--fog);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  transition: border-color .12s var(--ease-out), color .12s var(--ease-out);
+}
+.foot-link:hover { border-color: var(--gold); color: var(--gold); }

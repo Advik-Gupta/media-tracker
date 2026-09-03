@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My List - Media Vault</title>
+    <meta name="description" content="Your own watchlist, alongside every tracked universe." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/base.css?v=48e5b954" />
+    <link rel="stylesheet" href="assets/css/universes.css?v=a4c4d4fc" />
+    <link rel="stylesheet" href="assets/css/tracker.css?v=93533e21" />
+    <link rel="stylesheet" href="assets/css/home.css?v=1459006f" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236a9ee8'/%3E%3C/svg%3E" />
+  </head>
+  <body data-mode="movie" class="u-watchlist">
+    <div class="page">
+      <header class="topbar">
+        <div class="wrap topbar-inner">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">MV</span>
+            <span>Media Vault</span>
+          </a>
+          <span class="crumb">/ My List</span>
+          <span class="topbar-spacer"></span>
+          <span class="crumb" id="wlCount"></span>
+        </div>
+      </header>
+
+      <section class="hero wrap">
+        <p class="eyebrow reveal">Your own list</p>
+        <h1 class="reveal" style="--d:60ms">
+          Everything<br /><span class="hero-accent">you mean to watch</span>
+        </h1>
+        <p class="lede reveal" style="--d:130ms">
+          Type any title. If it is in one of the tracked universes you will see it
+          suggested - pick it and the entry keeps that poster and stays in sync, so
+          ticking it here ticks it there too. Anything else can still be added by name.
+        </p>
+
+        <div class="wl-search reveal" style="--d:200ms">
+          <input id="wlInput" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="Add a film…" aria-label="Add a title" />
+          <button class="btn btn-accent" id="wlAdd">Add</button>
+          <div class="wl-suggest" id="wlSuggest" hidden></div>
+        </div>
+      </section>
+
+      <main class="wrap list-wrap">
+        <div id="wlControls" class="wl-controls"></div>
+        <div class="rows" id="wlList"></div>
+        <p class="empty" id="wlEmpty">Nothing on your list yet. Search for something above.</p>
+      </main>
+
+      <footer class="footer">
+        <div class="wrap footer-inner">
+          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <span>Your watchlist · stored in this browser, included in every backup</span>
+          <span><a href="index.html">← All universes</a></span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="assets/js/store.js?v=01c221b3"></script>
+    <script src="assets/js/ratingraph.js?v=ddabf38d"></script>
+    <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
+    <script src="assets/js/lightbox.js?v=b2ed6be1"></script>
+    <script src="assets/js/data/_films.js?v=05577110"></script>
+    <script src="assets/js/data/_details.js?v=c85ac76d"></script>
+    <script src="assets/js/modes.js?v=51fb5a1c"></script>
+    <script src="assets/js/data/universes.js?v=f79a986f"></script>
+    <script src="assets/js/data/imdb250.js?v=9126b34d"></script>
+    <script src="assets/js/data/romcom.js?v=5d58866b"></script>
+    <script src="assets/js/data/feelgood.js?v=e6914333"></script>
+    <script src="assets/js/data/crime.js?v=0f23896e"></script>
+    <script src="assets/js/data/foreign.js?v=09399074"></script>
+    <script src="assets/js/data/bestpic.js?v=4bd22ced"></script>
+    <script src="assets/js/data/horror.js?v=a1b06f90"></script>
+    <script src="assets/js/data/animated.js?v=eeaf7693"></script>
+    <script src="assets/js/data/scifi.js?v=53c4af20"></script>
+    <script src="assets/js/data/war.js?v=344e7fc9"></script>
+    <script src="assets/js/data/sports.js?v=c8976d3a"></script>
+    <script src="assets/js/data/french.js?v=e4e3eafe"></script>
+    <script src="assets/js/data/german.js?v=6c48d219"></script>
+    <script src="assets/js/data/danish.js?v=602cecdc"></script>
+    <script src="assets/js/data/dutch.js?v=198d5453"></script>
+    <script src="assets/js/data/india.js?v=224cd927"></script>
+    <script src="assets/js/data/marvel.js?v=e7391801"></script>
+    <script src="assets/js/data/starwars.js?v=b9426d42"></script>
+    <script src="assets/js/data/bond.js?v=15b22dd8"></script>
+    <script src="assets/js/data/mi.js?v=179cc4fe"></script>
+    <script src="assets/js/data/fast.js?v=2b1a0757"></script>
+    <script src="assets/js/data/jurassic.js?v=66132bfe"></script>
+    <script src="assets/js/data/monsterverse.js?v=0669ac0c"></script>
+    <script src="assets/js/data/bourne.js?v=1f003a0b"></script>
+    <script src="assets/js/data/johnwick.js?v=ca39bdd5"></script>
+    <script src="assets/js/data/conjuring.js?v=cb52a9ca"></script>
+    <script src="assets/js/data/insidious.js?v=4c93ab76"></script>
+    <script src="assets/js/data/scream.js?v=77eee97c"></script>
+    <script src="assets/js/data/finaldestination.js?v=a5a4e41b"></script>
+    <script src="assets/js/data/saw.js?v=7c7b4ab1"></script>
+    <script src="assets/js/data/nolan.js?v=6bcc5643"></script>
+    <script src="assets/js/data/tarantino.js?v=d5c90877"></script>
+    <script src="assets/js/data/spielberg.js?v=1463edf0"></script>
+    <script src="assets/js/data/dicaprio.js?v=29ab52a0"></script>
+    <script src="assets/js/data/lotr.js?v=fec2e866"></script>
+    <script src="assets/js/data/potc.js?v=6f3bd12f"></script>
+    <script src="assets/js/data/dc.js?v=42464dff"></script>
+    <script src="assets/js/data/rocky.js?v=0f04e240"></script>
+    <script src="assets/js/data/despicable.js?v=22a74126"></script>
+    <script src="assets/js/data/evildead.js?v=accb0a18"></script>
+    <script src="assets/js/data/gyllenhaal.js?v=6357b2a9"></script>
+    <script src="assets/js/data/animemovies.js?v=945bf4f1"></script>
+    <script src="assets/js/data/psychthriller.js?v=90242087"></script>
+    <script src="assets/js/omdb.js?v=a9978eb6"></script>
+    <script src="assets/js/watchlist.js?v=34ef2ec5"></script>
+  </body>
+</html>

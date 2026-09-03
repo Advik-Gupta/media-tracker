@@ -1,0 +1,637 @@
+/* ============================================================
+   SERIES - the shows vault's season/episode grid.
+   Same design language as the rest: flat fills, 1px rules,
+   no gradients. The only colour that carries meaning here is
+   the rating band on each episode.
+   ============================================================ */
+
+/* ---------- rating bands ----------
+   The seven-step scale seriesgraph uses, so a grid read here means the same
+   thing as a grid read there. Filled rather than outlined: at a glance the
+   episode grid should read as a block of colour.
+
+   No band carries an outline: every chip is its own fill, edge to edge. */
+:root {
+  --b-cinema: #3b9cfa;
+  --b-awesome: #2d6a4b;
+  --b-great: #57bb78;
+  --b-good: #f0cf4b;
+  --b-average: #e8912e;
+  --b-bad: #e2574c;
+  --b-garbage: #6b4a9e;
+}
+
+.r-na {
+  background: transparent;
+  color: var(--fog);
+  border-color: var(--line);
+}
+.r-cinema {
+  background: var(--b-cinema);
+  color: #0b1b2c;
+  border-color: var(--b-cinema);
+}
+.r-awesome {
+  background: var(--b-awesome);
+  color: #ede9dd;
+  border-color: var(--b-awesome);
+}
+.r-great {
+  background: var(--b-great);
+  color: #102318;
+  border-color: var(--b-great);
+}
+.r-good {
+  background: var(--b-good);
+  color: #2a2408;
+  border-color: var(--b-good);
+}
+.r-average {
+  background: var(--b-average);
+  color: #2a1804;
+  border-color: var(--b-average);
+}
+.r-bad {
+  background: var(--b-bad);
+  color: #2a0d0a;
+  border-color: var(--b-bad);
+}
+.r-garbage {
+  background: var(--b-garbage);
+  color: #ede9dd;
+  border-color: var(--b-garbage);
+}
+
+.rating-key {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 var(--s6);
+  padding: 10px var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+}
+.rating-key b {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  margin-right: var(--s1);
+}
+.rating-key i {
+  font-style: normal;
+  /* width and style only - the colour comes from the band, and a
+     shorthand here would reset it to currentColor */
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 2px;
+  padding: 2px 8px;
+}
+
+/* ---------- show block ---------- */
+
+.series-wrap {
+  padding-top: var(--s5);
+  padding-bottom: var(--s7);
+}
+
+.show + .show {
+  margin-top: var(--s7);
+  padding-top: var(--s6);
+  border-top: 1px solid var(--line);
+}
+
+/* The control bar is sticky, so anything scrolled to needs to clear it. */
+.show,
+.season,
+.ep {
+  scroll-margin-top: 140px;
+}
+
+.show-head {
+  display: flex;
+  gap: var(--s4);
+  align-items: flex-start;
+  padding-bottom: var(--s4);
+}
+
+.show-poster {
+  position: relative;
+  width: 112px;
+  height: 168px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-2);
+  cursor: zoom-in;
+}
+.show-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.film-block.done .show-poster img {
+  filter: grayscale(1);
+}
+.film-block.done .stamp {
+  opacity: 1;
+}
+
+.show-info {
+  min-width: 0;
+  flex: 1;
+}
+.show-info h2 {
+  font-family: var(--display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+.show-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  margin-top: var(--s1);
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+}
+.show-meta span[class^="r-"] {
+  /* width and style only - the colour comes from the band, and a
+     shorthand here would reset it to currentColor */
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 2px;
+  padding: 0 8px;
+}
+
+.show-blurb {
+  margin-top: var(--s2);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fog);
+  max-width: 68ch;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.show-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s3);
+  flex-wrap: wrap;
+}
+.show-count {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  white-space: nowrap;
+}
+.btn.sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.season-bar {
+  display: block;
+  height: 2px;
+  width: 120px;
+  background: var(--line);
+  overflow: hidden;
+  flex: none;
+}
+.season-bar.wide {
+  width: 200px;
+}
+.season-bar i {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.2s var(--ease-out);
+}
+
+/* ---------- season ---------- */
+
+.season + .season {
+  margin-top: var(--s5);
+}
+.season:first-of-type {
+  margin-top: var(--s4);
+}
+
+.season-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 0 0 var(--s2);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.season-box {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: transparent;
+  color: transparent;
+  font-size: 12px;
+  line-height: 1;
+  transition:
+    border-color 0.12s var(--ease-out),
+    background 0.12s var(--ease-out);
+}
+.season-box:hover {
+  border-color: var(--gold);
+}
+.season-box.all {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+.season-box.some {
+  border-color: var(--gold);
+  color: var(--gold);
+  position: relative;
+}
+.season-box.some::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: var(--gold);
+}
+.season-box.some {
+  color: transparent;
+}
+
+.season-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  color: var(--bone);
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: 0.25px;
+}
+.season-name .chev {
+  font-size: 11px;
+  color: var(--fog);
+  transition: transform 0.12s var(--ease-out);
+}
+.season.collapsed .season-name .chev {
+  transform: rotate(-90deg);
+}
+.season-name:hover {
+  color: var(--gold);
+}
+
+.season-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  min-width: 0;
+}
+.season-meta i {
+  font-style: normal;
+  /* width and style only - the colour comes from the band, and a
+     shorthand here would reset it to currentColor */
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 2px;
+  padding: 0 8px;
+}
+.season-meta em {
+  font-style: normal;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--fog);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 34ch;
+}
+.season-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- episodes ---------- */
+
+.ep-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+  padding: var(--s3) 0 0;
+}
+.season.collapsed .ep-grid {
+  display: none;
+}
+
+.ep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--slate);
+  min-width: 0;
+  transition: border-color 0.12s var(--ease-out);
+}
+.ep:hover {
+  border-color: var(--gold);
+}
+
+.ep-rating {
+  flex: none;
+  width: 46px;
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-align: center;
+  /* width and style only - the colour comes from the band, and a
+     shorthand here would reset it to currentColor */
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-sm);
+  padding: 3px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.ep-main {
+  min-width: 0;
+  flex: 1;
+}
+.ep-code {
+  display: block;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+}
+.ep-title {
+  display: block;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--bone);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ep-tick {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-size: 11px;
+  line-height: 1;
+  color: transparent;
+}
+.ep:hover .ep-tick {
+  border-color: var(--fog);
+}
+
+.ep.done {
+  opacity: 0.5;
+}
+.ep.done .ep-title {
+  text-decoration: line-through;
+  text-decoration-color: var(--fog);
+}
+.ep.done .ep-tick {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+.ep.done:hover {
+  opacity: 0.85;
+}
+
+.ep.future {
+  opacity: 0.45;
+}
+.ep.future .ep-rating {
+  border-style: dashed;
+}
+
+.ep.flash {
+  border-color: var(--gold);
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
+.hide-watched .ep.done {
+  display: none;
+}
+
+/* Dense mode drops the titles and packs the grid to rating chips only -
+   useful on a 500-episode run where the shape of the ratings is the point. */
+.dense .ep-grid {
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 6px;
+}
+.dense .ep {
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px 3px;
+  align-items: stretch;
+}
+.dense .ep-title,
+.dense .ep-tick {
+  display: none;
+}
+.dense .ep-rating {
+  width: auto;
+}
+.dense .ep-code {
+  text-align: center;
+  font-size: 16px;
+}
+
+/* ---------- films sit alongside the seasons ---------- */
+
+.film-block .show-head {
+  border-bottom: none;
+}
+.film-block .badge {
+  margin-bottom: 6px;
+}
+
+@media (max-width: 720px) {
+  .show-head {
+    gap: var(--s2);
+  }
+  .show-poster {
+    width: 78px;
+    height: 117px;
+  }
+  .show-info h2 {
+    font-size: 22px;
+  }
+  .show-blurb {
+    display: none;
+  }
+  .season-meta em {
+    display: none;
+  }
+  .ep-grid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  }
+}
+
+/* ============================================================
+   FILLER — anime runs padded with episodes that are not in the
+   manga. Marking one takes it out of the count entirely.
+   ============================================================ */
+
+.ep.filler { opacity: .55; }
+.ep.filler .ep-rating { filter: saturate(.35); }
+.ep.filler .ep-title { color: var(--fog); }
+.ep-flag {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 16px;
+  line-height: 1;
+  color: var(--fog);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 2px 5px;
+}
+
+.filler-backdrop {
+  position: fixed; inset: 0; z-index: 170;
+  background: rgba(20, 22, 28, .82);
+  opacity: 0;
+  transition: opacity .12s var(--ease-out);
+}
+.filler-backdrop.show { opacity: 1; }
+
+.filler-modal {
+  position: fixed; left: 50%; top: 50%; z-index: 180;
+  transform: translate(-50%, -50%);
+  width: min(820px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  display: flex; flex-direction: column;
+  background: var(--slate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity .12s var(--ease-out);
+}
+.filler-modal.show { opacity: 1; }
+
+.filler-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--s2);
+  padding: var(--s3);
+  border-bottom: 1px solid var(--line);
+}
+.filler-head h3 { font-family: var(--display); font-size: 22px; letter-spacing: .25px; }
+.filler-head p { margin: 4px 0 0; font-size: 13px; color: var(--fog); }
+.filler-close {
+  width: 30px; height: 30px; flex: none;
+  display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  color: var(--fog); font-size: 13px;
+}
+.filler-close:hover { border-color: var(--gold); color: var(--gold); }
+
+.filler-tools {
+  display: flex; gap: var(--s1); align-items: center; flex-wrap: wrap;
+  padding: var(--s2) var(--s3);
+  border-bottom: 1px solid var(--line);
+}
+.filler-tools input {
+  flex: 1; min-width: 200px; height: 34px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--ink); color: var(--bone);
+  font-family: var(--mono); font-size: 16px; letter-spacing: .5px;
+}
+.filler-tools input:focus { outline: none; border-color: var(--gold); }
+
+.filler-body { overflow-y: auto; padding: var(--s2) var(--s3); flex: 1; }
+
+.filler-season + .filler-season { margin-top: var(--s3); }
+.filler-season header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s2); padding-bottom: var(--s1);
+}
+.filler-season header b {
+  font-family: var(--display); font-size: 18px; letter-spacing: .25px;
+}
+
+.filler-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 5px;
+}
+.fsq {
+  height: 32px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: 2px;
+  background: var(--ink);
+  font-family: var(--mono); font-size: 16px; letter-spacing: .5px;
+  color: var(--fog);
+  font-variant-numeric: tabular-nums;
+  transition: border-color .1s var(--ease-out), background .1s var(--ease-out);
+}
+.fsq:hover { border-color: var(--gold); color: var(--bone); }
+.fsq.on {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.filler-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  border-top: 1px solid var(--line);
+}
+.filler-foot span { font-size: 13px; color: var(--fog); }
+
+@media (max-width: 640px) {
+  .filler-grid { grid-template-columns: repeat(auto-fill, minmax(32px, 1fr)); }
+  .filler-head, .filler-tools, .filler-body, .filler-foot { padding-inline: var(--s2); }
+}
+
+/* A series marked as still releasing by hand, overriding the baked status. */
+#markOngoing.active {
+  border-color: var(--teal);
+  color: var(--teal);
+}

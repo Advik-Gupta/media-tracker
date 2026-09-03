@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Anime - Media Vault</title>
+    <meta name="description" content="Track your progress through every film and television universe you care about." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/base.css?v=48e5b954" />
+    <link rel="stylesheet" href="assets/css/universes.css?v=a4c4d4fc" />
+    <link rel="stylesheet" href="assets/css/home.css?v=1459006f" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23c2453f'/%3E%3C/svg%3E" />
+  </head>
+  <body data-mode="anime">
+    <div class="page">
+      <header class="topbar">
+        <div class="wrap topbar-inner">
+          <a class="brand" href="pages/anime.html">
+            <span class="brand-mark">MV</span>
+            <span>Media Vault</span>
+          </a>
+          <span class="topbar-spacer"></span>
+          <button class="btn btn-ghost" id="ongoingBtn" aria-pressed="false" hidden>◉ Ongoing</button>
+          <button class="btn" id="addShow">+ Add anime</button>
+        </div>
+      </header>
+
+      <section class="hero wrap">
+        <p class="eyebrow reveal">Anime vault</p>
+        <h1 class="reveal" style="--d:60ms">
+          Anime,<br /><span class="hero-accent">episode by episode.</span>
+        </h1>
+        <p class="lede reveal" style="--d:130ms">
+          Every series tracked episode by episode, with its ratings laid out season
+          by season. Progress is stored locally, the same as everywhere else.
+        </p>
+
+        <div class="hero-stats reveal" style="--d:200ms">
+          <div class="hstat"><b id="hsUniverses">0</b><span>series</span></div>
+          <div class="hstat"><b id="hsTitles">0</b><span>episodes</span></div>
+          <div class="hstat"><b id="hsWatched">0</b><span>marked watched</span></div>
+          <div class="hstat"><b id="hsHours">-</b><span>episodes left</span></div>
+        </div>
+      </section>
+
+
+      <section class="wrap section" id="lists">
+        <div class="section-bar reveal">
+          <h2>Lists</h2>
+          <input class="section-search" type="search" data-search="collection"
+                 placeholder="Search lists…" aria-label="Search lists" />
+          <div class="carousel-nav">
+            <button class="cbtn" data-car="collection" data-dir="-1" aria-label="Previous">‹</button>
+            <span class="cpage" data-page="collection">1 / 1</span>
+            <button class="cbtn" data-car="collection" data-dir="1" aria-label="Next">›</button>
+          </div>
+        </div>
+        <div class="carousel" data-track="collection"><div class="carousel-inner" id="collectionGrid"></div></div>
+        <p class="no-results" data-empty="collection" hidden>Nothing matches that search.</p>
+      </section>
+
+      <section class="wrap section" id="anime">
+        <div class="section-bar reveal">
+          <h2>Anime</h2>
+          <input class="section-search" type="search" data-search="anime"
+                 placeholder="Search anime…" aria-label="Search anime" />
+          <div class="carousel-nav">
+            <button class="cbtn" data-car="anime" data-dir="-1" aria-label="Previous">‹</button>
+            <span class="cpage" data-page="anime">1 / 1</span>
+            <button class="cbtn" data-car="anime" data-dir="1" aria-label="Next">›</button>
+          </div>
+        </div>
+        <div class="carousel" data-track="anime"><div class="carousel-inner" id="animeGrid"></div></div>
+        <p class="no-results" data-empty="anime" hidden>Nothing matches that search.</p>
+      </section>
+
+      <footer class="footer">
+        <div class="wrap footer-inner">
+          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <span>Media Vault · 0 titles across 17 universes</span>
+          <span><a href="pages/anime.html#anime">Back to top ↑</a></span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="assets/js/store.js?v=01c221b3"></script>
+    <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
+    <script src="assets/js/data/series/_counts.js?v=28d57ec6"></script>
+    <script src="assets/js/lightbox.js?v=b2ed6be1"></script>
+    <script src="assets/js/data/_films.js?v=05577110"></script>
+    <script src="assets/js/modes.js?v=51fb5a1c"></script>
+    <script src="assets/js/data/universes.js?v=f79a986f"></script>
+    <script src="assets/js/data/collections.js?v=c20e8ffd"></script>
+    <script src="assets/js/data/countries.js?v=a70621df"></script>
+    <script src="assets/js/data/aot.js?v=8013c925"></script>
+    <script src="assets/js/data/naruto.js?v=0bf7e9a3"></script>
+    <script src="assets/js/data/vinland.js?v=bd7c13ba"></script>
+    <script src="assets/js/data/onepiece-anime.js?v=995c2390"></script>
+    <script src="assets/js/data/onepunchman.js?v=c80d5be8"></script>
+    <script src="assets/js/data/fightingspiritrising.js?v=c2506117"></script>
+    <script src="assets/js/data/neongenesisevangelion.js?v=525d8b1e"></script>
+    <script src="assets/js/data/steinsgate.js?v=8fbf72e8"></script>
+    <script src="assets/js/data/violetevergarden.js?v=ed92cf9b"></script>
+    <script src="assets/js/data/fatezero.js?v=deabf919"></script>
+    <script src="assets/js/data/rezerostartinglifeinanot.js?v=79874bb1"></script>
+    <script src="assets/js/data/mobpsycho100.js?v=c8e940b8"></script>
+    <script src="assets/js/data/mushokutenseijoblessrein.js?v=ad81940f"></script>
+    <script src="assets/js/data/fullmetalalchemistbrothe.js?v=9aad4fd4"></script>
+    <script src="assets/js/data/demonslayerkimetsunoyaib.js?v=9b125eed"></script>
+    <script src="assets/js/data/jujutsukaisen.js?v=4e27067c"></script>
+    <script src="assets/js/data/dororo.js?v=535928b2"></script>
+    <script src="assets/js/home.js?v=fe7aae67"></script>
+    <script src="assets/js/addshow.js?v=ffc9531b"></script>
+  </body>
+</html>

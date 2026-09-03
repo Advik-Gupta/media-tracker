@@ -1,0 +1,241 @@
+/* ============================================================
+   ANALYTICS — charts drawn by hand rather than by a library, so
+   they follow the same rules as everything else: flat fills,
+   1px rules, no gradients, no shadows.
+   ============================================================ */
+
+.a-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  margin-bottom: var(--s4);
+}
+
+/* ---------- headline figures ---------- */
+
+.a-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--s2);
+  margin-bottom: var(--s4);
+}
+.acard {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--slate);
+  padding: var(--s3);
+}
+.acard b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.acard span {
+  display: block;
+  margin-top: var(--s1);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+.acard em {
+  display: block;
+  margin-top: 4px;
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+}
+
+/* ---------- panels ---------- */
+
+.a-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--s2);
+  margin-bottom: var(--s2);
+}
+.a-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--slate);
+  padding: var(--s3);
+  min-width: 0;
+}
+.a-panel h2 {
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: 0.25px;
+}
+.a-sub {
+  margin: 4px 0 var(--s3);
+  font-size: 13px;
+  color: var(--fog);
+}
+.a-empty {
+  color: var(--fog);
+  font-size: 14px;
+  padding: var(--s4) 0;
+  text-align: center;
+}
+
+/* ---------- column chart ---------- */
+
+.colchart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 200px;
+  padding-top: var(--s3);
+}
+.col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  position: relative;
+  cursor: default;
+}
+.col-bar {
+  width: 100%;
+  min-height: 2px;
+  background: var(--gold);
+  border-radius: 2px 2px 0 0;
+  transition: opacity 0.12s var(--ease-out);
+}
+.col:hover .col-bar,
+.col:focus-visible .col-bar { opacity: 0.75; }
+.col-value {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--bone);
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.col-label {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+}
+
+/* ---------- horizontal bars ---------- */
+
+.barlist { display: flex; flex-direction: column; gap: 10px; }
+.barrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 64px;
+  align-items: center;
+  gap: var(--s2);
+}
+.barrow:hover .barrow-name { color: var(--gold); }
+.barrow-name {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.barrow-track { height: 6px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.barrow-track i { display: block; height: 100%; background: var(--gold); }
+.barrow-value {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- the ring ---------- */
+
+.a-ring-panel { display: flex; flex-direction: column; }
+.ringwrap { position: relative; width: 168px; margin: var(--s2) auto var(--s3); }
+.bigring { width: 168px; height: 168px; transform: rotate(-90deg); }
+.bigring circle { fill: none; stroke-width: 6; }
+.ring-track { stroke: var(--line); }
+.ring-fill { stroke: var(--gold); transition: stroke-dashoffset 0.6s var(--ease-out); }
+.ringlabel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+.ringlabel b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 38px;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+}
+.ringlabel span { font-size: 12px; color: var(--fog); max-width: 12ch; }
+
+.vault-legend { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+.vl-row {
+  display: grid;
+  grid-template-columns: 68px 1fr auto;
+  align-items: center;
+  gap: var(--s1);
+}
+.vl-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+.vl-track { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.vl-track i { display: block; height: 100%; background: var(--gold); }
+.vl-val {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--fog);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- records ---------- */
+
+.records { display: flex; flex-direction: column; gap: var(--s2); }
+.record {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--s2);
+}
+.rlabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+.record b {
+  display: inline-block;
+  margin: 6px 0 4px;
+  font-family: var(--mono);
+  font-size: 28px;
+  letter-spacing: 0.5px;
+  border-radius: 2px;
+  padding: 0 8px;
+}
+.record b:not([class]) { color: var(--gold); padding: 0; }
+.rname { display: block; font-size: 14px; color: var(--fog); }
+
+@media (max-width: 640px) {
+  .acard b { font-size: 32px; }
+  .colchart { height: 160px; }
+  .barrow { grid-template-columns: minmax(0, 1fr) 80px 54px; }
+}

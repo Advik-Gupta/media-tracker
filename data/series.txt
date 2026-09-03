@@ -1,0 +1,3 @@
+https://seriesgraph.com/api/shows/60059/season-ratings
+
+https://seriesgraph.com/api/shows/search?searchTerm=BETTER%20CALL

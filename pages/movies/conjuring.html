@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Conjuring - Media Vault</title>
+    <meta name="description" content="Every The Conjuring film and series, sorted four ways, with progress tracking." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/base.css?v=48e5b954" />
+    <link rel="stylesheet" href="assets/css/universes.css?v=a4c4d4fc" />
+    <link rel="stylesheet" href="assets/css/tracker.css?v=93533e21" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23a83e5c'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body data-mode="movie" data-kind="movie" data-universe="conjuring" class="u-conjuring">
+    <div class="page">
+      <header class="topbar">
+        <div class="wrap topbar-inner">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">MV</span>
+            <span>Media Vault</span>
+          </a>
+          <span class="crumb">/ The Conjuring</span>
+          <span class="topbar-spacer"></span>
+          <a class="btn btn-ghost" href="pages/watchlist.html">★ My List</a>
+          <button
+            class="btn btn-ghost"
+            id="jumpNext"
+            title="Scroll to the first unwatched title"
+          >
+            Next up ↓
+          </button>
+        </div>
+      </header>
+
+      <section class="hero wrap">
+        <p class="eyebrow reveal">The Warren case files</p>
+        <h1 class="reveal" style="--d: 60ms">
+          Based on<br /><span class="hero-accent"
+            >true events</span
+          >
+        </h1>
+        <p class="lede reveal" style="--d: 130ms">Ten films across four sub-series - Conjuring, Annabelle, The Nun and one standalone. Release order keeps the reveals intact; the in-universe sort untangles them into the real 1952-to-1986 timeline.</p>
+
+        <div class="countdown reveal" id="countdown" style="--d: 200ms"></div>
+      </section>
+
+      <div class="controls" id="controls">
+        <div class="progress-rail"><i id="progressRail"></i></div>
+        <div class="wrap">
+          <div class="ctrl-summary">
+            <div class="ring-wrap">
+              <svg class="ring" viewBox="0 0 44 44" aria-hidden="true">
+                <circle class="ring-bg" cx="22" cy="22" r="19" />
+                <circle class="ring-fg" cx="22" cy="22" r="19" id="ringFg" />
+              </svg>
+              <span class="ring-label" id="ringLabel">0%</span>
+            </div>
+            <div class="summary-figures">
+              <div class="figure">
+                <b id="figWatched">0</b><span>watched</span>
+              </div>
+              <div class="figure">
+                <b id="figShown">0</b><span>in view</span>
+              </div>
+              <div class="figure">
+                <b id="figLeft">0</b><span>remaining</span>
+              </div>
+              <div class="figure">
+                <b id="figTime">0h</b><span>left to watch</span>
+              </div>
+            </div>
+            <span class="topbar-spacer"></span>
+            <div class="ctrl-buttons">
+              <div class="viewswitch" role="group" aria-label="View">
+                
+                <button data-view="timeline">Timeline</button>
+                <button data-view="rows">Compact</button>
+                
+              </div>
+              <input
+                class="search"
+                id="search"
+                type="search"
+                placeholder="Search titles…"
+                aria-label="Search titles"
+              />
+              <button class="btn" id="filterToggle" aria-expanded="false">
+                Filters <span class="chev">▾</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ctrl-drawer" id="drawer" hidden>
+            <div class="filter-group">
+              <span class="filter-label">Sort</span>
+              <div class="chips" id="sortChips">
+                <button class="chip active" data-sort="watch">
+                  Watch order
+                </button>
+                <button class="chip" data-sort="release">
+                  Release date
+                </button>
+                <button class="chip" data-sort="chrono">
+                  In-universe
+                </button>
+                <button class="chip" data-sort="relevance">
+                  Relevance
+                </button>
+                <button class="chip" data-sort="rating">
+                  Rating
+                </button>
+                <button
+                  class="chip icon"
+                  id="reverseBtn"
+                  title="Reverse the current order"
+                >
+                  ⇅
+                </button>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Relevance</span>
+              <div class="chips" id="relChips"></div>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Media type</span>
+              <div class="chips" id="typeChips"></div>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Era &amp; saga</span>
+              <div class="chips" id="phaseChips"></div>
+            </div>
+
+            <div class="filter-group" hidden>
+              <span class="filter-label">Genre</span>
+              <div class="chips" id="genreChips"></div>
+            </div>
+
+            <div class="filter-group" hidden>
+              <span class="filter-label">Rating</span>
+              <div class="chips" id="ratingChips"></div>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Status</span>
+              <div class="chips">
+                <button class="chip" data-status="unwatched">
+                  Hide watched
+                </button>
+                <button class="chip" data-status="watched">Only watched</button>
+                <button class="chip" data-status="released">
+                  Hide unreleased
+                </button>
+              </div>
+            </div>
+
+            <div class="drawer-foot">
+              <button class="btn btn-ghost" id="clearFilters">
+                Clear all filters
+              </button>
+              <button class="btn btn-ghost" id="markShown">
+                Mark everything in view as watched
+              </button>
+              <button class="btn btn-ghost danger" id="resetUniverse">
+                Reset The Conjuring progress
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main class="wrap list-wrap">
+        <div id="list" class="tl"></div>
+        <p class="empty" id="empty" hidden>Nothing matches those filters.</p>
+      </main>
+
+      <footer class="footer">
+        <div class="wrap footer-inner">
+          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <span>10 entries · progress stored locally</span>
+          <span><a href="index.html">← All universes</a></span>
+        </div>
+      </footer>
+    </div>
+
+    <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+    <aside class="sheet" id="sheet" hidden aria-label="Title details">
+      <button class="sheet-close" id="sheetClose" aria-label="Close">✕</button>
+      <div id="sheetBody"></div>
+    </aside>
+
+    <script src="assets/js/store.js?v=01c221b3"></script>
+    <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
+    <script src="assets/js/lightbox.js?v=b2ed6be1"></script>
+    <script src="assets/js/data/_films.js?v=05577110"></script>
+    <script src="assets/js/data/series/_counts.js?v=28d57ec6"></script>
+    <script src="assets/js/data/universes.js?v=f79a986f"></script>
+    <script src="assets/js/modes.js?v=51fb5a1c"></script>
+    <script src="assets/js/data/conjuring.js?v=cb52a9ca"></script>
+    <script src="assets/js/tracker.js?v=e20d1e8f"></script>
+  </body>
+</html>

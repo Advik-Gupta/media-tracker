@@ -1,0 +1,1113 @@
+/* ============================================================
+   HOME - the universe hub
+   ============================================================ */
+
+/* ---------- hero ---------- */
+
+.hero { padding: var(--s6) 0 var(--s3); }
+
+.hero-accent { color: var(--gold); }
+
+.hero .lede { margin-top: 24px; }
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-top: 44px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+}
+.hstat b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: .5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.hstat span {
+  display: block;
+  margin-top: var(--s1);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+/* ---------- sections ---------- */
+
+.section { padding-top: var(--s6); }
+.section-head { margin-bottom: 30px; }
+.section-sub { color: var(--muted); font-size: 14.5px; max-width: 60ch; margin-top: 10px; }
+
+/* ---------- section bar ---------- */
+
+.section-bar {
+  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.section-bar h2 { flex: none; }
+.section-search {
+  flex: 1; min-width: 200px; max-width: 320px;
+  height: 36px; padding: 0 var(--s2);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--slate);
+  font-family: var(--sans); font-size: 15px; color: var(--bone);
+  transition: border-color .12s var(--ease-out);
+}
+.section-search::placeholder { color: var(--faint); }
+.section-search:focus { outline: none; border-color: var(--gold); }
+
+.no-results { color: var(--dim); font-size: 14px; padding: 30px 2px; }
+
+/* ---------- universe cards ---------- */
+
+.uni-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.uni-card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height: 200px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--slate);
+  transition: border-color .12s var(--ease-out);
+}
+.uni-card:hover { border-color: var(--gold); }
+
+/* cover art, heavily darkened so the text stays readable */
+.uni-cover { position: absolute; inset: 0; z-index: 0; background: var(--slate); }
+.uni-cover img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  opacity: .55;
+}
+.uni-card:hover .uni-cover img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  opacity: .55;
+}
+
+/* Flat scrim, not a gradient - design.md forbids gradients outright. */
+.uni-card::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 1;
+  background: var(--ink);
+  opacity: .74;
+}
+
+.uni-content { position: absolute; z-index: 2; left: var(--s2); right: var(--s2); bottom: var(--s2); }
+.uni-card h3 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: .25px;
+  line-height: 1.15;
+}
+.uni-tagline {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .2px;
+  color: var(--fog);
+  margin-top: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.uni-meter {
+  height: 2px;
+  background: var(--line);
+  overflow: hidden;
+  margin: var(--s2) 0 var(--s1);
+}
+.uni-meter i {
+  display: block; height: 100%; width: 0;
+  background: var(--gold);
+  transition: width .3s var(--ease-out);
+}
+
+.uni-foot-row {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s1);
+  font-family: var(--mono); font-size: 16px; letter-spacing: .5px; color: var(--fog);
+}
+.uni-foot-row b { color: var(--bone); font-weight: 500; }
+.uni-arrow { display: inline-block; color: var(--gold); transition: transform .12s var(--ease-out); }
+.uni-card:hover .uni-arrow { transform: translateX(3px); }
+
+/* ---------- data panel ---------- */
+
+.data-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  padding: 30px;
+}
+.data-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+  .hero-stats { gap: 28px 36px; }
+  .uni-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .uni-card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height: 200px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--slate);
+  transition: border-color .12s var(--ease-out);
+}
+  .uni-card h3 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: .25px;
+  line-height: 1.15;
+}
+  .section { padding-top: 72px; }
+  .section-search {
+  flex: 1; min-width: 200px; max-width: 320px;
+  height: 36px; padding: 0 var(--s2);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--slate);
+  font-family: var(--sans); font-size: 15px; color: var(--bone);
+  transition: border-color .12s var(--ease-out);
+}
+}
+
+/* ============================================================
+   RANDOM PICKER
+   ============================================================ */
+
+.rnd-backdrop {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(20,22,28,.82);
+  opacity: 0; transition: opacity .35s var(--ease);
+}
+.rnd-backdrop.show { opacity: 1; }
+
+.rnd-modal {
+  position: fixed; left: 50%; top: 50%;
+  z-index: 160;
+  width: min(680px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  background: var(--slate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s3);
+  transition: opacity .12s var(--ease-out);
+}
+.rnd-modal.show { opacity: 1; }
+
+.rnd-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; margin-bottom: 20px;
+}
+.rnd-head h3 {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--dim); font-weight: 400;
+}
+.rnd-close {
+  width: 30px; height: 30px; border-radius: 6px;
+  color: var(--dim); font-size: 13px;
+  transition: background .2s, color .2s;
+}
+.rnd-close:hover { background: var(--surface-3); color: var(--text); }
+
+.rnd-card { display: flex; gap: 20px; }
+
+.rnd-poster {
+  position: relative;
+  width: 132px; height: 198px; flex: none;   /* 2:3 poster ratio */
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--slate);
+}
+.rnd-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rnd-poster.ph { background: var(--surface-2); }
+.rnd-poster .ph-init { font-size: 30px; }
+ }
+
+.rnd-info { min-width: 0; flex: 1; }
+.rnd-uni {
+  display: inline-block;
+  font-family: var(--mono); font-size: 16px; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--gold);
+  border: 1px solid var(--gold); border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  transition: background .12s var(--ease-out);
+}
+.rnd-uni:hover { background: var(--accent-soft); }
+.rnd-info h2 { font-family: var(--display); font-size: 32px; font-weight: 700; letter-spacing: .5px; line-height: 1.15; margin-top: var(--s2); }
+.rnd-sub { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-top: 6px; }
+.rnd-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.rnd-note { color: var(--muted); font-size: 13px; line-height: 1.6; margin-top: 14px; }
+
+.rnd-actions {
+  display: flex; flex-wrap: wrap; gap: 9px; align-items: center;
+  margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.rnd-toggle {
+  display: flex; align-items: center; gap: 7px;
+  margin-left: auto;
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--dim);
+  cursor: pointer;
+}
+.rnd-toggle input { accent-color: var(--accent); cursor: pointer; }
+.rnd-empty { color: var(--dim); text-align: center; padding: 40px 0; }
+
+/* keep the poster image above its placeholder initials */
+.rnd-poster img { position: relative; z-index: 1; }
+
+.rnd-source {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.rnd-source label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--dim); flex: none;
+}
+.rnd-source select {
+  flex: 1; height: 32px; padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  font-size: 12.5px; color: var(--text);
+  cursor: pointer;
+}
+.rnd-source select:focus { outline: none; border-color: var(--accent); }
+
+@media (max-width: 560px) {
+  .rnd-card { flex-direction: column; }
+  .rnd-poster {
+  position: relative;
+  width: 132px; height: 198px; flex: none;   /* 2:3 poster ratio */
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--slate);
+}
+  .rnd-toggle { margin-left: 0; width: 100%; }
+}
+
+/* ============================================================
+   CAROUSEL - 8 cards per page (4 x 2), arrows page left/right
+   ============================================================ */
+
+.carousel-nav {
+  display: flex; align-items: center; gap: 8px;
+  margin-left: auto;
+}
+.cbtn {
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 17px; line-height: 1;
+  display: grid; place-items: center;
+  transition: background .2s var(--ease), color .2s var(--ease),
+              border-color .2s var(--ease), opacity .2s var(--ease);
+}
+.cbtn:hover:not(:disabled) { background: var(--surface-3); color: var(--text); border-color: var(--faint); }
+.cbtn:disabled { opacity: .28; cursor: default; }
+.cpage {
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--dim); min-width: 44px; text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.carousel {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  margin: 0 -4px;
+  padding: 4px;
+}
+.carousel::-webkit-scrollbar { display: none; }
+
+.carousel-inner { display: flex; gap: 16px; }
+
+.carousel-page {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: 16px;
+  align-content: start;
+}
+
+/* a page that is not full should not stretch its cards */
+.carousel-page > .uni-card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height: 200px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--slate);
+  transition: border-color .12s var(--ease-out);
+}
+
+@media (max-width: 1000px) { .carousel-inner { gap: 14px; } .carousel-page { gap: 14px; } }
+@media (max-width: 640px)  { .carousel-inner { gap: 12px; } .carousel-page { gap: 12px; } }
+
+/* storage health line under the data panel */
+.storage-note {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 14px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em;
+  color: var(--dim);
+}
+.storage-note .dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.storage-note .dot.ok { background: var(--teal); }
+.storage-note .dot.warn { background: var(--gold); }
+.section-sub code {
+  font-family: var(--mono); font-size: .92em;
+  background: var(--surface-3); padding: 1px 5px; border-radius: 4px; color: var(--muted);
+}
+
+/* ============================================================
+   MY LIST
+   ============================================================ */
+
+.wl-search { position: relative; display: flex; gap: 10px; margin-top: 32px; max-width: 560px; }
+.wl-search input {
+  flex: 1; height: 46px; padding: 0 16px;
+  border-radius: 6px; border: 1px solid var(--line-strong);
+  background: var(--surface); font-size: 15px;
+  transition: border-color .25s var(--ease), background .25s var(--ease);
+}
+.wl-search input::placeholder { color: var(--faint); }
+.wl-search input:focus { outline: none; border-color: var(--accent); background: var(--surface-2); }
+.wl-search .btn { height: 46px; padding: 0 20px; }
+
+.wl-suggest {
+  position: absolute; top: 54px; left: 0; right: 0; z-index: 40;
+  background: var(--slate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.wl-sugg {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 9px 12px; text-align: left;
+  border-bottom: 1px solid var(--line);
+  transition: background .15s var(--ease);
+}
+.wl-sugg:last-child { border-bottom: none; }
+.wl-sugg:hover, .wl-sugg.active { background: var(--surface-3); }
+.wl-sugg-thumb {
+  position: relative; width: 34px; height: 48px; flex: none;
+  border-radius: 4px; overflow: hidden; background: var(--surface-3);
+}
+.wl-sugg-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1; }
+.wl-sugg-thumb.ph { background: var(--surface-2); }
+.wl-sugg-thumb .ph-init { font-size: 11px; }
+.wl-sugg-text { min-width: 0; }
+.wl-sugg-text b { display: block; font-size: 13.5px; font-weight: 500; }
+.wl-sugg-text small {
+  display: block; margin-top: 2px;
+  font-family: var(--mono); font-size: 10px; color: var(--dim);
+}
+
+/* .wl-row rides on tracker.css's .row - only the extras live here */
+.wl-row { cursor: default; }
+.wl-row .r-sub { margin-top: 2px; }
+.wl-row .r-meta { gap: 8px; }
+.wl-row a.badge { transition: background .2s var(--ease); }
+.wl-row a.badge:hover { background: color-mix(in srgb, var(--bc) 24%, transparent); }
+.wl-del {
+  width: 26px; height: 26px; border-radius: 6px;
+  color: var(--faint); font-size: 12px; flex: none;
+  transition: background .2s, color .2s;
+}
+.wl-del:hover { background: var(--surface-3); color: #e8393d; }
+
+.wl-sugg-foot {
+  padding: 9px 12px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  font-family: var(--mono); font-size: 10px; line-height: 1.5;
+  color: var(--dim);
+}
+
+/* ============================================================
+   COUNTRY MAP
+   ============================================================ */
+
+.map-wrap { position: relative; margin-top: 8px; }
+.map-holder {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--ink);
+  padding: var(--s2);
+}
+.map-loading, .map-fail { color: var(--dim); font-family: var(--mono); font-size: 11px; }
+
+.worldmap { width: 100%; aspect-ratio: 2 / 1; min-height: 320px; }
+
+
+
+
+
+.map-panel b { display: block; font-size: 14px; }
+.map-panel span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+.map-panel em {
+  display: block; margin-top: 7px; font-style: normal;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--accent);
+}
+
+.ctry-grid {
+  list-style: none;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px;
+}
+.ctry-item a, .ctry-item span {
+  display: block; padding: 11px 13px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: var(--surface);
+  transition: border-color .2s var(--ease), background .2s var(--ease), transform .2s var(--ease);
+}
+.ctry-item a:hover { border-color: var(--gold); }
+.ctry-item b { display: block; font-size: 13.5px; font-weight: 500; }
+.ctry-item small { display: block; font-family: var(--mono); font-size: 9.5px; color: var(--dim); margin-top: 3px; }
+.ctry-item.off { opacity: .4; }
+.ctry-item.off span { cursor: default; }
+
+.map-cta {
+  display: flex; align-items: center; gap: 16px;
+  margin-top: 16px; padding: 18px 22px;
+  border: 1px solid var(--line); border-radius: var(--radius-lg);
+  background: var(--surface);
+  transition: border-color .25s var(--ease), background .25s var(--ease), transform .25s var(--ease);
+}
+.map-cta:hover { border-color: var(--accent); background: var(--surface-2); transform: translateY(-2px); }
+.map-cta-icon { font-size: 24px; }
+.map-cta b { display: block; font-size: 15px; }
+.map-cta small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+.map-cta-arrow { margin-left: auto; color: var(--accent); transition: transform .3s var(--ease); }
+.map-cta:hover .map-cta-arrow { transform: translateX(4px); }
+
+/* the By Country card in the Lists carousel */
+.uni-card-map .map-cover { display: grid; place-items: center; background: var(--slate); }
+.uni-card-map .map-cover span { font-size: 44px; opacity: .35; }
+
+
+/* map controls + interaction */
+.map-holder {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--ink);
+  padding: var(--s2);
+}
+.worldmap { width: 100%; aspect-ratio: 2 / 1; min-height: 320px; }
+.worldmap.dragging { cursor: grabbing; }
+
+
+
+
+.ctry-progress {
+  display: block; height: 2px; border-radius: 2px;
+  background: var(--surface-3); margin: 8px 0 4px; overflow: hidden;
+}
+.ctry-progress i { display: block; height: 100%; background: var(--accent); }
+
+
+/* ---------- map tooltip (design.md: flat card, 1px border) ---------- */
+.map-tip {
+  background: var(--slate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--s1) 12px;
+  max-width: 240px;
+}
+.map-tip.has-list { border-color: var(--gold); }
+.map-tip b { display: block; font-family: var(--display); font-size: 22px; letter-spacing: .25px; color: var(--bone); }
+.map-tip span { display: block; font-size: 13px; color: var(--fog); margin-top: 4px; }
+.map-tip .tip-data { font-family: var(--mono); font-size: 16px; letter-spacing: .5px; color: var(--bone); }
+.map-tip em {
+  display: block; margin-top: var(--s1); font-style: normal;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  letter-spacing: .5px; text-transform: uppercase; color: var(--gold);
+}
+.map-tip:not(.has-list) em { color: var(--fog); }
+
+
+
+/* Listed countries read as active; the rest stay inert.
+   !important is deliberate - jsVectorMap writes the fill back inline every
+   time a hover ends, so anything weaker would be undone on first mouseout. */
+.jvm-region.has-list {
+  fill: var(--gold) !important;
+  stroke: var(--gold);
+  stroke-width: 0.8;
+}
+.jvm-region.has-list:hover { fill-opacity: .72; }
+
+
+/* ---------- jsVectorMap chrome ----------
+   The library ships an opinionated tooltip (solid indigo) and zoom buttons.
+   These rules load after its stylesheet and restate them in our palette. */
+.jvm-container { overflow: visible; }
+
+.jvm-tooltip,
+.jvm-tooltip.active {
+  background: transparent;
+  background-color: transparent;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: inherit;
+  font-family: var(--sans);
+  z-index: 120;
+}
+
+.jvm-zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 30px;
+  padding: 0;
+  left: var(--s2);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1;
+  background: var(--slate);
+  border: 1px solid var(--line);
+  color: var(--fog);
+  border-radius: 2px;
+  box-shadow: none;
+  transition: border-color .12s var(--ease-out), color .12s var(--ease-out);
+}
+.jvm-zoom-btn.jvm-zoomin  { top: var(--s2); border-radius: 2px 2px 0 0; }
+.jvm-zoom-btn.jvm-zoomout { top: calc(var(--s2) + 29px); border-top-color: transparent; border-radius: 0 0 2px 2px; }
+.jvm-zoom-btn:hover { border-color: var(--gold); color: var(--gold); z-index: 2; }
+
+/* ---------- archive card ----------
+   Sits first in the shows vault. It is a control, not a link, so it takes
+   the card shape but keeps a dashed edge to say so. */
+/* ---------- archive card ----------
+   A control rather than a link, so it takes the card shape but states the
+   difference: a dashed edge, no artwork, and a single mark set in the
+   corner the way a filing label would be. */
+.uni-card-archive {
+  border-style: dashed;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  background: var(--slate);
+}
+.uni-card-archive:hover {
+  border-style: solid;
+  border-color: var(--gold);
+}
+.uni-card-archive .arch-mark {
+  position: absolute;
+  top: var(--s2);
+  right: var(--s2);
+  z-index: 2;
+  font-family: var(--sans);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--line);
+  transition: color 0.12s var(--ease-out);
+}
+.uni-card-archive:hover .arch-mark { color: var(--gold); }
+.uni-card-archive .uni-content { z-index: 2; }
+
+/* ---------- add a show ---------- */
+.add-modal .wl-search { position: relative; margin-top: var(--s2); }
+.add-modal .wl-search input {
+  width: 100%; height: 40px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--surface-2); color: var(--bone);
+  font-family: var(--sans); font-size: 15px;
+}
+.add-modal .wl-search input:focus { outline: none; border-color: var(--gold); }
+
+.add-hint {
+  margin: var(--s2) 0;
+  font-family: var(--sans); font-size: 13px; color: var(--fog);
+}
+
+.add-modal .wl-sugg {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 8px; text-align: left;
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  transition: border-color .12s var(--ease-out);
+}
+.add-modal .wl-sugg:hover:not([disabled]) { border-color: var(--gold); }
+.add-modal .wl-sugg[disabled] { opacity: .45; cursor: default; }
+.add-modal .wl-sugg-thumb {
+  width: 42px; height: 63px; flex: none; overflow: hidden;
+  border: 1px solid var(--line); border-radius: 2px; background: var(--surface-2);
+}
+.add-modal .wl-sugg-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.add-modal .wl-sugg-main { min-width: 0; flex: 1; }
+.add-modal .wl-sugg-title {
+  display: block; font-family: var(--display); font-size: 18px; letter-spacing: .25px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.add-modal .wl-sugg-sub {
+  display: block; font-family: var(--mono); font-size: 16px; letter-spacing: .5px; color: var(--fog);
+}
+.add-modal .wl-sugg-cta {
+  flex: none; font-family: var(--sans); font-size: 13px; font-weight: 600;
+  letter-spacing: .2px; text-transform: uppercase; color: var(--gold);
+}
+.add-modal .wl-sugg[disabled] .wl-sugg-cta { color: var(--fog); }
+
+.add-cmd {
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: var(--s2); margin-top: var(--s1);
+}
+.add-cmd p { font-family: var(--sans); font-size: 13px; color: var(--fog); }
+.add-cmd code {
+  display: block; margin: var(--s1) 0;
+  font-family: var(--mono); font-size: 16px; letter-spacing: .5px; color: var(--gold);
+  background: var(--ink); border: 1px solid var(--line); border-radius: 2px;
+  padding: 8px 10px; overflow-x: auto; white-space: nowrap;
+}
+
+/* ---------- removing a show ---------- */
+.uni-remove {
+  position: absolute;
+  top: 8px; right: 8px;
+  z-index: 3;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: rgba(20, 22, 28, .78);
+  color: var(--fog);
+  font-size: 12px; line-height: 1;
+  opacity: 0;
+  transition: opacity .12s var(--ease-out), border-color .12s var(--ease-out),
+              color .12s var(--ease-out);
+}
+.uni-card:hover .uni-remove,
+.uni-remove:focus-visible { opacity: 1; }
+.uni-remove:hover { border-color: var(--cinder); color: var(--cinder); }
+
+.toast-action {
+  margin-left: var(--s2);
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  letter-spacing: .2px; text-transform: uppercase;
+  color: var(--gold);
+  background: none;
+  border: 0;
+}
+.toast-action:hover { text-decoration: underline; }
+
+/* ---------- restoring one ---------- */
+/* ---------- a collection's own page ----------
+   One list, so every card is laid out at once instead of paged. */
+.uni-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+.uni-grid .uni-card { height: 176px; }
+
+@media (max-width: 640px) {
+  .uni-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--s1); }
+  .uni-grid .uni-card { height: 148px; }
+}
+
+/* ---------- still releasing ---------- */
+.uni-live {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: .5px;
+  color: var(--teal);
+  white-space: nowrap;
+}
+#ongoingBtn.active { border-color: var(--teal); color: var(--teal); }
+
+.uni-count {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: .5px;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* ---------- merge picker ---------- */
+.add-merge-row {
+  display: flex; align-items: center; gap: var(--s1);
+  margin-bottom: var(--s1);
+  flex-wrap: wrap;
+}
+.add-merge-row select {
+  flex: 1; min-width: 140px; height: 34px; padding: 0 8px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--surface-2); color: var(--bone);
+  font-family: var(--sans); font-size: 14px;
+}
+.add-merge-row select:focus { outline: none; border-color: var(--gold); }
+.add-merge-row span {
+  font-family: var(--sans); font-size: 13px; color: var(--fog);
+}
+
+/* ---------- drag to reorder ----------
+   Cards can be dragged into any order; the arrangement is remembered per
+   vault section. The cursor is the only affordance at rest so the grid
+   stays quiet until you actually pick something up. */
+.uni-card[draggable="true"] { cursor: grab; }
+.uni-card[draggable="true"]:active { cursor: grabbing; }
+.uni-card.dragging {
+  opacity: .45;
+  border-color: var(--gold);
+  border-style: dashed;
+}
+.carousel-page.drop-target,
+.uni-grid.drop-target { outline: 1px dashed var(--line); }
+
+/* While a card is in hand the pages sit flush, so dragging across the seam
+   between them reads as one continuous strip rather than two boxes. */
+.carousel-inner.reordering .carousel-page { outline: 1px dashed var(--line); outline-offset: -4px; }
+
+/* ---------- looking further afield ----------
+   Results from the catalogue come first; anything found on ratingraph is
+   grouped under its own heading so it is clear which is which. */
+.wl-sugg-head {
+  padding: 10px var(--s2) 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  color: var(--fog);
+  border-top: 1px solid var(--line);
+}
+.wl-remote .wl-sugg-cta {
+  margin-left: auto;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.wl-sugg-state {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  padding: 10px var(--s2);
+  font-size: 13px;
+  color: var(--fog);
+  border-top: 1px solid var(--line);
+}
+
+/* A ring that actually turns, so a slow lookup does not look like a hang. */
+.spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--line);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  flex: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2.4s; }
+}
+
+/* ============================================================
+   MY LIST — sorting, filtering, and a panel per entry
+   ============================================================ */
+
+.wl-controls {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s2);
+  margin-bottom: var(--s3);
+}
+.wl-controls-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  padding: 5px 0;
+  flex-wrap: wrap;
+}
+.wl-controls .filter-label {
+  width: 66px;
+  flex: none;
+  padding-top: 7px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+.wl-shown {
+  margin: var(--s1) 0 0;
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: .5px;
+  color: var(--fog);
+}
+
+.wl-row { position: relative; }
+.wl-rating {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: .5px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.wl-more {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--fog);
+  font-size: 11px;
+  transition: transform .12s var(--ease-out), border-color .12s var(--ease-out);
+}
+.wl-more:hover { border-color: var(--gold); color: var(--gold); }
+.wl-row.open .wl-more { transform: rotate(180deg); }
+
+/* The panel spans the row's full width rather than sitting in one column. */
+.wl-detail {
+  grid-column: 1 / -1;
+  margin-top: var(--s2);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--line);
+}
+.wl-synopsis {
+  margin: 0 0 var(--s2);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fog);
+  max-width: 78ch;
+}
+.wl-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--s1) var(--s3);
+  margin: 0;
+}
+.wl-facts dt {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+.wl-facts dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--bone);
+}
+
+/* ============================================================
+   MY LIST — one card per entry, showing what you need to decide
+   ============================================================ */
+
+#wlList { display: flex; flex-direction: column; gap: var(--s2); }
+
+.wcard {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: var(--s3);
+  padding: var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--slate);
+  transition: border-color .12s var(--ease-out);
+}
+.wcard:hover { border-color: var(--rc, var(--gold)); }
+.wcard.done { opacity: .62; }
+.wcard.done:hover { opacity: 1; }
+
+.wc-poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  cursor: zoom-in;
+}
+.wc-poster img { width: 100%; height: 100%; object-fit: cover; }
+.wcard.done .wc-poster img { filter: grayscale(1) brightness(.7); }
+.wc-poster .ph-init { font-family: var(--display); font-size: 26px; color: var(--fog); }
+
+.wc-body { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+
+.wc-head { display: flex; align-items: flex-start; gap: var(--s2); }
+.wc-head h3 {
+  flex: 1;
+  font-family: var(--display);
+  font-size: 26px;
+  letter-spacing: .25px;
+  line-height: 1.15;
+}
+.wcard.done .wc-head h3 { text-decoration: line-through; text-decoration-color: var(--fog); }
+.wc-actions { display: flex; align-items: center; gap: var(--s1); flex: none; }
+
+.wc-line {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2);
+  margin: 0;
+  font-family: var(--mono); font-size: 16px; letter-spacing: .5px; color: var(--fog);
+}
+
+.wc-genres { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.wc-genre {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 2px 8px;
+  font-size: 13px;
+  color: var(--fog);
+}
+
+.wc-scores { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.wc-score {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  font-size: 13px; color: var(--fog);
+}
+.wc-score b {
+  font-family: var(--mono); font-size: 20px; letter-spacing: .5px;
+  font-variant-numeric: tabular-nums;
+}
+.wc-score.imdb b { color: var(--gold); }
+.wc-score.rt b { color: var(--cinder); }
+.wc-score.mc b { color: var(--teal); }
+.wc-loading { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fog); }
+
+.wc-plot {
+  margin: 0;
+  font-size: 14px; line-height: 1.6; color: var(--fog);
+  max-width: 88ch;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.wc-plot.full { -webkit-line-clamp: unset; display: block; }
+
+.wc-credits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--s1) var(--s3);
+  margin: 0;
+}
+.wc-credits dt {
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  letter-spacing: .2px; text-transform: uppercase; color: var(--fog);
+}
+.wc-credits dd { margin: 2px 0 0; font-size: 14px; }
+.wc-people dd { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.wc-people dd span:not(:last-child)::after { content: "·"; margin-left: 10px; color: var(--fog); }
+
+.wc-foot { display: flex; align-items: center; gap: var(--s2); margin-top: auto; padding-top: 4px; }
+.wc-more {
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 4px 12px; font-size: 13px; color: var(--fog);
+  transition: border-color .12s var(--ease-out), color .12s var(--ease-out);
+}
+.wc-more:hover { border-color: var(--gold); color: var(--gold); }
+.wc-link { font-family: var(--mono); font-size: 16px; letter-spacing: .5px; color: var(--fog); }
+.wc-link:hover { color: var(--gold); }
+
+.wcard .wl-del {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  color: var(--fog); font-size: 12px;
+}
+.wcard .wl-del:hover { border-color: var(--cinder); color: var(--cinder); }
+
+@media (max-width: 700px) {
+  .wcard { grid-template-columns: 92px 1fr; gap: var(--s2); padding: var(--s2); }
+  .wc-head h3 { font-size: 20px; }
+  .wc-credits { grid-template-columns: 1fr; }
+}
+
+/* ---------- collapsed by default ----------
+   A list is for scanning first and deciding second, so a card is one line
+   until you open it. Everything the expanded card shows is in the markup
+   either way; only its visibility changes, so opening one costs no work. */
+
+.wcard:not(.open) {
+  grid-template-columns: 54px 1fr;
+  gap: var(--s2);
+  padding: 10px var(--s2);
+  align-items: center;
+}
+.wcard:not(.open) .wc-body { gap: 2px; }
+.wcard:not(.open) .wc-head h3 { font-size: 19px; }
+.wcard:not(.open) .wc-poster .ph-init { font-size: 16px; }
+
+/* the long-form parts stay out of the way until asked for */
+.wcard:not(.open) .wc-plot,
+.wcard:not(.open) .wc-credits,
+.wcard:not(.open) .wc-scores,
+.wcard:not(.open) .wc-genres,
+.wcard:not(.open) .wc-foot { display: none; }
+
+/* and the compact summaries stand in for them */
+.wc-genres-mini {
+  margin: 0;
+  font-size: 13px;
+  color: var(--fog);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wcard.open .wc-genres-mini { display: none; }
+
+.wc-mini-rating {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.wcard.open .wc-mini-rating { display: none; }
+
+/* the title is the control, so it needs to look like one */
+.wc-head h3 { cursor: pointer; }
+.wc-head h3:hover { color: var(--gold); }
+
+.wcard:not(.open) .wc-line { gap: 10px; font-size: 15px; }
