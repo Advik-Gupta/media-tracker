@@ -16,6 +16,10 @@
 
   /* ---------- the page ---------- */
 
+  let mode = "in"; // "in" | "up"
+  let busy = false;
+  let message = null;
+
   const panel = document.getElementById("acctPanel");
 
   if (panel) {
@@ -40,10 +44,6 @@
       Cloud.ready();
     }
   }
-
-  let mode = "in"; // "in" | "up"
-  let busy = false;
-  let message = null;
 
   function render() {
     if (!panel) return;
