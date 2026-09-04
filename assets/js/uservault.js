@@ -1,10 +1,14 @@
 /* ============================================================
    USER VAULT — shows and anime a visitor added for themselves.
 
-   The built-in catalogue is generated at build time and is the
-   same for everyone. This is the other half: anything you add
-   from the site lives in your own browser, and nobody else sees
-   it. No accounts, no server, no shared state.
+   The shows and anime vaults start empty. What is in them is
+   whatever you added, and nobody else sees it — this is a
+   per-visitor collection, not a shared catalogue.
+
+   It lives in local storage. If accounts are configured, the
+   whole of it is mirrored to Supabase by assets/js/cloud.js and
+   follows you between devices; without them it stays in this
+   browser and everything still works.
 
    Two stores, deliberately separate:
 
@@ -166,7 +170,9 @@ const UserVault = (() => {
     },
 
     has(tmdbId) {
-      return this.list().some((x) => String(x.id) === String(tmdbId));
+      return this.list().some(
+        (x) => String(x.id) === String(tmdbId) || x.uni === this.uniFor(tmdbId),
+      );
     },
 
     /** The season/episode data for one, if it is still cached. */
@@ -181,13 +187,33 @@ const UserVault = (() => {
     },
 
     /**
+     * The universe id to file a show under.
+     *
+     * Normally `u<tmdb id>`. But a few TMDB ids are already owned by a
+     * universe the build knows about — one that merges several series, say —
+     * and the view page adopts that universe so its progress is not orphaned.
+     * Adding has to agree, or the card would count one bucket while the page
+     * wrote to another.
+     */
+    uniFor(tmdbId) {
+      const counts = window.SERIES_COUNTS || {};
+      for (const [uniId, meta] of Object.entries(counts)) {
+        if (uniId.startsWith("u")) continue;
+        if ((meta.perShow || []).some((s) => String(s.id) === String(tmdbId))) {
+          return uniId;
+        }
+      }
+      return uniOf(tmdbId);
+    },
+
+    /**
      * Add a show. `data` is the transformed series payload; it is cached
      * immediately because the Add panel already fetched it for the preview,
      * so opening the page afterwards costs no further requests.
      */
     add(entry, data) {
       const list = this.list();
-      const uni = uniOf(entry.id);
+      const uni = this.uniFor(entry.id);
       if (list.some((x) => x.uni === uni)) return false;
 
       list.unshift({

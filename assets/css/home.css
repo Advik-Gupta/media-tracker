@@ -1209,3 +1209,98 @@
   .mv { grid-template-columns: 1fr; gap: var(--s3); padding-top: var(--s4); }
   .mv-poster { width: 180px; }
 }
+
+/* ============================================================
+   ACCOUNT — optional sign-in for cross-device sync
+   ============================================================ */
+
+.acct-panel { padding-bottom: var(--s7); }
+.acct-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--slate);
+  padding: var(--s4);
+  max-width: 480px;
+}
+.acct-card h3 {
+  font-family: var(--display);
+  font-size: 26px;
+  letter-spacing: .25px;
+}
+.acct-card p {
+  margin: var(--s2) 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fog);
+}
+.acct-who {
+  font-family: var(--mono);
+  font-size: 18px;
+  letter-spacing: .5px;
+  color: var(--gold) !important;
+}
+.acct-note {
+  margin-top: var(--s3);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.acct-note code {
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: .5px;
+  color: var(--gold);
+}
+
+.acct-tabs { display: flex; gap: var(--s1); margin-bottom: var(--s3); }
+
+.acct-form { display: flex; flex-direction: column; gap: var(--s2); }
+.acct-form label { display: flex; flex-direction: column; gap: 6px; }
+.acct-form label span {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+.acct-form input {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--sans);
+  font-size: 15px;
+}
+.acct-form input:focus { outline: none; border-color: var(--gold); }
+
+.acct-actions { display: flex; gap: var(--s1); margin-top: var(--s3); flex-wrap: wrap; }
+.acct-msg {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--gold);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--fog) !important;
+}
+
+/* ---------- an empty vault ----------
+   Shows and anime start with nothing in them; the message has to say what
+   to do rather than just sitting blank. */
+.vault-empty {
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: var(--s5) var(--s3);
+  text-align: center;
+  color: var(--fog);
+}
+.vault-empty b {
+  display: block;
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: .25px;
+  color: var(--bone);
+  margin-bottom: var(--s1);
+}
+.vault-empty p { margin: 0 auto; max-width: 46ch; font-size: 14px; line-height: 1.6; }

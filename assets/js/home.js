@@ -150,7 +150,14 @@
   const isStarted = (uni) => statsFor(uni).done > 0;
 
   function ongoingList(kind) {
-    return UNIVERSES.filter(
+    /* Same source as the grid: shows and anime are whatever this browser
+       added, not the built-in catalogue. */
+    const source =
+      (kind === "show" || kind === "anime") && typeof UserVault !== "undefined"
+        ? UserVault.asUniverses(kind)
+        : UNIVERSES;
+
+    return source.filter(
       (u) =>
         (u.kind || "movie") === kind &&
         !u.fromList &&
@@ -440,15 +447,20 @@
       return paint(kind, grid, mine.map((u) => (j) => card(u, j)));
     }
 
-    /* Shows and anime this browser added itself sit alongside the built-in
-       ones. They are the same shape and render through the same card; only
-       the source differs, and only this browser can see them. */
+    /* The shows and anime vaults start empty: what is in them is whatever
+       this browser added, not a catalogue shipped with the site. The curated
+       lists still appear — those are the Lists section, a different kind —
+       so a new visitor has something to browse before adding anything.
+
+       Film universes are unaffected: they have no API behind them and are
+       still the built-in catalogue. */
+    const SELF_SERVE = kind === "show" || kind === "anime";
     const mine =
-      typeof UserVault !== "undefined" && (kind === "show" || kind === "anime")
+      typeof UserVault !== "undefined" && SELF_SERVE
         ? UserVault.asUniverses(kind)
         : [];
 
-    let list = [...UNIVERSES, ...mine]
+    let list = (SELF_SERVE ? mine : UNIVERSES)
       .filter((u) => (u.kind || "movie") === kind)
       .filter((u) => !gone.has(u.id))
       /* Anything that arrived as part of a list is reached through that list
@@ -716,7 +728,20 @@
     }
 
     const empty = document.querySelector(`[data-empty="${kind}"]`);
-    if (empty) empty.hidden = cells.length > 0;
+    if (empty) {
+      empty.hidden = cells.length > 0;
+      /* A vault you fill yourself starts empty, so say what to do about it
+         rather than showing the generic "nothing matches" line. */
+      if (!cells.length && (kind === "show" || kind === "anime") && !searches[kind]) {
+        const noun = kind === "anime" ? "anime" : "shows";
+        empty.className = "vault-empty";
+        empty.innerHTML = `
+          <b>No ${noun} yet</b>
+          <p>Use <strong>+ Add ${kind === "anime" ? "anime" : "show"}</strong> above to search and add
+          any series. It is saved to your vault, and the lists below are
+          there to browse in the meantime.</p>`;
+      }
+    }
 
     const total = Math.max(1, Math.ceil(cells.length / n));
     pages[kind] = Math.min(pages[kind], total - 1);

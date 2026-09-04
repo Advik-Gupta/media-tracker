@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <base href="../../" />
+    <base href="../" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Loading — Media Vault</title>
-    <meta name="description" content="Everything about one film." />
+    <title>Account — Media Vault</title>
+    <meta name="description" content="Sign in to carry your vault between devices." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -14,14 +14,13 @@
     />
     <link rel="stylesheet" href="assets/css/base.css?v=48e5b954" />
     <link rel="stylesheet" href="assets/css/universes.css?v=67567403" />
-    <link rel="stylesheet" href="assets/css/tracker.css?v=90b1bc82" />
     <link rel="stylesheet" href="assets/css/home.css?v=01505fc0" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23e3a83b'/%3E%3C/svg%3E"
     />
   </head>
-  <body data-mode="movie" class="u-movieview">
+  <body data-mode="movie" class="u-account">
     <div class="page">
       <header class="topbar">
         <div class="wrap topbar-inner">
@@ -29,21 +28,31 @@
             <span class="brand-mark">MV</span>
             <span>Media Vault</span>
           </a>
-          <span class="crumb" id="mvCrumb">/ Loading…</span>
+          <span class="crumb">/ Account</span>
           <span class="topbar-spacer"></span>
-          <span id="acctChip"></span>
-          <a class="btn btn-ghost" href="pages/watchlist.html">★ My List</a>
         </div>
       </header>
 
-      <main class="wrap" id="mvRoot">
-        <div class="view-status"><i class="spinner"></i>Loading…</div>
+      <main class="wrap">
+        <section class="hero">
+          <p class="eyebrow reveal">Your vault, everywhere</p>
+          <h1 class="reveal" style="--d:60ms">
+            Sign in<br /><span class="hero-accent">to sync</span>
+          </h1>
+          <p class="lede reveal" style="--d:130ms">
+            Everything works without an account — your progress is saved in this
+            browser. Signing in keeps the same vault on every device you use,
+            and means clearing your browser no longer loses it.
+          </p>
+        </section>
+
+        <div id="acctPanel" class="acct-panel"></div>
       </main>
 
       <footer class="footer">
         <div class="wrap footer-inner">
           <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
-          <span>Details from OMDb · progress stored in this browser</span>
+          <span>Accounts are optional</span>
           <span><a href="index.html">← All universes</a></span>
         </div>
       </footer>
@@ -52,13 +61,7 @@
     <script src="assets/js/config.js?v=285bdcac"></script>
     <script src="assets/js/store.js?v=c5bd56b1"></script>
     <script src="assets/js/cloud.js?v=01ad2ac7"></script>
-    <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
-    <script src="assets/js/lightbox.js?v=b2ed6be1"></script>
-    <script src="assets/js/data/_films.js?v=05577110"></script>
-    <script src="assets/js/data/_shelves.js?v=5b4fa185"></script>
     <script src="assets/js/modes.js?v=51fb5a1c"></script>
-    <script src="assets/js/omdb.js?v=a9978eb6"></script>
-    <script src="assets/js/movieview.js?v=c758f970"></script>
     <script src="assets/js/account.js?v=d658c1e3"></script>
   </body>
 </html>

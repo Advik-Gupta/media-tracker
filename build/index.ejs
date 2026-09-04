@@ -23,6 +23,7 @@
             <span>Media Vault</span>
           </a>
           <span class="topbar-spacer"></span>
+          <span id="acctChip"></span>
           <a class="btn" href="<%= vault.list %>">★ <%= vault.listLabel %></a>
           <a class="btn" href="pages/countries.html">🗺 Countries</a>
           <button class="btn btn-accent" data-random-open>🎲 Surprise me</button>
@@ -105,7 +106,9 @@
       <div id="rndBody"></div>
     </aside>
 
+    <script src="assets/js/config.js"></script>
     <script src="assets/js/store.js"></script>
+    <script src="assets/js/cloud.js"></script>
     <script src="assets/js/uservault.js"></script>
     <script src="assets/js/data/merges.js"></script>
     <script src="assets/js/lightbox.js"></script>
@@ -117,5 +120,6 @@
 <% universes.forEach(function (u) { %>    <script src="assets/js/data/<%= u.id %>.js"></script>
 <% }); %>    <script src="assets/js/home.js"></script>
     <script src="assets/js/random.js"></script>
+    <script src="assets/js/account.js"></script>
   </body>
 </html>

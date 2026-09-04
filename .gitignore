@@ -6,6 +6,9 @@ node_modules/
 .env
 .env.local
 
+# Written by the build from the environment
+assets/js/config.js
+
 # Local scratch from the enrichment and poster scripts. The results are
 # committed inside assets/js/data; these are just the working files.
 build/.rg-cache.json

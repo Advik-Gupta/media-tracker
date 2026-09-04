@@ -23,6 +23,7 @@
             <span>Media Vault</span>
           </a>
           <span class="topbar-spacer"></span>
+          <span id="acctChip"></span>
           <button class="btn btn-ghost" id="ongoingBtn" aria-pressed="false" hidden>◉ Ongoing</button>
           <button class="btn" id="addShow">+ Add anime</button>
         </div>
@@ -71,7 +72,9 @@
       </footer>
     </div>
 
+    <script src="assets/js/config.js"></script>
     <script src="assets/js/store.js"></script>
+    <script src="assets/js/cloud.js"></script>
     <script src="assets/js/uservault.js"></script>
     <script src="assets/js/data/merges.js"></script>
     <script src="assets/js/data/series/_counts.js"></script>
@@ -84,5 +87,6 @@
 <% universes.forEach(function (u) { %>    <script src="assets/js/data/<%= u.id %>.js"></script>
 <% }); %>    <script src="assets/js/home.js"></script>
     <script src="assets/js/addshow.js"></script>
+    <script src="assets/js/account.js"></script>
   </body>
 </html>
