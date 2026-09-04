@@ -1,6 +1,11 @@
 node_modules/
 .DS_Store
 
+# Vercel's local link/config, created by `vercel` or `vercel dev`
+.vercel
+.env
+.env.local
+
 # Local scratch from the enrichment and poster scripts. The results are
 # committed inside assets/js/data; these are just the working files.
 build/.rg-cache.json

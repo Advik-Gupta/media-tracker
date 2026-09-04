@@ -635,3 +635,22 @@
   border-color: var(--teal);
   color: var(--teal);
 }
+
+/* ---------- the dynamic view page ---------- */
+.view-status {
+  display: flex; align-items: center; gap: var(--s1);
+  padding: var(--s4) 0;
+  color: var(--fog); font-size: 14px;
+}
+.view-fail {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--s2);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: var(--s3); width: 100%;
+}
+.view-fail b { font-family: var(--display); font-size: 22px; letter-spacing: .25px; }
+.view-fail p { margin: 0; color: var(--fog); font-size: 14px; max-width: 60ch; }
+.view-stale {
+  border: 1px solid var(--line); border-left: 2px solid var(--gold);
+  border-radius: var(--radius-sm);
+  padding: 10px var(--s2); color: var(--fog); font-size: 13px;
+}

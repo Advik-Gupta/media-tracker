@@ -6,6 +6,12 @@
   const CATALOGUES = window.CATALOGUES || {};
   /* Every catalogue is loaded here, so this is where a full migration happens. */
   Store.migrateLinks();
+
+  /* Counts for shows this browser added, merged into the build-time index so
+     progress, the ongoing badge and the archive treat them identically. */
+  if (typeof UserVault !== "undefined") {
+    window.SERIES_COUNTS = Object.assign({}, window.SERIES_COUNTS, UserVault.counts());
+  }
   Store.migrateMerges();
 
   /* Each vault page renders only the sections it actually has. */
@@ -336,10 +342,22 @@
 
   /* ---------- cards ---------- */
 
+  /* A show or anime has no page of its own any more — pages/<vault>/view.html
+     renders any of them from its TMDB id, which the episode index carries as
+     the primary show. Anything without episode data keeps its generated page. */
+  function hrefFor(uni) {
+    const meta = (window.SERIES_COUNTS || {})[uni.id];
+    const kind = uni.kind || "movie";
+    if ((kind === "show" || kind === "anime") && meta && meta.primary) {
+      return `pages/${kind === "anime" ? "anime" : "shows"}/view.html?id=${meta.primary}`;
+    }
+    return uni.href;
+  }
+
   function card(uni, i) {
     const s = statsFor(uni);
     const el = document.createElement("a");
-    el.href = uni.href;
+    el.href = hrefFor(uni);
     el.className = "uni-card reveal";
     el.dataset.name = (uni.name + " " + uni.tagline).toLowerCase();
     el.dataset.uni = uni.id;
@@ -422,7 +440,16 @@
       return paint(kind, grid, mine.map((u) => (j) => card(u, j)));
     }
 
-    let list = UNIVERSES.filter((u) => (u.kind || "movie") === kind)
+    /* Shows and anime this browser added itself sit alongside the built-in
+       ones. They are the same shape and render through the same card; only
+       the source differs, and only this browser can see them. */
+    const mine =
+      typeof UserVault !== "undefined" && (kind === "show" || kind === "anime")
+        ? UserVault.asUniverses(kind)
+        : [];
+
+    let list = [...UNIVERSES, ...mine]
+      .filter((u) => (u.kind || "movie") === kind)
       .filter((u) => !gone.has(u.id))
       /* Anything that arrived as part of a list is reached through that list
          card, not as its own entry in the vault. */
@@ -902,7 +929,9 @@
   };
 
   on("exportBtn", "click", () => {
-    const blob = new Blob([JSON.stringify(Store.exportAll(), null, 2)], {
+    /* The bundle carries progress plus what you added, hid and reordered —
+       but not the cached season data, which comes back from the API. */
+    const blob = new Blob([JSON.stringify(Store.exportBundle(), null, 2)], {
       type: "application/json",
     });
     const a = document.createElement("a");
@@ -922,9 +951,15 @@
       const reader = new FileReader();
       reader.onload = () => {
         try {
-          Store.importAll(JSON.parse(reader.result));
+          const res = Store.importBundle(JSON.parse(reader.result));
+          /* Added shows come back as ids; their episode data is refetched
+             the first time each one is opened. */
           render();
-          toast("Backup restored");
+          toast(
+            res.prefs
+              ? "Backup restored — added shows will refetch when opened"
+              : "Backup restored",
+          );
         } catch {
           toast("That file could not be read");
         }

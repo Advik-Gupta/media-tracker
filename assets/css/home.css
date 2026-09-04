@@ -250,7 +250,6 @@
 .rnd-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .rnd-poster.ph { background: var(--surface-2); }
 .rnd-poster .ph-init { font-size: 30px; }
- }
 
 .rnd-info { min-width: 0; flex: 1; }
 .rnd-uni {
@@ -702,6 +701,39 @@
   padding: 8px 10px; overflow-x: auto; white-space: nowrap;
 }
 
+/* ---------- live preview, before the add command ----------
+   Only reachable when /api is actually serving (a Vercel deploy) — on a
+   static host the search falls straight to .add-cmd instead. */
+.add-preview.loading {
+  display: flex; align-items: center; gap: var(--s1);
+  padding: var(--s3) var(--s1);
+  color: var(--fog); font-size: 13px;
+}
+.add-preview-back {
+  font-family: var(--sans); font-size: 13px; color: var(--fog);
+  padding: 0 0 var(--s1);
+}
+.add-preview-back:hover { color: var(--gold); }
+.add-preview-body { display: flex; gap: var(--s2); }
+.add-preview-poster {
+  flex: none; width: 84px; aspect-ratio: 2 / 3;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  overflow: hidden; background: var(--surface-2);
+}
+.add-preview-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.add-preview-info { min-width: 0; }
+.add-preview-info h4 { font-family: var(--display); font-size: 18px; letter-spacing: .25px; }
+.add-preview-meta {
+  display: flex; flex-wrap: wrap; gap: var(--s2); margin: 4px 0 0;
+  font-family: var(--mono); font-size: 15px; letter-spacing: .5px; color: var(--fog);
+}
+.add-preview-meta .live { color: var(--teal); }
+.add-preview-wait { display: inline-flex; align-items: center; gap: 6px; }
+.add-preview-overview {
+  margin: var(--s1) 0 0; font-size: 13px; line-height: 1.55; color: var(--fog);
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+}
+
 /* ---------- removing a show ---------- */
 .uni-remove {
   position: absolute;
@@ -1111,3 +1143,69 @@
 .wc-head h3:hover { color: var(--gold); }
 
 .wcard:not(.open) .wc-line { gap: 10px; font-size: 15px; }
+
+/* ---------- adding a show to your own vault ---------- */
+.add-done {
+  display: flex; align-items: center; gap: var(--s1); flex-wrap: wrap;
+  margin-top: var(--s1);
+}
+.add-done span { font-size: 13px; color: var(--fog); }
+.add-note { font-size: 13px; color: var(--fog); }
+
+/* ============================================================
+   ONE FILM — pages/movies/view.html
+   ============================================================ */
+
+.mv {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--s5);
+  padding: var(--s6) 0 var(--s7);
+  align-items: start;
+}
+.mv-poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  cursor: zoom-in;
+}
+.mv-poster img { width: 100%; height: 100%; object-fit: cover; }
+.mv-poster .ph-init { font-family: var(--display); font-size: 44px; color: var(--fog); }
+
+.mv-body { min-width: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.mv-body h1 { font-size: clamp(32px, 5vw, 52px); }
+.mv-line {
+  display: flex; flex-wrap: wrap; gap: var(--s2); margin: 0;
+  font-family: var(--mono); font-size: 16px; letter-spacing: .5px; color: var(--fog);
+}
+.mv-actions { display: flex; flex-wrap: wrap; gap: var(--s1); margin-top: var(--s1); }
+.mv-plot {
+  margin: 0; font-size: 15px; line-height: 1.7; color: var(--fog); max-width: 78ch;
+}
+.mv-credits { margin-top: var(--s1); }
+.mv-missing {
+  margin: 0;
+  padding: 10px var(--s2);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--fog);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--fog);
+  max-width: 70ch;
+}
+.mv-where { margin-top: var(--s2); }
+.mv-where .rlabel {
+  display: block; font-size: 13px; font-weight: 600; letter-spacing: .2px;
+  text-transform: uppercase; color: var(--fog);
+}
+.mv-where p { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 0; }
+
+@media (max-width: 780px) {
+  .mv { grid-template-columns: 1fr; gap: var(--s3); padding-top: var(--s4); }
+  .mv-poster { width: 180px; }
+}

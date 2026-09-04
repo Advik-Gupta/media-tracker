@@ -347,6 +347,18 @@
     return { done, total, pct: total ? Math.min(100, (done / total) * 100) : 0, href: hit.uni };
   }
 
+  /* ---------- the detail page ----------
+     A film gets its own page, fetched from OMDb on arrival. Series entries
+     in a list already link to their season grid, so this is films only. */
+  function detailLink(it) {
+    if (!it.film) return "";
+    const isSeries = it.type === "show" || it.type === "season" || tmdbOf(it);
+    if (isSeries) return "";
+    return `<a class="pcard-info" href="pages/movies/view.html?film=${esc(it.film)}"
+               title="Details for ${esc(it.title)}" aria-label="Details for ${esc(it.title)}"
+               onclick="event.stopPropagation()">i</a>`;
+  }
+
   /* ---------- poster card ----------
      The Letterboxd shape: the poster does the work, everything else is a
      caption under it. The whole card opens the details; only the tick and
@@ -374,6 +386,7 @@
 
     card.innerHTML = `
       ${posterHTML(it, "pcard-poster")}
+      ${detailLink(it)}
       ${
         partial
           ? `<span class="pcard-part" style="--pct:${tracked.pct}%"
@@ -418,6 +431,7 @@
         <span class="badge rel">${rel.label}</span>
         <span class="badge" style="--bc:${type.color}">${type.short}</span>
         <span>${it.eps ? it.eps + " ep · " : ""}${fmtRuntime(it.mins)}</span>
+        ${detailLink(it)}
         <span class="r-index">${indexLabel(it)}</span>
       </div>`;
 

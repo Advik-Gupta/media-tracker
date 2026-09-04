@@ -240,6 +240,66 @@ const Store = (() => {
       commit();
     },
 
+    /* ---------- backups ----------
+       A backup has to carry everything that is yours and cannot be fetched
+       again: what you have watched, which shows you added, what you hid,
+       the order you dragged things into.
+
+       It must NOT carry anything refetchable. Season and episode data comes
+       back from the API on the next visit, and OMDb answers again — baking
+       either into the file would make backups large and, worse, stale: a
+       show that gained a season would come back from the backup missing it.
+       ------------------------------------------------------------------ */
+
+    /* Everything under this prefix is a preference, except these two, which
+       are caches of remote data. */
+    _refetchable: ["mediavault.showdata", "watchvault.omdb.v1"],
+
+    exportBundle() {
+      const prefs = {};
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k || !k.startsWith("mediavault.")) continue;
+          if (this._refetchable.includes(k)) continue;
+          prefs[k] = localStorage.getItem(k);
+        }
+      } catch (e) { /* private window */ }
+
+      return {
+        version: 2,
+        exported: new Date().toISOString(),
+        progress: cache.data,
+        prefs,
+      };
+    },
+
+    importBundle(obj) {
+      if (!obj || typeof obj !== "object")
+        throw new Error("Invalid backup file");
+
+      /* Anything without a version is a v1 file: the progress map on its
+         own, which is exactly what importAll already understands. */
+      if (obj.version !== 2) {
+        this.importAll(obj);
+        return { progress: true, prefs: 0 };
+      }
+
+      if (obj.progress) this.importAll(obj.progress);
+
+      let n = 0;
+      try {
+        for (const [k, v] of Object.entries(obj.prefs || {})) {
+          if (!k.startsWith("mediavault.")) continue;
+          if (this._refetchable.includes(k)) continue;
+          localStorage.setItem(k, v);
+          n += 1;
+        }
+      } catch (e) { /* quota, or a private window */ }
+
+      return { progress: !!obj.progress, prefs: n };
+    },
+
     /* ---------- poster overrides ----------
        Some titles have no poster anywhere we can reach, and a few of the
        ones we found are the wrong edition. A URL set here wins over the

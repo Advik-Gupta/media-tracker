@@ -1222,3 +1222,34 @@
   grid-template-rows: auto auto;
   align-items: start;
 }
+
+/* ---------- link to a film's own page ----------
+   A small mark rather than a button: the card itself already opens the
+   detail sheet, and this is the quieter second action beside it. */
+.pcard-info,
+.r-meta .pcard-info {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-family: var(--display);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--fog);
+  transition: border-color .12s var(--ease-out), color .12s var(--ease-out);
+}
+.pcard-info:hover { border-color: var(--gold); color: var(--gold); }
+
+/* On a poster it sits opposite the tick, over artwork, so it needs a ground. */
+.pcard .pcard-info {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  background: rgba(20, 22, 28, 0.72);
+  border-color: rgba(237, 233, 221, 0.35);
+  color: rgba(237, 233, 221, 0.75);
+}
+.pcard:hover .pcard-info { background: rgba(20, 22, 28, 0.9); }

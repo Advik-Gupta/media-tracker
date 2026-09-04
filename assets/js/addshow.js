@@ -1,14 +1,20 @@
 /* ============================================================
-   ADD SHOW — the shows vault does not need a personal watchlist,
-   because a show's full data is one lookup away. This is that
-   lookup: type a name, pick from the results, and the show joins
-   the vault with every season and episode already filled in.
+   ADD SHOW — search any series and add it to your own vault.
 
-   seriesgraph.com sends no Access-Control-Allow-Origin header, so
-   the browser cannot call it from a page. The search runs against
-   it directly anyway — it starts working the moment the API allows
-   it, or a proxy is set below — and otherwise falls back to the
-   one command that does the same job locally.
+   seriesgraph.com sends no Access-Control-Allow-Origin header,
+   so the browser cannot call it directly. /api/search,
+   /api/show/[id] and /api/show/[id]/seasons are Vercel functions
+   that fetch it server-side and return it with CORS allowed.
+
+   What gets added is yours alone: the show goes into this
+   browser's UserVault, not into the repo, so every visitor
+   builds their own collection with no account and no terminal.
+   The season data fetched for the preview is stored with it, so
+   opening the page afterwards costs nothing further.
+
+   On a host without the proxy (GitHub Pages, file://, npm run
+   serve) the request 404s and the panel falls back to the
+   command that adds a show to the built-in catalogue instead.
    ============================================================ */
 
 (() => {
@@ -23,12 +29,9 @@
   const KIND_FLAG = ` -- --kind ${MODE}`;
   const PLACEHOLDER = `${MODE === "anime" ? "Anime" : "Show"} name or TMDB id…`;
 
-  /* Set this to your own proxy (it must forward to seriesgraph.com and add
-     the CORS header) to make the in-page search work. Empty means direct. */
-  const PROXY = "";
-  const api = (p) => (PROXY ? PROXY + encodeURIComponent(p) : p);
-
-  const SEARCH = "https://seriesgraph.com/api/shows/search?searchTerm=";
+  /* The Vercel functions in api/. Relative, so this works the same on
+     whatever domain the site is actually served from. */
+  const API = "/api";
   const DEBOUNCE = 1500;
 
   const esc = (s) =>
@@ -154,11 +157,15 @@
 
   /* ---------- which shows are already here ---------- */
 
-  const have = new Set(
-    (typeof UNIVERSES !== "undefined" ? UNIVERSES : [])
-      .filter((u) => u.kind === "show")
+  /* Built-in and self-added both count as "already here". */
+  const have = new Set([
+    ...(typeof UNIVERSES !== "undefined" ? UNIVERSES : [])
+      .filter((u) => u.kind === MODE)
       .map((u) => u.name.toLowerCase()),
-  );
+    ...(typeof UserVault !== "undefined"
+      ? UserVault.list().filter((x) => x.kind === MODE).map((x) => x.name.toLowerCase())
+      : []),
+  ]);
 
   /* ---------- search ---------- */
 
@@ -185,18 +192,26 @@
     }
   });
 
+  /* Once a proxy call 404s (no api/ on this host) or throws, stop trying it
+     for the rest of the session — otherwise every keystroke pays for a
+     failed round trip before falling back. */
+  let proxyDown = false;
+
   async function search(q) {
     if (q === lastQuery && results.children.length) return;
     lastQuery = q;
     hint.textContent = "Searching…";
     results.innerHTML = "";
 
+    if (proxyDown) return offline(q);
+
     let data = null;
     try {
-      const r = await fetch(api(SEARCH + encodeURIComponent(q)));
+      const r = await fetch(`${API}/search?q=${encodeURIComponent(q)}`);
       if (r.ok) data = await r.json();
+      else if (r.status === 404) proxyDown = true;
     } catch (e) {
-      /* handled below — almost always the missing CORS header */
+      proxyDown = true;
     }
 
     if (!data) return offline(q);
@@ -210,12 +225,14 @@
       return;
     }
 
-    hint.textContent = "Pick one to add it to the vault.";
+    hint.textContent = "Pick one to see it before adding.";
+    lastHits = new Map(hits.map((d) => [String(d.id), d]));
     results.innerHTML = hits.map(row).join("");
     results.querySelectorAll("[data-add]").forEach((b) =>
-      b.addEventListener("click", () => chose(b.dataset.add, b.dataset.name)),
+      b.addEventListener("click", () => preview(lastHits.get(b.dataset.add))),
     );
   }
+  let lastHits = new Map();
 
   function row(d) {
     const year = (d.first_air_date || "").slice(0, 4);
@@ -231,36 +248,188 @@
           <b class="wl-sugg-title">${esc(d.name)}</b>
           <span class="wl-sugg-sub">${year}${d.vote_average ? ` · ${d.vote_average.toFixed(1)}` : ""}</span>
         </span>
-        <span class="wl-sugg-cta">${owned ? "Already here" : "Add"}</span>
+        <span class="wl-sugg-cta">${owned ? "Already here" : "Preview"}</span>
       </button>`;
   }
 
-  function chose(id, name) {
-    /* An id beats a title: the CLI resolves it directly instead of searching. */
-    /* The page cannot write files, so adding is finished by the build. The
-       request is queued for reference and the exact command shown. */
+  function offline(q) {
+    hint.textContent = proxyDown
+      ? "Live lookup is not available on this host — showing the command instead."
+      : "The seriesgraph API does not allow browser requests, so the search has to run locally.";
+    command(q);
+  }
+
+  /* ---------- preview ----------
+     What the proxy buys over a bare command: a look at the actual show —
+     poster, overview, whether it is still airing, how many seasons and
+     episodes — before you spend the command on the wrong "The Office". */
+
+  const ONGOING_STATUS = new Set([
+    "Returning Series",
+    "In Production",
+    "Planned",
+    "Pilot",
+  ]);
+
+  /* `d` is the search hit — it already carries the poster, year, overview
+     and score, so the poster and blurb show immediately. Only the season
+     and episode count, and whether it is still airing, need another call. */
+  async function preview(d) {
+    if (!d) return;
+    const id = String(d.id);
+    const name = d.name;
+
     try {
       const queue = JSON.parse(localStorage.getItem("mediavault.addqueue") || "[]");
       if (!queue.some((x) => x.id === id)) queue.push({ id, name, at: Date.now() });
       localStorage.setItem("mediavault.addqueue", JSON.stringify(queue));
     } catch (e) { /* private window */ }
-    command(name, id);
+
+    hint.textContent = "";
+    renderPreview(d, null, null, true);
+
+    let detail = null;
+    let seasons = null;
+    try {
+      const [dr, sr] = await Promise.all([
+        fetch(`${API}/show/${id}`),
+        fetch(`${API}/show/${id}/seasons`),
+      ]);
+      if (dr.ok) detail = await dr.json();
+      if (sr.ok) seasons = await sr.json();
+    } catch (e) {
+      /* handled by renderPreview, which falls back to the command */
+    }
+
+    renderPreview(d, detail, seasons, false);
   }
 
-  function offline(q) {
-    hint.textContent =
-      "The seriesgraph API does not allow browser requests, so the search has to run locally.";
-    command(q);
-  }
+  function renderPreview(d, detail, seasons, loading) {
+    const id = String(d.id);
+    const poster = d.poster_path
+      ? `https://image.tmdb.org/t/p/w300${d.poster_path}`
+      : null;
+    const overview = d.overview;
+    const status = detail && detail.status;
+    const ongoing = status && ONGOING_STATUS.has(status);
 
-  function command(name, id) {
+    const seasonList = Array.isArray(seasons)
+      ? seasons.filter((s) => s.season_number > 0 && (s.episodes || []).length)
+      : [];
+    const epCount = seasonList.reduce((n, s) => n + s.episodes.length, 0);
+
     results.innerHTML = `
+      <div class="add-preview">
+        <button class="add-preview-back" type="button">← Back to results</button>
+        <div class="add-preview-body">
+          <div class="add-preview-poster${poster ? "" : " ph"}">
+            ${poster ? `<img src="${poster}" alt="" loading="lazy">` : ""}
+          </div>
+          <div class="add-preview-info">
+            <h4>${esc(d.name)}</h4>
+            <p class="add-preview-meta">
+              ${d.first_air_date ? `<span>${esc(d.first_air_date.slice(0, 4))}</span>` : ""}
+              ${d.vote_average ? `<span>${d.vote_average.toFixed(1)} ★</span>` : ""}
+              ${
+                loading
+                  ? '<span class="add-preview-wait"><i class="spinner"></i>Seasons…</span>'
+                  : `${seasonList.length ? `<span>${seasonList.length} season${seasonList.length === 1 ? "" : "s"}</span>` : ""}
+                     ${epCount ? `<span>${epCount} episodes</span>` : ""}
+                     ${ongoing ? '<span class="live">◉ Still releasing</span>' : status ? `<span>${esc(status)}</span>` : ""}`
+              }
+            </p>
+            ${overview ? `<p class="add-preview-overview">${esc(overview)}</p>` : ""}
+          </div>
+        </div>
+        <div id="addCmdBox"></div>
+      </div>`;
+
+    results.querySelector(".add-preview-back").addEventListener("click", () => {
+      hint.textContent = "Pick one to see it before adding.";
+      const q = input.value.trim();
+      lastQuery = ""; // force a redraw of the same results
+      if (q.length >= 2) search(q);
+    });
+
+    if (!loading) addAction(d, detail, seasons, document.getElementById("addCmdBox"));
+  }
+
+  /* ---------- adding ----------
+     The show goes into this browser's own vault. Nothing is written to the
+     repo and nobody else sees it — which is the point: every visitor builds
+     their own collection without needing an account or a terminal.
+
+     The season data fetched for the preview is stored with it, so opening
+     the page afterwards is instant rather than another round trip. */
+
+  function addAction(d, detail, seasons, mount) {
+    if (!mount) return;
+    const id = String(d.id);
+    const uni = UserVault.uniOf(id);
+    const viewHref = `pages/${MODE === "anime" ? "anime" : "shows"}/view.html?id=${id}`;
+
+    if (UserVault.has(id)) {
+      mount.innerHTML = `
+        <div class="add-done">
+          <span>Already in your ${NOUN === "anime" ? "anime" : "shows"}.</span>
+          <a class="btn btn-accent sm" href="${viewHref}">Open it</a>
+          <button class="btn sm" data-drop="1">Remove</button>
+        </div>`;
+      mount.querySelector("[data-drop]").addEventListener("click", () => {
+        UserVault.remove(uni);
+        have.delete((d.name || "").toLowerCase());
+        addAction(d, detail, seasons, mount);
+        if (window.vaultHidden) window.vaultHidden.refresh();
+      });
+      return;
+    }
+
+    /* Without the season data there is nothing to render later, so the
+       command stays as the fallback when the proxy could not be reached. */
+    if (!Array.isArray(seasons) || !seasons.length) {
+      command(d.name, id, mount);
+      return;
+    }
+
+    mount.innerHTML = `
+      <div class="add-done">
+        <button class="btn btn-accent" data-save="1">
+          + Add to my ${NOUN === "anime" ? "anime" : "shows"}
+        </button>
+        <span class="add-note">Saved in this browser only.</span>
+      </div>`;
+
+    mount.querySelector("[data-save]").addEventListener("click", () => {
+      const data = UserVault.transform(d, detail, seasons);
+      const ok = UserVault.add(
+        {
+          id,
+          name: d.name,
+          kind: MODE,
+          poster: d.poster_path ? `https://image.tmdb.org/t/p/w342${d.poster_path}` : "",
+          year: (d.first_air_date || "").slice(0, 4),
+        },
+        data,
+      );
+
+      if (!ok) return addAction(d, detail, seasons, mount);
+
+      have.add((d.name || "").toLowerCase());
+      if (typeof toast === "function") toast(`Added ${d.name}`);
+      if (window.vaultHidden) window.vaultHidden.refresh();
+      addAction(d, detail, seasons, mount);
+    });
+  }
+
+  function command(name, id, mount) {
+    const box = mount || results;
+    box.innerHTML = `
       <div class="add-cmd">
         <p>Run this, then reload:</p>
         <code>npm run series add ${id ? id : `&quot;${esc(name)}&quot;`}${KIND_FLAG} &amp;&amp; npm run build</code>
         <button class="btn btn-accent sm" id="addCopy">Copy command</button>
       </div>`;
-    const copy = document.getElementById("addCopy");
+    const copy = box.querySelector("#addCopy");
     copy.addEventListener("click", async () => {
       const text = `npm run series add ${id ? id : `"${name}"`}${KIND_FLAG} && npm run build`;
       try {

@@ -1396,31 +1396,6 @@ const UNIVERSES = [
     accent2: "#6b4a12",
   },
   {
-    id: "severance",
-    page: {
-      eyebrow: "Severance",
-      h1a: "Every season",
-      h1b: "of Severance",
-      lede: "Mark leads a team of office workers whose memories have been surgically divided between their work and personal lives. When a mysterious colleague appears outside of work, it begins a journey to discover the truth about their jobs.",
-      desc: "Every episode of Severance, with ratings and progress tracking.",
-      footer: "Severance - progress stored locally",
-      filterLabel: "Season",
-      sortLabels: {
-        watch: "Watch order",
-        release: "Release date",
-        chrono: "In-universe",
-        relevance: "Relevance",
-      },
-    },
-    "kind": "show",
-    cover: "https://image.tmdb.org/t/p/w342/pPHpeI2X1qEd1CS1SeyrdhZ4qnT.jpg",
-    name: "Severance",
-    tagline: "3 seasons · from 2022",
-    href: "pages/shows/severance.html",
-    accent: "#6a9ee8",
-    accent2: "#22436b",
-  },
-  {
     id: "onepiece",
     page: {
       eyebrow: "ONE PIECE",

@@ -1,10 +1,10 @@
-// api/show/[id].js
+// api/show/[id]/seasons.js
 //
-// Proxies seriesgraph.com's show detail — name, poster, overview, status,
-// production status. Used for the preview shown before you commit to
-// adding something in the Add Show panel.
+// Proxies seriesgraph.com's season-ratings — every season and episode,
+// with its rating. Used for the preview in the Add Show panel, so you can
+// see the season/episode count before you commit to adding something.
 //
-// GET /api/show/<tmdb id>
+// GET /api/show/<tmdb id>/seasons
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -16,9 +16,10 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   try {
-    const upstream = await fetch(`https://seriesgraph.com/api/shows/${id}`, {
-      headers: { "User-Agent": "MediaVault/1.0 (+vercel proxy)" },
-    });
+    const upstream = await fetch(
+      `https://seriesgraph.com/api/shows/${id}/season-ratings`,
+      { headers: { "User-Agent": "MediaVault/1.0 (+vercel proxy)" } },
+    );
 
     if (!upstream.ok) {
       res.status(upstream.status).json({ error: "Upstream error" });
@@ -26,7 +27,6 @@ export default async function handler(req, res) {
     }
 
     const data = await upstream.json();
-    // A show's own detail barely changes minute to minute.
     res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
     res.status(200).json(data);
   } catch (e) {

@@ -116,6 +116,36 @@ Supabase route, and nothing here blocks it later.
 
 ---
 
+## Optional: live search and preview when adding a show
+
+The repo has an `api/` folder — three small serverless functions
+(`api/search.js`, `api/show/[id].js`, `api/show/[id]/seasons.js`) that proxy
+seriesgraph.com from the server, where its missing CORS header does not
+matter. **These only run on a host that executes serverless functions —
+Vercel is what they are written for. GitHub Pages cannot run them**; it only
+serves files.
+
+With them deployed, the *Add show* panel does more than hand you a command:
+type a name, and after the same 1.5s debounce you get real search results,
+and picking one shows the poster, synopsis, season and episode count, and
+whether it is still airing — before you copy the command. Without them (any
+static host, or Vercel before you deploy the functions), the panel detects
+the 404 and falls back to the exact same command-only flow as before. Nothing
+breaks either way; this is a nice-to-have layered on top of the GitHub Pages
+setup above, not a replacement for it.
+
+**They are also still just proxies.** A browser cannot write to your repo, so
+the command is still how a show actually gets added — the point of `api/` is
+a real look at what you are about to add, not skipping the command.
+
+To use it: deploy the same repo to [vercel.com](https://vercel.com) as well
+(import the GitHub repo, framework preset "Other", no build command needed —
+Vercel serves `api/` automatically and the static files as-is). Point people
+at whichever URL you want as the main one; the two deploys are independent
+and both stay in sync with the same `main` branch.
+
+---
+
 ## Where the data comes from
 
 Two of the three sources cannot be called from a browser, which is why the

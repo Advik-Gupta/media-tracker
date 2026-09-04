@@ -2,36 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <base href="../../" />
+    <base href="<%= base %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Peaky Blinders - Media Vault</title>
-    <meta name="description" content="Peaky Blinders, tracked with relevance ratings and four orderings." />
+    <title>Loading — Media Vault</title>
+    <meta name="description" content="Every season and episode, with ratings." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/css/base.css?v=48e5b954" />
-    <link rel="stylesheet" href="assets/css/universes.css?v=a4c4d4fc" />
-    <link rel="stylesheet" href="assets/css/tracker.css?v=93533e21" />
-    <link rel="stylesheet" href="assets/css/series.css?v=747b308c" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/universes.css" />
+    <link rel="stylesheet" href="assets/css/tracker.css" />
+    <link rel="stylesheet" href="assets/css/series.css" />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%237a8a99'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236a9ee8'/%3E%3C/svg%3E"
     />
   </head>
-  <body data-mode="show" data-universe="peaky" class="u-peaky">
+  <body data-mode="<%= vault.mode %>" data-universe="" class="u-view">
     <div class="page">
       <header class="topbar">
         <div class="wrap topbar-inner">
-          <a class="brand" href="pages/shows.html">
+          <a class="brand" href="<%= vault.home %>">
             <span class="brand-mark">MV</span>
             <span>Media Vault</span>
           </a>
-          <span class="crumb">/ Peaky Blinders</span>
+          <span class="crumb" id="viewCrumb">/ Loading…</span>
           <span class="topbar-spacer"></span>
-          
+          <button class="btn btn-ghost" id="viewRefresh" title="Fetch the latest episode data">
+            Refresh
+          </button>
           <button class="btn btn-ghost" id="jumpNext" title="Jump to the next unwatched episode">
             Next up ↓
           </button>
@@ -39,11 +41,9 @@
       </header>
 
       <section class="hero wrap">
-        <p class="eyebrow reveal">Small Heath, Birmingham</p>
-        <h1 class="reveal" style="--d:60ms">
-          By order of<br /><span class="hero-accent">the Peaky Blinders</span>
-        </h1>
-        <p class="lede reveal" style="--d:130ms">Six series covering 1919 to 1934. Straightforwardly linear - release order and in-universe order are the same.</p>
+        <p class="eyebrow reveal" id="viewEyebrow">&nbsp;</p>
+        <h1 class="reveal" style="--d:60ms" id="viewTitle">Loading…</h1>
+        <p class="lede reveal" style="--d:130ms" id="viewLede"></p>
       </section>
 
       <div class="controls">
@@ -83,25 +83,27 @@
           <i class="r-bad">Bad</i>
           <i class="r-garbage">Garbage</i>
         </p>
+        <div id="viewStatus" class="view-status"><i class="spinner"></i>Fetching episodes…</div>
         <div id="seriesRoot"></div>
       </main>
 
       <footer class="footer">
         <div class="wrap footer-inner">
           <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
-          <span>Six series · 1919 to 1934 · progress stored locally</span>
-          <span><a href="pages/shows.html">← All shows</a></span>
+          <span>Fetched live · progress stored in this browser</span>
+          <span><a href="<%= vault.home %>">← <%= vault.back %></a></span>
         </div>
       </footer>
     </div>
 
-    <script src="assets/js/store.js?v=01c221b3"></script>
-    <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
-    <script src="assets/js/lightbox.js?v=b2ed6be1"></script>
-    <script src="assets/js/data/_films.js?v=05577110"></script>
-    <script src="assets/js/modes.js?v=51fb5a1c"></script>
-    <script src="assets/js/data/peaky.js?v=99652897"></script>
-    <script src="assets/js/data/series/peaky.js?v=11a645d4"></script>
-    <script src="assets/js/series.js?v=61f5eea1"></script>
+    <script src="assets/js/store.js"></script>
+    <script src="assets/js/data/merges.js"></script>
+    <script src="assets/js/lightbox.js"></script>
+    <script src="assets/js/data/_films.js"></script>
+    <script src="assets/js/modes.js"></script>
+    <script src="assets/js/data/series/_counts.js"></script>
+    <script src="assets/js/uservault.js"></script>
+    <!-- Fetches the show, then loads series.js once the data is in place. -->
+    <script src="assets/js/seriesview.js"></script>
   </body>
 </html>

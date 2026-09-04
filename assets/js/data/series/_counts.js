@@ -686,13 +686,13 @@ window.SERIES_COUNTS = {
       {
         "id": 65942,
         "title": "Re:ZERO -Starting Life in Another World-",
-        "episodes": 80,
+        "episodes": 81,
         "ongoing": true,
         "poster": "https://image.tmdb.org/t/p/w342/oHqYrPAsIiTD5m4DuxumV4er8BU.jpg"
       }
     ],
     "primary": 65942,
-    "episodes": 80,
+    "episodes": 81,
     "films": 0,
     "shows": 1,
     "poster": "https://image.tmdb.org/t/p/w342/oHqYrPAsIiTD5m4DuxumV4er8BU.jpg",
@@ -700,7 +700,7 @@ window.SERIES_COUNTS = {
     "ongoingTitles": [
       "Re:ZERO -Starting Life in Another World-"
     ],
-    "upcoming": 5,
+    "upcoming": 4,
     "lastAir": "2026-08-26"
   },
   "rickandmorty": {
@@ -724,28 +724,6 @@ window.SERIES_COUNTS = {
     ],
     "upcoming": 3,
     "lastAir": "2026-07-26"
-  },
-  "severance": {
-    "perShow": [
-      {
-        "id": 95396,
-        "title": "Severance",
-        "episodes": 19,
-        "ongoing": true,
-        "poster": "https://image.tmdb.org/t/p/w342/pPHpeI2X1qEd1CS1SeyrdhZ4qnT.jpg"
-      }
-    ],
-    "primary": 95396,
-    "episodes": 19,
-    "films": 0,
-    "shows": 1,
-    "poster": "https://image.tmdb.org/t/p/w342/pPHpeI2X1qEd1CS1SeyrdhZ4qnT.jpg",
-    "ongoing": true,
-    "ongoingTitles": [
-      "Severance"
-    ],
-    "upcoming": 6,
-    "lastAir": "2025-03-20"
   },
   "sherlock": {
     "perShow": [
