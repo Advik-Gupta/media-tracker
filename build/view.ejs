@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <base href="<%= base %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Loading — Media Vault</title>
-    <meta name="description" content="Every season and episode, with ratings." />
+    <title>Loading - Media Vault</title>
+    <meta
+      name="description"
+      content="Every season and episode, with ratings."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -32,10 +35,18 @@
           <span class="crumb" id="viewCrumb">/ Loading…</span>
           <span class="topbar-spacer"></span>
           <span id="acctChip"></span>
-          <button class="btn btn-ghost" id="viewRefresh" title="Fetch the latest episode data">
+          <button
+            class="btn btn-ghost"
+            id="viewRefresh"
+            title="Fetch the latest episode data"
+          >
             Refresh
           </button>
-          <button class="btn btn-ghost" id="jumpNext" title="Jump to the next unwatched episode">
+          <button
+            class="btn btn-ghost"
+            id="jumpNext"
+            title="Jump to the next unwatched episode"
+          >
             Next up ↓
           </button>
         </div>
@@ -43,8 +54,8 @@
 
       <section class="hero wrap">
         <p class="eyebrow reveal" id="viewEyebrow">&nbsp;</p>
-        <h1 class="reveal" style="--d:60ms" id="viewTitle">Loading…</h1>
-        <p class="lede reveal" style="--d:130ms" id="viewLede"></p>
+        <h1 class="reveal" style="--d: 60ms" id="viewTitle">Loading…</h1>
+        <p class="lede reveal" style="--d: 130ms" id="viewLede"></p>
       </section>
 
       <div class="controls">
@@ -58,16 +69,35 @@
             <span class="ring-label" id="ringLabel">0%</span>
           </div>
           <div class="summary-figures">
-            <div class="figure"><b id="figWatched">0</b><span>watched</span></div>
-            <div class="figure"><b id="figTotal">0</b><span>episodes</span></div>
-            <div class="figure"><b id="figLeft">0</b><span>remaining</span></div>
-            <div class="figure"><b id="figTime">0h</b><span>left to watch</span></div>
+            <div class="figure">
+              <b id="figWatched">0</b><span>watched</span>
+            </div>
+            <div class="figure">
+              <b id="figTotal">0</b><span>episodes</span>
+            </div>
+            <div class="figure">
+              <b id="figLeft">0</b><span>remaining</span>
+            </div>
+            <div class="figure">
+              <b id="figTime">0h</b><span>left to watch</span>
+            </div>
           </div>
           <span class="topbar-spacer"></span>
           <div class="ctrl-buttons">
-            <button class="btn btn-ghost" id="markOngoing" aria-pressed="false">Mark ongoing</button>
-            <button class="btn btn-ghost" id="hideWatched" aria-pressed="false">Hide watched</button>
-            <button class="btn btn-ghost" id="denseView" aria-pressed="false" title="Ratings only">Compact</button>
+            <button class="btn btn-ghost" id="markOngoing" aria-pressed="false">
+              Mark ongoing
+            </button>
+            <button class="btn btn-ghost" id="hideWatched" aria-pressed="false">
+              Hide watched
+            </button>
+            <button
+              class="btn btn-ghost"
+              id="denseView"
+              aria-pressed="false"
+              title="Ratings only"
+            >
+              Compact
+            </button>
             <button class="btn btn-ghost" id="collapseAll">Collapse all</button>
             <button class="btn btn-ghost danger" id="resetShow">Reset</button>
           </div>
@@ -84,7 +114,9 @@
           <i class="r-bad">Bad</i>
           <i class="r-garbage">Garbage</i>
         </p>
-        <div id="viewStatus" class="view-status"><i class="spinner"></i>Fetching episodes…</div>
+        <div id="viewStatus" class="view-status">
+          <i class="spinner"></i>Fetching episodes…
+        </div>
         <div id="seriesRoot"></div>
       </main>
 

@@ -1,31 +1,3 @@
-/* ============================================================
-   USER VAULT — shows and anime a visitor added for themselves.
-
-   The shows and anime vaults start empty. What is in them is
-   whatever you added, and nobody else sees it — this is a
-   per-visitor collection, not a shared catalogue.
-
-   It lives in local storage. If accounts are configured, the
-   whole of it is mirrored to Supabase by assets/js/cloud.js and
-   follows you between devices; without them it stays in this
-   browser and everything still works.
-
-   Two stores, deliberately separate:
-
-     mediavault.myshows   what you added — ids, names, posters.
-                          Yours, so it goes in the export.
-     mediavault.showdata  the season and episode data behind
-                          them. Refetchable from the API, so it
-                          stays out of the export and can be
-                          thrown away at any time.
-
-   A user-added universe is keyed `u<tmdb id>`, which cannot
-   collide with the slug-based ids the build generates. Episode
-   progress keys are identical to the built-in ones
-   (`e<showId>-<season>x<episode>`), so ticking, filler marking
-   and the ongoing override all work unchanged.
-   ============================================================ */
-
 const UserVault = (() => {
   const LIST_KEY = "mediavault.myshows";
   const DATA_KEY = "mediavault.showdata";
@@ -44,17 +16,11 @@ const UserVault = (() => {
       localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (e) {
-      /* quota, or a private window */
       return false;
     }
   };
 
   const uniOf = (tmdbId) => `u${tmdbId}`;
-
-  /* ---------- the API's shape, turned into the build's shape ----------
-     build/seriesgraph.js does this server-side when it generates a page.
-     The same mapping runs here so the renderer cannot tell the difference
-     between a show that was built in and one added five seconds ago. */
 
   const IMG = "https://image.tmdb.org/t/p";
 
@@ -104,8 +70,6 @@ const UserVault = (() => {
     };
   }
 
-  /* An episode counts as still to come if it is dated ahead, or announced
-     with neither a date nor a rating. Same rule as build/build.js. */
   function unairedIn(show) {
     let n = 0;
     const now = Date.now();
@@ -119,7 +83,6 @@ const UserVault = (() => {
     return n;
   }
 
-  /** The `_counts.js` row for a user-added show, derived the same way. */
   function countsFor(data) {
     const now = Date.now();
     const shows = data.shows || [];
@@ -163,7 +126,6 @@ const UserVault = (() => {
     transform,
     countsFor,
 
-    /** Everything this browser has added, newest first. */
     list() {
       const v = read(LIST_KEY, []);
       return Array.isArray(v) ? v : [];
@@ -175,7 +137,6 @@ const UserVault = (() => {
       );
     },
 
-    /** The season/episode data for one, if it is still cached. */
     data(uni) {
       return read(DATA_KEY, {})[uni] || null;
     },
@@ -186,15 +147,6 @@ const UserVault = (() => {
       return write(DATA_KEY, all);
     },
 
-    /**
-     * The universe id to file a show under.
-     *
-     * Normally `u<tmdb id>`. But a few TMDB ids are already owned by a
-     * universe the build knows about — one that merges several series, say —
-     * and the view page adopts that universe so its progress is not orphaned.
-     * Adding has to agree, or the card would count one bucket while the page
-     * wrote to another.
-     */
     uniFor(tmdbId) {
       const counts = window.SERIES_COUNTS || {};
       for (const [uniId, meta] of Object.entries(counts)) {
@@ -206,11 +158,6 @@ const UserVault = (() => {
       return uniOf(tmdbId);
     },
 
-    /**
-     * Add a show. `data` is the transformed series payload; it is cached
-     * immediately because the Add panel already fetched it for the preview,
-     * so opening the page afterwards costs no further requests.
-     */
     add(entry, data) {
       const list = this.list();
       const uni = this.uniFor(entry.id);
@@ -238,7 +185,6 @@ const UserVault = (() => {
       write(DATA_KEY, all);
     },
 
-    /** Shaped like a registry entry, so the vault grid can render it. */
     asUniverses(kind) {
       return this.list()
         .filter((x) => !kind || x.kind === kind)
@@ -255,7 +201,6 @@ const UserVault = (() => {
         }));
     },
 
-    /** Counts for every added show that still has its data cached. */
     counts() {
       const out = {};
       const cache = read(DATA_KEY, {});

@@ -1,11 +1,3 @@
-// api/show/[id].js
-//
-// Proxies seriesgraph.com's show detail — name, poster, overview, status,
-// production status. Used for the preview shown before you commit to
-// adding something in the Add Show panel.
-//
-// GET /api/show/<tmdb id>
-
 export default async function handler(req, res) {
   const { id } = req.query;
   if (!/^\d+$/.test(String(id || ""))) {
@@ -26,7 +18,6 @@ export default async function handler(req, res) {
     }
 
     const data = await upstream.json();
-    // A show's own detail barely changes minute to minute.
     res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
     res.status(200).json(data);
   } catch (e) {

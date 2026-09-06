@@ -1,25 +1,11 @@
-/* ============================================================
-   RANDOM PICKER - pulls one title at random from every catalogue
-   loaded on the page. Keeps rolling until you like what you get.
-   ============================================================ */
-
 (() => {
   const CATS = window.CATALOGUES || {};
   const NAME = {};
-  /* `const UNIVERSES` in a classic script is script-scoped, not a window
-     property - reference it directly rather than through window. */
   const ALL = typeof UNIVERSES !== "undefined" ? UNIVERSES : [];
   ALL.forEach((u) => {
     NAME[u.id] = u;
   });
 
-  /* Only the curated lists are worth drawing from on the film side - a random
-     episode of Agents of S.H.I.E.L.D. is not a useful suggestion, so the
-     franchise universes are excluded there and My List is its own source.
-
-     The shows and anime vaults draw from their own series, so they
-     draw from their series instead - otherwise the picker would offer a film
-     from inside the reading room. */
   const MODE = document.body.dataset.mode || "movie";
   const LIST_IDS = new Set(
     (MODE === "movie"
@@ -29,8 +15,6 @@
   );
   const WATCHLIST = "__watchlist";
 
-  /* Every candidate is { it, key, cat, watchlistEntry? }. A watchlist entry
-     has no catalogue behind it, so `cat` is null and the renderer adapts. */
   function pool() {
     const out = [];
     const seen = new Set();
@@ -68,7 +52,8 @@
         resolvedItems(cat).forEach((it) => {
           if (it.alias) return;
           const ref = progressRef(key, it).join("/");
-          if (seen.has(ref)) return; // same film in another list - draw it once
+          if (seen.has(ref))
+            return;
           seen.add(ref);
           out.push({ it, key, cat });
         });
@@ -78,16 +63,11 @@
     return out;
   }
 
-  /** Where a free-text watchlist entry's watched flag lives. */
-  /* Free-text entries have no catalogue behind them, so their watched flag
-     lives in a bucket of its own - one per vault, so a novel and the film of
-     the same name are tracked separately. */
   const SEEN_BUCKET = `__seen_${document.body.dataset.mode || "movie"}`;
 
   function refForEntry(e) {
-    /* Mirrors watchlist.js and store.js — a registry film is keyed in the
-       shared bucket wherever it is ticked from. */
-    if (e.film) return [SHARED_BUCKET, e.film];
+    if (e.film)
+      return [SHARED_BUCKET, e.film];
     if (e.link) return [SHARED_BUCKET, e.link];
     if (e.uni) return [e.uni, e.id];
     return [SEEN_BUCKET, String(e.title).toLowerCase().trim()];
@@ -100,7 +80,6 @@
     history: [],
   };
 
-  /** Where a pick's watched flag lives, catalogue item or watchlist entry. */
   function refFor(key, it, entry) {
     return key === WATCHLIST ? refForEntry(entry) : progressRef(key, it);
   }
@@ -120,7 +99,6 @@
       );
       if (unwatched.length) c = unwatched;
     }
-    /* avoid repeating the last few picks when the pool is big enough */
     if (c.length > 8) {
       const recent = state.history.slice(-5);
       const fresh = c.filter((x) => !recent.includes(x.key + "/" + x.it.id));

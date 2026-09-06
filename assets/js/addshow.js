@@ -1,36 +1,12 @@
-/* ============================================================
-   ADD SHOW — search any series and add it to your own vault.
-
-   seriesgraph.com sends no Access-Control-Allow-Origin header,
-   so the browser cannot call it directly. /api/search,
-   /api/show/[id] and /api/show/[id]/seasons are Vercel functions
-   that fetch it server-side and return it with CORS allowed.
-
-   What gets added is yours alone: the show goes into this
-   browser's UserVault, not into the repo, so every visitor
-   builds their own collection with no account and no terminal.
-   The season data fetched for the preview is stored with it, so
-   opening the page afterwards costs nothing further.
-
-   On a host without the proxy (GitHub Pages, file://, npm run
-   serve) the request 404s and the panel falls back to the
-   command that adds a show to the built-in catalogue instead.
-   ============================================================ */
-
 (() => {
   const trigger = document.getElementById("addShow");
   if (!trigger) return;
 
-  /* The anime vault and the shows vault are separate libraries, so what this
-     panel adds has to follow the vault it was opened from — otherwise an
-     anime lands in the shows vault and has to be moved by hand. */
   const MODE = document.body.dataset.mode === "anime" ? "anime" : "show";
   const NOUN = MODE === "anime" ? "anime" : "show";
   const KIND_FLAG = ` -- --kind ${MODE}`;
   const PLACEHOLDER = `${MODE === "anime" ? "Anime" : "Show"} name or TMDB id…`;
 
-  /* The Vercel functions in api/. Relative, so this works the same on
-     whatever domain the site is actually served from. */
   const API = "/api";
   const DEBOUNCE = 1500;
 
@@ -40,8 +16,6 @@
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
     );
 
-  /* ---------- shell ---------- */
-
   const backdrop = document.createElement("div");
   backdrop.className = "rnd-backdrop";
   backdrop.hidden = true;
@@ -49,7 +23,10 @@
   const modal = document.createElement("aside");
   modal.className = "rnd-modal add-modal";
   modal.hidden = true;
-  modal.setAttribute("aria-label", `Add ${NOUN === "anime" ? "an anime" : "a show"}`);
+  modal.setAttribute(
+    "aria-label",
+    `Add ${NOUN === "anime" ? "an anime" : "a show"}`,
+  );
   modal.innerHTML = `
     <div class="rnd-head">
       <h3>Add ${NOUN === "anime" ? "an anime" : "a show"}</h3>
@@ -59,7 +36,7 @@
       <input id="addInput" type="text" autocomplete="off" spellcheck="false"
              placeholder="${PLACEHOLDER}" aria-label="Name or id" />
     </div>
-    <p class="add-hint" id="addHint">Type a name — results appear once you stop typing.</p>
+    <p class="add-hint" id="addHint">Type a name - results appear once you stop typing.</p>
     <div id="addResults"></div>
     <div id="addMerge"></div>`;
 
@@ -69,31 +46,28 @@
   const hint = modal.querySelector("#addHint");
   const results = modal.querySelector("#addResults");
 
-  /* ---------- restoring a removed show ---------- */
-
-
-  /* ---------- merging two series ----------
-     Breaking Bad and Better Call Saul are one thing to watch. Merging folds
-     the child into the parent, so the parent's page carries both and the
-     vault shows a single card. Like adding, the file work happens in the
-     build, so this composes the command. */
-
   function renderMerge() {
     const box = modal.querySelector("#addMerge");
     const mine = (typeof UNIVERSES !== "undefined" ? UNIVERSES : []).filter(
       (u) => (u.kind || "movie") === (document.body.dataset.mode || "show"),
     );
-    if (mine.length < 2) { box.innerHTML = ""; return; }
+    if (mine.length < 2) {
+      box.innerHTML = "";
+      return;
+    }
 
     const opts = (sel) =>
       mine
-        .map((u) => `<option value="${esc(u.id)}"${u.id === sel ? " selected" : ""}>${esc(u.name)}</option>`)
+        .map(
+          (u) =>
+            `<option value="${esc(u.id)}"${u.id === sel ? " selected" : ""}>${esc(u.name)}</option>`,
+        )
         .join("");
 
     box.innerHTML = `
       <div class="add-restore">
         <h4>Merge two series</h4>
-        <p class="add-hint">Fold one into another — the parent keeps its page, and progress moves with it.</p>
+        <p class="add-hint">Fold one into another - the parent keeps its page, and progress moves with it.</p>
         <div class="add-merge-row">
           <select id="mergeChild" aria-label="Series to fold in">${opts(mine[1].id)}</select>
           <span>into</span>
@@ -124,7 +98,9 @@
         } catch (err) {
           e.currentTarget.textContent = "Select it above";
         }
-        setTimeout(() => { e.currentTarget.textContent = "Copy command"; }, 1800);
+        setTimeout(() => {
+          e.currentTarget.textContent = "Copy command";
+        }, 1800);
       });
     };
 
@@ -145,7 +121,9 @@
   const close = () => {
     backdrop.classList.remove("show");
     modal.classList.remove("show");
-    setTimeout(() => { backdrop.hidden = modal.hidden = true; }, 220);
+    setTimeout(() => {
+      backdrop.hidden = modal.hidden = true;
+    }, 220);
   };
 
   trigger.addEventListener("click", open);
@@ -155,19 +133,16 @@
     if (e.key === "Escape" && !modal.hidden) close();
   });
 
-  /* ---------- which shows are already here ---------- */
-
-  /* Built-in and self-added both count as "already here". */
   const have = new Set([
     ...(typeof UNIVERSES !== "undefined" ? UNIVERSES : [])
       .filter((u) => u.kind === MODE)
       .map((u) => u.name.toLowerCase()),
     ...(typeof UserVault !== "undefined"
-      ? UserVault.list().filter((x) => x.kind === MODE).map((x) => x.name.toLowerCase())
+      ? UserVault.list()
+          .filter((x) => x.kind === MODE)
+          .map((x) => x.name.toLowerCase())
       : []),
   ]);
-
-  /* ---------- search ---------- */
 
   let timer = null;
   let lastQuery = "";
@@ -177,7 +152,7 @@
     const q = input.value.trim();
     if (q.length < 2) {
       results.innerHTML = "";
-      hint.textContent = "Type a name — results appear once you stop typing.";
+      hint.textContent = "Type a name - results appear once you stop typing.";
       return;
     }
     hint.textContent = "Waiting for you to finish…";
@@ -192,9 +167,6 @@
     }
   });
 
-  /* Once a proxy call 404s (no api/ on this host) or throws, stop trying it
-     for the rest of the session — otherwise every keystroke pays for a
-     failed round trip before falling back. */
   let proxyDown = false;
 
   async function search(q) {
@@ -228,9 +200,11 @@
     hint.textContent = "Pick one to see it before adding.";
     lastHits = new Map(hits.map((d) => [String(d.id), d]));
     results.innerHTML = hits.map(row).join("");
-    results.querySelectorAll("[data-add]").forEach((b) =>
-      b.addEventListener("click", () => preview(lastHits.get(b.dataset.add))),
-    );
+    results
+      .querySelectorAll("[data-add]")
+      .forEach((b) =>
+        b.addEventListener("click", () => preview(lastHits.get(b.dataset.add))),
+      );
   }
   let lastHits = new Map();
 
@@ -240,9 +214,11 @@
     return `
       <button class="wl-sugg" data-add="${d.id}" data-name="${esc(d.name)}" ${owned ? "disabled" : ""}>
         <span class="wl-sugg-thumb${d.poster_path ? "" : " ph"}">
-          ${d.poster_path
-            ? `<img src="https://image.tmdb.org/t/p/w154${d.poster_path}" alt="" loading="lazy">`
-            : ""}
+          ${
+            d.poster_path
+              ? `<img src="https://image.tmdb.org/t/p/w154${d.poster_path}" alt="" loading="lazy">`
+              : ""
+          }
         </span>
         <span class="wl-sugg-main">
           <b class="wl-sugg-title">${esc(d.name)}</b>
@@ -254,15 +230,10 @@
 
   function offline(q) {
     hint.textContent = proxyDown
-      ? "Live lookup is not available on this host — showing the command instead."
+      ? "Live lookup is not available on this host - showing the command instead."
       : "The seriesgraph API does not allow browser requests, so the search has to run locally.";
     command(q);
   }
-
-  /* ---------- preview ----------
-     What the proxy buys over a bare command: a look at the actual show —
-     poster, overview, whether it is still airing, how many seasons and
-     episodes — before you spend the command on the wrong "The Office". */
 
   const ONGOING_STATUS = new Set([
     "Returning Series",
@@ -271,19 +242,19 @@
     "Pilot",
   ]);
 
-  /* `d` is the search hit — it already carries the poster, year, overview
-     and score, so the poster and blurb show immediately. Only the season
-     and episode count, and whether it is still airing, need another call. */
   async function preview(d) {
     if (!d) return;
     const id = String(d.id);
     const name = d.name;
 
     try {
-      const queue = JSON.parse(localStorage.getItem("mediavault.addqueue") || "[]");
-      if (!queue.some((x) => x.id === id)) queue.push({ id, name, at: Date.now() });
+      const queue = JSON.parse(
+        localStorage.getItem("mediavault.addqueue") || "[]",
+      );
+      if (!queue.some((x) => x.id === id))
+        queue.push({ id, name, at: Date.now() });
       localStorage.setItem("mediavault.addqueue", JSON.stringify(queue));
-    } catch (e) { /* private window */ }
+    } catch (e) {}
 
     hint.textContent = "";
     renderPreview(d, null, null, true);
@@ -297,9 +268,7 @@
       ]);
       if (dr.ok) detail = await dr.json();
       if (sr.ok) seasons = await sr.json();
-    } catch (e) {
-      /* handled by renderPreview, which falls back to the command */
-    }
+    } catch (e) {}
 
     renderPreview(d, detail, seasons, false);
   }
@@ -347,20 +316,13 @@
     results.querySelector(".add-preview-back").addEventListener("click", () => {
       hint.textContent = "Pick one to see it before adding.";
       const q = input.value.trim();
-      lastQuery = ""; // force a redraw of the same results
+      lastQuery = "";
       if (q.length >= 2) search(q);
     });
 
-    if (!loading) addAction(d, detail, seasons, document.getElementById("addCmdBox"));
+    if (!loading)
+      addAction(d, detail, seasons, document.getElementById("addCmdBox"));
   }
-
-  /* ---------- adding ----------
-     The show goes into this browser's own vault. Nothing is written to the
-     repo and nobody else sees it — which is the point: every visitor builds
-     their own collection without needing an account or a terminal.
-
-     The season data fetched for the preview is stored with it, so opening
-     the page afterwards is instant rather than another round trip. */
 
   function addAction(d, detail, seasons, mount) {
     if (!mount) return;
@@ -384,8 +346,6 @@
       return;
     }
 
-    /* Without the season data there is nothing to render later, so the
-       command stays as the fallback when the proxy could not be reached. */
     if (!Array.isArray(seasons) || !seasons.length) {
       command(d.name, id, mount);
       return;
@@ -406,7 +366,9 @@
           id,
           name: d.name,
           kind: MODE,
-          poster: d.poster_path ? `https://image.tmdb.org/t/p/w342${d.poster_path}` : "",
+          poster: d.poster_path
+            ? `https://image.tmdb.org/t/p/w342${d.poster_path}`
+            : "",
           year: (d.first_air_date || "").slice(0, 4),
         },
         data,
@@ -438,7 +400,9 @@
       } catch (e) {
         copy.textContent = "Select it above";
       }
-      setTimeout(() => { copy.textContent = "Copy command"; }, 1800);
+      setTimeout(() => {
+        copy.textContent = "Copy command";
+      }, 1800);
     });
   }
 })();

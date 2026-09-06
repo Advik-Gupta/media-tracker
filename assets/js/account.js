@@ -1,12 +1,3 @@
-/* ============================================================
-   ACCOUNT — the sign-in page, and the account chip that appears
-   in the top bar of every other page.
-
-   Accounts are optional. With no Supabase credentials in the
-   build, this says so plainly rather than showing a form that
-   cannot work.
-   ============================================================ */
-
 (() => {
   const esc = (s) =>
     String(s == null ? "" : s).replace(
@@ -14,9 +5,7 @@
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
     );
 
-  /* ---------- the page ---------- */
-
-  let mode = "in"; // "in" | "up"
+  let mode = "in";
   let busy = false;
   let message = null;
 
@@ -55,7 +44,7 @@
           <h3>Signed in</h3>
           <p class="acct-who">${esc(user.email || "your account")}</p>
           <p>
-            This vault syncs automatically — changes are sent up a couple of
+            This vault syncs automatically - changes are sent up a couple of
             seconds after you make them, and pulled down when you sign in
             somewhere else.
           </p>
@@ -74,13 +63,15 @@
         render();
       });
 
-      document.getElementById("acctSync").addEventListener("click", async () => {
-        message = "Syncing…";
-        render();
-        const up = await Cloud.push({ force: true });
-        message = up.ok ? "Synced." : `Could not sync: ${up.error}`;
-        render();
-      });
+      document
+        .getElementById("acctSync")
+        .addEventListener("click", async () => {
+          message = "Syncing…";
+          render();
+          const up = await Cloud.push({ force: true });
+          message = up.ok ? "Synced." : `Could not sync: ${up.error}`;
+          render();
+        });
       return;
     }
 
@@ -122,38 +113,36 @@
       }),
     );
 
-    document.getElementById("acctForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (busy) return;
+    document
+      .getElementById("acctForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (busy) return;
 
-      const form = new FormData(e.target);
-      const email = String(form.get("email") || "").trim();
-      const password = String(form.get("password") || "");
+        const form = new FormData(e.target);
+        const email = String(form.get("email") || "").trim();
+        const password = String(form.get("password") || "");
 
-      busy = true;
-      message = null;
-      render();
+        busy = true;
+        message = null;
+        render();
 
-      const res =
-        mode === "up"
-          ? await Cloud.signUp(email, password)
-          : await Cloud.signIn(email, password);
+        const res =
+          mode === "up"
+            ? await Cloud.signUp(email, password)
+            : await Cloud.signIn(email, password);
 
-      busy = false;
-      if (res.error) {
-        message = res.error;
-      } else if (mode === "up") {
-        /* Supabase may be set to require email confirmation, in which case
-           there is no session yet and nothing has gone wrong. */
-        message = Cloud.user()
-          ? "Account created."
-          : "Account created — check your email to confirm it.";
-      }
-      render();
-    });
+        busy = false;
+        if (res.error) {
+          message = res.error;
+        } else if (mode === "up") {
+          message = Cloud.user()
+            ? "Account created."
+            : "Account created - check your email to confirm it.";
+        }
+        render();
+      });
   }
-
-  /* ---------- the chip in every other top bar ---------- */
 
   const slot = document.getElementById("acctChip");
   if (slot && Cloud.configured()) {

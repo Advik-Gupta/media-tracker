@@ -4,18 +4,21 @@
     <meta charset="UTF-8" />
     <base href="../../" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Loading — Media Vault</title>
-    <meta name="description" content="Every season and episode, with ratings." />
+    <title>Loading - Media Vault</title>
+    <meta
+      name="description"
+      content="Every season and episode, with ratings."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/css/base.css?v=48e5b954" />
+    <link rel="stylesheet" href="assets/css/base.css?v=56f642d3" />
     <link rel="stylesheet" href="assets/css/universes.css?v=67567403" />
-    <link rel="stylesheet" href="assets/css/tracker.css?v=90b1bc82" />
-    <link rel="stylesheet" href="assets/css/series.css?v=f4b5c6db" />
+    <link rel="stylesheet" href="assets/css/tracker.css?v=872f7502" />
+    <link rel="stylesheet" href="assets/css/series.css?v=f084ceff" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236a9ee8'/%3E%3C/svg%3E"
@@ -32,10 +35,18 @@
           <span class="crumb" id="viewCrumb">/ Loading…</span>
           <span class="topbar-spacer"></span>
           <span id="acctChip"></span>
-          <button class="btn btn-ghost" id="viewRefresh" title="Fetch the latest episode data">
+          <button
+            class="btn btn-ghost"
+            id="viewRefresh"
+            title="Fetch the latest episode data"
+          >
             Refresh
           </button>
-          <button class="btn btn-ghost" id="jumpNext" title="Jump to the next unwatched episode">
+          <button
+            class="btn btn-ghost"
+            id="jumpNext"
+            title="Jump to the next unwatched episode"
+          >
             Next up ↓
           </button>
         </div>
@@ -43,8 +54,8 @@
 
       <section class="hero wrap">
         <p class="eyebrow reveal" id="viewEyebrow">&nbsp;</p>
-        <h1 class="reveal" style="--d:60ms" id="viewTitle">Loading…</h1>
-        <p class="lede reveal" style="--d:130ms" id="viewLede"></p>
+        <h1 class="reveal" style="--d: 60ms" id="viewTitle">Loading…</h1>
+        <p class="lede reveal" style="--d: 130ms" id="viewLede"></p>
       </section>
 
       <div class="controls">
@@ -58,16 +69,35 @@
             <span class="ring-label" id="ringLabel">0%</span>
           </div>
           <div class="summary-figures">
-            <div class="figure"><b id="figWatched">0</b><span>watched</span></div>
-            <div class="figure"><b id="figTotal">0</b><span>episodes</span></div>
-            <div class="figure"><b id="figLeft">0</b><span>remaining</span></div>
-            <div class="figure"><b id="figTime">0h</b><span>left to watch</span></div>
+            <div class="figure">
+              <b id="figWatched">0</b><span>watched</span>
+            </div>
+            <div class="figure">
+              <b id="figTotal">0</b><span>episodes</span>
+            </div>
+            <div class="figure">
+              <b id="figLeft">0</b><span>remaining</span>
+            </div>
+            <div class="figure">
+              <b id="figTime">0h</b><span>left to watch</span>
+            </div>
           </div>
           <span class="topbar-spacer"></span>
           <div class="ctrl-buttons">
-            <button class="btn btn-ghost" id="markOngoing" aria-pressed="false">Mark ongoing</button>
-            <button class="btn btn-ghost" id="hideWatched" aria-pressed="false">Hide watched</button>
-            <button class="btn btn-ghost" id="denseView" aria-pressed="false" title="Ratings only">Compact</button>
+            <button class="btn btn-ghost" id="markOngoing" aria-pressed="false">
+              Mark ongoing
+            </button>
+            <button class="btn btn-ghost" id="hideWatched" aria-pressed="false">
+              Hide watched
+            </button>
+            <button
+              class="btn btn-ghost"
+              id="denseView"
+              aria-pressed="false"
+              title="Ratings only"
+            >
+              Compact
+            </button>
             <button class="btn btn-ghost" id="collapseAll">Collapse all</button>
             <button class="btn btn-ghost danger" id="resetShow">Reset</button>
           </div>
@@ -84,7 +114,9 @@
           <i class="r-bad">Bad</i>
           <i class="r-garbage">Garbage</i>
         </p>
-        <div id="viewStatus" class="view-status"><i class="spinner"></i>Fetching episodes…</div>
+        <div id="viewStatus" class="view-status">
+          <i class="spinner"></i>Fetching episodes…
+        </div>
         <div id="seriesRoot"></div>
       </main>
 
@@ -98,16 +130,16 @@
     </div>
 
     <script src="assets/js/config.js?v=285bdcac"></script>
-    <script src="assets/js/store.js?v=c5bd56b1"></script>
-    <script src="assets/js/cloud.js?v=01ad2ac7"></script>
+    <script src="assets/js/store.js?v=3fa1fe6d"></script>
+    <script src="assets/js/cloud.js?v=b433d0e0"></script>
     <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
-    <script src="assets/js/lightbox.js?v=b2ed6be1"></script>
+    <script src="assets/js/lightbox.js?v=d5f48017"></script>
     <script src="assets/js/data/_films.js?v=05577110"></script>
-    <script src="assets/js/modes.js?v=51fb5a1c"></script>
+    <script src="assets/js/modes.js?v=c9b11d4e"></script>
     <script src="assets/js/data/series/_counts.js?v=f88759c4"></script>
-    <script src="assets/js/uservault.js?v=913fb17f"></script>
+    <script src="assets/js/uservault.js?v=2e8685b5"></script>
     <!-- Fetches the show, then loads series.js once the data is in place. -->
-    <script src="assets/js/seriesview.js?v=0dd210a7"></script>
-    <script src="assets/js/account.js?v=95843f91"></script>
+    <script src="assets/js/seriesview.js?v=4a14ac25"></script>
+    <script src="assets/js/account.js?v=2c5b1b84"></script>
   </body>
 </html>

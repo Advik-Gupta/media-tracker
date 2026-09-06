@@ -1,17 +1,9 @@
-/* ============================================================
-   ANALYTICS — charts drawn by hand rather than by a library, so
-   they follow the same rules as everything else: flat fills,
-   1px rules, no gradients, no shadows.
-   ============================================================ */
-
 .a-filters {
   display: flex;
   flex-wrap: wrap;
   gap: var(--s1);
   margin-bottom: var(--s4);
 }
-
-/* ---------- headline figures ---------- */
 
 .a-stats {
   display: grid;
@@ -54,8 +46,6 @@
   color: var(--fog);
 }
 
-/* ---------- panels ---------- */
-
 .a-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -85,8 +75,6 @@
   padding: var(--s4) 0;
   text-align: center;
 }
-
-/* ---------- column chart ---------- */
 
 .colchart {
   display: flex;
@@ -131,8 +119,6 @@
   color: var(--fog);
 }
 
-/* ---------- horizontal bars ---------- */
-
 .barlist { display: flex; flex-direction: column; gap: 10px; }
 .barrow {
   display: grid;
@@ -157,8 +143,6 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-
-/* ---------- the ring ---------- */
 
 .a-ring-panel { display: flex; flex-direction: column; }
 .ringwrap { position: relative; width: 168px; margin: var(--s2) auto var(--s3); }
@@ -205,8 +189,6 @@
   color: var(--fog);
   font-variant-numeric: tabular-nums;
 }
-
-/* ---------- records ---------- */
 
 .records { display: flex; flex-direction: column; gap: var(--s2); }
 .record {

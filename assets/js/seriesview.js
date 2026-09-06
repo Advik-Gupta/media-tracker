@@ -1,23 +1,3 @@
-/* ============================================================
-   SERIES VIEW — one page that renders any show or anime by id.
-
-   This replaces the per-show HTML files the build used to
-   generate. It reads ?id= from the URL, fetches the show through
-   the /api proxy, shapes the response into exactly what
-   build/seriesgraph.js used to bake in, and only then loads
-   series.js — which cannot tell the difference and renders the
-   season grid, filler marking, ticking and the rest unchanged.
-
-   Data is fetched fresh on every visit, so a show that gained a
-   season shows it without anything being rebuilt. The last good
-   response is kept in local storage and used only when the
-   network fails, so a flaky connection degrades to slightly old
-   data rather than an empty page.
-
-   Progress is never fetched. It lives in this browser, keyed the
-   same way it always was.
-   ============================================================ */
-
 (() => {
   const API = "/api";
 
@@ -42,7 +22,7 @@
       </div>`;
     titleEl.textContent = "Not found";
     crumbEl.textContent = "/ Not found";
-    document.title = "Not found — Media Vault";
+    document.title = "Not found - Media Vault";
   }
 
   if (!/^\d+$/.test(id)) {
@@ -50,12 +30,6 @@
     return;
   }
 
-  /* ---------- which universe this is ----------
-     A built-in show already has a universe id, a progress bucket full of
-     ticks, and possibly several series merged under it. Reusing `u<tmdb>`
-     here would orphan all of that, so the episode index is checked first:
-     if some built-in universe owns this id, the page adopts that universe
-     wholesale — its id for progress, and every show under it. */
   function builtIn(tmdbId) {
     const counts = window.SERIES_COUNTS || {};
     for (const [uniId, meta] of Object.entries(counts)) {
@@ -68,13 +42,7 @@
 
   const known = builtIn(id);
   const uni = known ? known.uni : UserVault.uniOf(id);
-  /* Every TMDB id this page has to fetch — more than one when series were
-     merged together, e.g. Breaking Bad and Better Call Saul. */
-  const showIds = known
-    ? known.meta.perShow.map((s) => String(s.id))
-    : [id];
-
-  /* ---------- fetch ---------- */
+  const showIds = known ? known.meta.perShow.map((s) => String(s.id)) : [id];
 
   async function load({ force } = {}) {
     statusEl.hidden = false;
@@ -82,7 +50,6 @@
 
     let failed = false;
 
-    /* One fetch pair per show — usually one, more when series are merged. */
     const fetched = await Promise.all(
       showIds.map(async (sid) => {
         try {
@@ -108,8 +75,6 @@
 
     if (good.length) {
       const saved = UserVault.list().find((x) => x.uni === uni) || {};
-      /* Each show is transformed on its own, then the results are combined
-         so a merged universe renders as the several series it holds. */
       const shows = good.map((x) => {
         const hit = {
           id: Number(x.sid),
@@ -128,19 +93,18 @@
       return render(data, { stale: false });
     }
 
-    /* Live fetch did not work — fall back to whatever was stored last. */
     const cached = UserVault.data(uni);
     if (cached) return render(cached, { stale: true });
 
     fail(
-      failed ? "Could not reach the episode API." : "No episode data for this id.",
+      failed
+        ? "Could not reach the episode API."
+        : "No episode data for this id.",
       failed
         ? "The /api proxy is unavailable on this host, or the upstream is down. Nothing is cached for this show yet."
         : "The API returned no seasons for it.",
     );
   }
-
-  /* ---------- render ---------- */
 
   let seriesLoaded = false;
 
@@ -148,7 +112,6 @@
     const show = (data.shows || [])[0];
     if (!show) return fail("This show has no seasons listed.");
 
-    /* Everything series.js reads, put where it expects to find it. */
     window.SERIES = window.SERIES || {};
     window.SERIES[uni] = data;
 
@@ -158,9 +121,12 @@
     document.body.dataset.universe = uni;
 
     const seasonCount = (show.seasons || []).length;
-    const epCount = (show.seasons || []).reduce((n, s) => n + s.episodes.length, 0);
+    const epCount = (show.seasons || []).reduce(
+      (n, s) => n + s.episodes.length,
+      0,
+    );
 
-    document.title = `${show.title} — Media Vault`;
+    document.title = `${show.title} - Media Vault`;
     crumbEl.textContent = `/ ${show.title}`;
     titleEl.textContent = show.title;
     eyebrowEl.textContent = [
@@ -175,12 +141,9 @@
     statusEl.hidden = !stale;
     if (stale) {
       statusEl.innerHTML =
-        '<div class="view-stale">Showing the last saved copy — the live fetch failed.</div>';
+        '<div class="view-stale">Showing the last saved copy - the live fetch failed.</div>';
     }
 
-    /* series.js is an IIFE that reads the data the moment it runs, so it is
-       loaded only now. On a refresh it is already in memory, so the page is
-       reloaded instead of trying to re-run it. */
     if (seriesLoaded) {
       location.reload();
       return;

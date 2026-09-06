@@ -1,25 +1,3 @@
-/* ============================================================
-   MOVIE VIEW — one page for one film.
-
-   Reached from any movie card, as pages/movies/view.html?film=<key>
-   where the key is the film registry id (e.g. inception-2010).
-
-   The registry answers immediately — title, year, poster, genres,
-   rating — so the page is never blank while the network works.
-   OMDb is then asked for everything the registry does not carry:
-   cast, writers, plot, runtime, certification, country, awards,
-   box office and the Rotten Tomatoes and Metacritic scores.
-
-   OMDb is used rather than ratingraph because ratingraph's detail
-   pages send no Access-Control-Allow-Origin header and cannot be
-   fetched from a browser at all; its search can, but carries none
-   of this. OMDb allows browser requests on every endpoint.
-
-   Plenty of older and non-English films are simply not in OMDb.
-   That is expected, not an error: the page keeps what the
-   registry knows and says the rest could not be found.
-   ============================================================ */
-
 (() => {
   const root = document.getElementById("mvRoot");
   if (!root) return;
@@ -53,24 +31,22 @@
       ? progressRef("__shared", { film: key })
       : ["__shared", key];
 
-  document.title = `${reg.title} — Media Vault`;
+  document.title = `${reg.title} - Media Vault`;
   crumb.textContent = `/ ${reg.title}`;
 
-  /* Which shelves hold this film. Precomputed at build time — working it
-     out here would mean loading every catalogue for one lookup. */
   function shelves() {
     const ids = (window.FILM_SHELVES || {})[key] || [];
     const meta = window.SHELF_META || {};
     return ids.map((id) => meta[id]).filter(Boolean);
   }
 
-  /* ---------- render ---------- */
-
   function render(omdb, state) {
     const watched = Store.has(...ref);
     const poster = reg.poster || (omdb && omdb.poster) || null;
     const genres =
-      reg.genres && reg.genres.length ? reg.genres : (omdb && omdb.genres) || [];
+      reg.genres && reg.genres.length
+        ? reg.genres
+        : (omdb && omdb.genres) || [];
     const rating = reg.rgRating != null ? reg.rgRating : reg.score;
     const where = shelves();
 
@@ -143,7 +119,7 @@
           ${
             state === "missing"
               ? `<p class="mv-missing">
-                   No further details found for this film — OMDb has no entry
+                   No further details found for this film - OMDb has no entry
                    for it. Older and non-English titles are often missing.
                  </p>`
               : ""
@@ -154,7 +130,10 @@
               ? `<div class="mv-where">
                    <span class="rlabel">Appears in</span>
                    <p>${where
-                     .map((u) => `<a class="badge" style="--bc:${u.accent}" href="${u.href}">${esc(u.name)}</a>`)
+                     .map(
+                       (u) =>
+                         `<a class="badge" style="--bc:${u.accent}" href="${u.href}">${esc(u.name)}</a>`,
+                     )
                      .join(" ")}</p>
                  </div>`
               : ""
@@ -167,8 +146,6 @@
       render(omdb, state);
     });
   }
-
-  /* ---------- go ---------- */
 
   render(null, "loading");
 

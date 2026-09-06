@@ -1,21 +1,9 @@
-/* ============================================================
-   OMDb - used ONLY by the My List page, to look up titles that
-   are not in any of the built-in catalogues.
-
-   Put your key below. Without it the watchlist still works
-   exactly as before; entries simply keep the placeholder tile.
-
-   Get one free at https://www.omdbapi.com/apikey.aspx
-   ============================================================ */
-
-const OMDB_KEY = "708d81d7"; //  <-- paste your OMDb API key here
+const OMDB_KEY = "708d81d7";
 
 const OMDb = (() => {
   const BASE = "https://www.omdbapi.com/";
   const CACHE_KEY = "watchvault.omdb.v1";
 
-  /* Responses are cached in localStorage so the same title is never looked up
-     twice - the free tier allows 1,000 requests a day. */
   let cache = {};
   try {
     cache = JSON.parse(localStorage.getItem(CACHE_KEY)) || {};
@@ -25,9 +13,7 @@ const OMDb = (() => {
   const saveCache = () => {
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-    } catch {
-      /* full - skip */
-    }
+    } catch {}
   };
 
   const enabled = () => !!OMDB_KEY;
@@ -57,9 +43,6 @@ const OMDb = (() => {
     return c ? c.split(",").map((x) => x.trim()).filter(Boolean) : [];
   };
 
-  /** Normalise an OMDb payload. Everything it gives is kept — the My List
-      card shows the lot, and a second request to fill in a field we already
-      had would be wasted against the daily allowance. */
   function shape(d) {
     if (!d) return null;
     const runtime = clean(d.Runtime);
@@ -98,7 +81,6 @@ const OMDb = (() => {
   return {
     enabled,
 
-    /** Up to five candidates for a partial title. */
     async search(term) {
       const d = await call({ s: term, type: "" });
       if (!d || !Array.isArray(d.Search)) return [];
@@ -111,7 +93,6 @@ const OMDb = (() => {
       }));
     },
 
-    /** Full detail by exact title, or by IMDb id when we have one. */
     async lookup({ title, year, imdbID }) {
       const d = imdbID
         ? await call({ i: imdbID, plot: "full" })

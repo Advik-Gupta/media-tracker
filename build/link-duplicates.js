@@ -1,14 +1,4 @@
 #!/usr/bin/env node
-/* ============================================================
-   LINK DUPLICATES - finds titles that appear in more than one
-   catalogue and gives them a shared `link` id, so ticking one
-   ticks them all and they count once in the totals.
-
-     node build/link-duplicates.js          report only
-     node build/link-duplicates.js --write  apply the links
-
-   Run this after adding any universe.
-   ============================================================ */
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
@@ -32,7 +22,6 @@ const norm = (t) =>
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 
-/* group by release year, then by normalised title */
 const byYear = {};
 for (const [uni, c] of Object.entries(cats)) {
   for (const it of c.items) {

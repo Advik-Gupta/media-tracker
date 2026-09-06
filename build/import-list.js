@@ -1,24 +1,4 @@
 #!/usr/bin/env node
-/* ============================================================
-   LIST IMPORT — turns a plain list of titles into a catalogue.
-
-     node build/import-list.js movielists.txt --section 1 \
-       --id animemovies --name "Top 100 Anime Movies" \
-       --tagline "The best of animated cinema"
-
-     node build/import-list.js --top-rated \
-       --id toprated --name "Top Rated Shows" --kind showlist
-
-   Titles arrive without years, and the film registry is keyed by
-   title + year, so each one is resolved through Wikipedia first —
-   the same batched lookup the poster sweep uses, which returns the
-   year and the poster in one request per fifty titles.
-
-   Entries missing from the registry are appended to it, so a film
-   that also appears in another list stays one film with one
-   watched flag.
-   ============================================================ */
-
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
@@ -38,20 +18,16 @@ const has = (n) => process.argv.includes(`--${n}`);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/* Shows and anime are separate libraries whose pages live in separate
-   folders. This mirrors build/build.js and assets/js/store.js; a registry
-   href that disagrees with it is rejected by the build. */
 const VAULT_FOLDER = {
-  movie: "movies", list: "movies",
-  show: "shows", showlist: "shows",
-  anime: "anime", animelist: "anime",
+  movie: "movies",
+  list: "movies",
+  show: "shows",
+  showlist: "shows",
+  anime: "anime",
+  animelist: "anime",
 };
-const pagePath = (kind, id) => `pages/${VAULT_FOLDER[kind] || "movies"}/${id}.html`;
-
-
-/* ---------- registry keys ----------
-   Matches build/centralise.js exactly, or a title already in the registry
-   would be added a second time under a different key. */
+const pagePath = (kind, id) =>
+  `pages/${VAULT_FOLDER[kind] || "movies"}/${id}.html`;
 
 const norm = (s) =>
   String(s)
@@ -63,8 +39,6 @@ const norm = (s) =>
 
 const keyFor = (title, year) =>
   `${norm(title).replace(/\s+/g, "-")}${year ? `-${year}` : ""}`;
-
-/* ---------- Wikipedia ---------- */
 
 async function query(params) {
   const url = `${WIKI}?${new URLSearchParams({ format: "json", ...params })}`;
@@ -90,7 +64,10 @@ async function query(params) {
 }
 
 function uploadUrl(file) {
-  let name = String(file).trim().replace(/^(File|Image)\s*:/i, "").replace(/\s+/g, "_");
+  let name = String(file)
+    .trim()
+    .replace(/^(File|Image)\s*:/i, "")
+    .replace(/\s+/g, "_");
   name = name.charAt(0).toUpperCase() + name.slice(1);
   if (!/\.(jpe?g|png|gif|webp|svg)$/i.test(name)) return null;
   const h = crypto.createHash("md5").update(name).digest("hex");
@@ -100,26 +77,26 @@ function uploadUrl(file) {
 const infoboxImage = (t) => {
   const m = t.match(/\|\s*image\s*=\s*([^\n|}<]+)/i);
   if (!m) return null;
-  const raw = m[1].trim().replace(/^\[\[|\]\]$/g, "").split("|")[0];
+  const raw = m[1]
+    .trim()
+    .replace(/^\[\[|\]\]$/g, "")
+    .split("|")[0];
   return raw ? uploadUrl(raw) : null;
 };
 
-/** The release year, from the short description or the infobox. */
 function yearOf(page, wikitext) {
   const d = page.description || "";
   const m = d.match(/\b(1[89]\d{2}|20[0-4]\d)\b/);
   if (m) return m[1];
-  const rel = wikitext.match(/\|\s*released\s*=[\s\S]{0,200}?\b(1[89]\d{2}|20[0-4]\d)\b/i);
+  const rel = wikitext.match(
+    /\|\s*released\s*=[\s\S]{0,200}?\b(1[89]\d{2}|20[0-4]\d)\b/i,
+  );
   return rel ? rel[1] : "";
 }
 
-/* Resolve fifty titles at a time. */
 async function resolve(titles, kind) {
   const out = new Map();
   const isSeries = kind === "showlist" || kind === "animelist";
-  /* Article names vary a lot for animation: some sit at "Title (film)",
-     some at "Title (1988 film)", some at the bare title, and a few only
-     turn up through search. Each shape is tried in turn. */
   const rounds = isSeries
     ? [(t) => `${t} (miniseries)`, (t) => `${t} (TV series)`, (t) => t]
     : [(t) => `${t} (film)`, (t) => `${t} (anime film)`, (t) => t];
@@ -145,7 +122,9 @@ async function resolve(titles, kind) {
 
       const alias = new Map();
       for (const list of [data.query.normalized, data.query.redirects]) {
-        (list || []).forEach((n) => alias.set(n.to.toLowerCase(), n.from.toLowerCase()));
+        (list || []).forEach((n) =>
+          alias.set(n.to.toLowerCase(), n.from.toLowerCase()),
+        );
       }
       const origin = (title) => {
         let cur = title.toLowerCase();
@@ -168,12 +147,13 @@ async function resolve(titles, kind) {
           : /infobox\s+(film|animanga|anime)/i.test(text) ||
             /\b(film|anime|animated)\b/i.test(page.description || "");
         if (!right) continue;
-        out.set(src, { year: yearOf(page, text), poster: infoboxImage(text) || "" });
+        out.set(src, {
+          year: yearOf(page, text),
+          poster: infoboxImage(text) || "",
+        });
       }
     }
   }
-  /* Whatever is left gets one search each — slower, but it is the only way
-     to find an article whose name cannot be guessed from the title. */
   for (const t of titles.filter((x) => !out.has(x))) {
     const j = await query({
       action: "query",
@@ -198,7 +178,9 @@ async function resolve(titles, kind) {
         titles: title,
       });
       await sleep(300);
-      const p = Object.values((page && page.query && page.query.pages) || {})[0];
+      const p = Object.values(
+        (page && page.query && page.query.pages) || {},
+      )[0];
       if (!p || p.missing !== undefined) continue;
       const wt = (((p.revisions || [])[0] || {}).slots || {}).main;
       const text = (wt && wt["*"]) || "";
@@ -214,10 +196,11 @@ async function resolve(titles, kind) {
   return out;
 }
 
-/* ---------- sources ---------- */
-
 function fromFile(file, sectionIndex) {
-  const lines = fs.readFileSync(file, "utf8").split("\n").map((l) => l.trimEnd());
+  const lines = fs
+    .readFileSync(file, "utf8")
+    .split("\n")
+    .map((l) => l.trimEnd());
   const sections = [];
   let cur = null;
   for (const raw of lines) {
@@ -228,7 +211,10 @@ function fromFile(file, sectionIndex) {
       sections.push(cur);
       continue;
     }
-    if (!cur) { cur = { name: path.basename(file), titles: [] }; sections.push(cur); }
+    if (!cur) {
+      cur = { name: path.basename(file), titles: [] };
+      sections.push(cur);
+    }
     cur.titles.push(l);
   }
   const s = sections[Number(sectionIndex) - 1] || sections[0];
@@ -238,20 +224,22 @@ function fromFile(file, sectionIndex) {
 async function fromTopRated(limit) {
   const r = await fetch("https://seriesgraph.com/api/top-rated");
   const j = await r.json();
-  const items = Array.isArray(j) ? j : j.results || j.shows || Object.values(j)[0];
+  const items = Array.isArray(j)
+    ? j
+    : j.results || j.shows || Object.values(j)[0];
   return {
     name: "Top Rated Shows",
     entries: items.slice(0, limit).map((x) => ({
       title: x.title,
       year: String(x.firstAirDate || "").slice(0, 4),
-      poster: x.posterPath ? `https://image.tmdb.org/t/p/w342${x.posterPath}` : "",
+      poster: x.posterPath
+        ? `https://image.tmdb.org/t/p/w342${x.posterPath}`
+        : "",
       score: x.finalScore ? Math.round(x.finalScore * 10) / 10 : null,
       type: "show",
     })),
   };
 }
-
-/* ---------- registry ---------- */
 
 function loadRegistry() {
   const ctx = { window: {}, console };
@@ -264,9 +252,6 @@ function appendRegistry(rows) {
   if (!rows.length) return 0;
   let src = fs.readFileSync(REG, "utf8");
 
-  /* The registry object closes before the helper below it, so anchor on the
-     start of that helper rather than the last `};` in the file — which is
-     the helper's own, and injecting there produces a syntax error. */
   const helper = src.search(/\n(function|const)\s+resolveFilm/);
   const at = src.lastIndexOf("};", helper === -1 ? src.length : helper);
   if (at === -1) {
@@ -275,8 +260,6 @@ function appendRegistry(rows) {
   }
   const block = rows
     .map((r) => {
-      /* Always emit a release, even when the year is unknown: consumers
-         read it positionally and an absent field is a crash, not a blank. */
       const bits = [`title: ${JSON.stringify(r.title)}`];
       bits.push(`release: ${JSON.stringify(r.release || "")}`);
       bits.push(`type: ${JSON.stringify(r.type || "film")}`);
@@ -289,8 +272,6 @@ function appendRegistry(rows) {
   return rows.length;
 }
 
-/* ---------- emit ---------- */
-
 const q = (s) => `'${String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
 
 function writeList(id, name, tagline, kind, entries) {
@@ -299,7 +280,6 @@ function writeList(id, name, tagline, kind, entries) {
     .filter(Boolean)
     .sort((a, b) => a - b);
 
-  /* Position drives the tier: the top of a ranked list is the short version. */
   const tierOf = (i, n) =>
     i < n * 0.2 ? "essential" : i < n * 0.6 ? "recommended" : "optional";
 
@@ -309,26 +289,34 @@ function writeList(id, name, tagline, kind, entries) {
       return (
         `  { w: ${i + 1}, film: ${q(e.key)}, type: ${q(e.type || "film")}, ` +
         `saga: ${q(d ? `d${d}` : "dna")}, phase: ${Math.floor(i / 25) + 1}, ` +
-        `chrono: ${e.year || 0}, cLabel: ${q(e.year || "—")}, rel: ${q(tierOf(i, entries.length))} },`
+        `chrono: ${e.year || 0}, cLabel: ${q(e.year || "-")}, rel: ${q(tierOf(i, entries.length))} },`
       );
     })
     .join("\n");
 
   const phases = [...new Set(entries.map((_, i) => Math.floor(i / 25) + 1))]
-    .map((p) => `  ${p}: { label: ${q(`${(p - 1) * 25 + 1} – ${p * 25}`)}, sub: '' },`)
+    .map(
+      (p) =>
+        `  ${p}: { label: ${q(`${(p - 1) * 25 + 1} – ${p * 25}`)}, sub: '' },`,
+    )
     .join("\n");
 
   const blocks = [...new Set(entries.map((_, i) => Math.floor(i / 25) + 1))]
     .map((p) => `  { max: ${p * 25}, phase: ${p} },`)
     .join("\n");
 
-  const sagas = decades
-    .map((d) => `  d${d}: { label: ${q(`${d}s`)}, range: '' },`)
-    .join("\n") + "\n  dna: { label: 'Undated', range: '' },";
+  const sagas =
+    decades
+      .map((d) => `  d${d}: { label: ${q(`${d}s`)}, range: '' },`)
+      .join("\n") + "\n  dna: { label: 'Undated', range: '' },";
 
-  const eras = decades
-    .map((d) => `  { max: ${d + 10}, key: ${q(`d${d}`)}, title: ${q(`${d}s`)}, sub: '' },`)
-    .join("\n") + `\n  { max: 9999, key: 'dna', title: 'Undated', sub: '' },`;
+  const eras =
+    decades
+      .map(
+        (d) =>
+          `  { max: ${d + 10}, key: ${q(`d${d}`)}, title: ${q(`${d}s`)}, sub: '' },`,
+      )
+      .join("\n") + `\n  { max: 9999, key: 'dna', title: 'Undated', sub: '' },`;
 
   const typeMeta =
     kind === "showlist"
@@ -427,8 +415,6 @@ function registerList(id, name, tagline, kind, cover, count) {
   fs.writeFileSync(file, src.replace(/\];\s*$/, entry + "\n"));
 }
 
-/* ---------- run ---------- */
-
 (async () => {
   const id = arg("id");
   const kind = arg("kind", "list");
@@ -445,14 +431,21 @@ function registerList(id, name, tagline, kind, cover, count) {
   const tagline = arg("tagline", `${source.entries.length} titles`);
   console.log(`${source.entries.length} titles for "${name}"\n`);
 
-  /* Anything the source did not already carry a year for has to be resolved. */
   const needLookup = source.entries.filter((e) => !e.year);
   if (needLookup.length) {
-    process.stdout.write(`  resolving ${needLookup.length} titles on Wikipedia... `);
-    const found = await resolve(needLookup.map((e) => e.title), kind);
+    process.stdout.write(
+      `  resolving ${needLookup.length} titles on Wikipedia... `,
+    );
+    const found = await resolve(
+      needLookup.map((e) => e.title),
+      kind,
+    );
     needLookup.forEach((e) => {
       const hit = found.get(e.title);
-      if (hit) { e.year = hit.year; e.poster = e.poster || hit.poster; }
+      if (hit) {
+        e.year = hit.year;
+        e.poster = e.poster || hit.poster;
+      }
     });
     console.log(`${found.size} resolved`);
   }
@@ -461,7 +454,8 @@ function registerList(id, name, tagline, kind, cover, count) {
   const missing = [];
   const seen = new Set();
 
-  const defaultType = kind === "showlist" || kind === "animelist" ? "show" : "film";
+  const defaultType =
+    kind === "showlist" || kind === "animelist" ? "show" : "film";
   source.entries.forEach((e) => {
     e.type = e.type || defaultType;
     e.key = keyFor(e.title, e.year);
@@ -479,11 +473,22 @@ function registerList(id, name, tagline, kind, cover, count) {
 
   const added = appendRegistry(missing);
   writeList(id, name, tagline, kind, source.entries);
-  const cover = source.entries.find((e) => e.poster || (registry[e.key] || {}).poster);
-  registerList(id, name, tagline, kind, cover ? (cover.poster || registry[cover.key].poster) : "", source.entries.length);
+  const cover = source.entries.find(
+    (e) => e.poster || (registry[e.key] || {}).poster,
+  );
+  registerList(
+    id,
+    name,
+    tagline,
+    kind,
+    cover ? cover.poster || registry[cover.key].poster : "",
+    source.entries.length,
+  );
 
   const noYear = source.entries.filter((e) => !e.year).map((e) => e.title);
-  console.log(`\n  ${added} new registry entries, ${source.entries.length - added} already known`);
+  console.log(
+    `\n  ${added} new registry entries, ${source.entries.length - added} already known`,
+  );
   if (noYear.length) console.log(`  no year found for: ${noYear.join(", ")}`);
   console.log("\n  Run `npm run build`.");
 })();

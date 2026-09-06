@@ -1,17 +1,4 @@
 #!/usr/bin/env node
-/* ============================================================
-   SERIES DATA - pulls per-episode ratings from seriesgraph.com
-   and writes them into assets/js/data/series/<universe>.js.
-
-     npm run series          all universes
-     npm run series suits    just one
-
-   This runs at build time on purpose: the API sends no
-   Access-Control-Allow-Origin header, so a browser cannot call
-   it directly. Baking the data also means the show pages work
-   offline and do not depend on someone else's uptime.
-   ============================================================ */
-
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
@@ -22,9 +9,6 @@ const DATA = path.join(ROOT, "assets/js/data");
 const API = "https://seriesgraph.com/api/shows";
 const IMG = "https://image.tmdb.org/t/p";
 
-/* Which TMDB shows make up each universe, in the order they should be read.
-   Ids were resolved through the search endpoint and checked by name and year;
-   they are pinned here so a rerun cannot silently pick a different show. */
 const MAP = {
   theboys: {
     shows: [
@@ -98,9 +82,6 @@ const MAP = {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/* Shows and anime are separate libraries whose pages live in separate
-   folders. This mirrors build/build.js and assets/js/store.js; a registry
-   href that disagrees with it is rejected by the build. */
 const VAULT_FOLDER = {
   movie: "movies", list: "movies",
   show: "shows", showlist: "shows",
@@ -109,7 +90,6 @@ const VAULT_FOLDER = {
 const pagePath = (kind, id) => `pages/${VAULT_FOLDER[kind] || "movies"}/${id}.html`;
 
 
-/* TMDB's vocabulary for a series that has not finished. */
 const ONGOING = new Set(["Returning Series", "In Production", "Planned", "Pilot"]);
 
 async function json(url) {
@@ -120,15 +100,12 @@ async function json(url) {
       });
       if (r.ok) return r.json();
       if (r.status === 404) return null;
-    } catch (e) {
-      /* retried below */
-    }
+    } catch (e) {}
     await sleep(800 * (attempt + 1));
   }
   return null;
 }
 
-/** The search endpoint is the only place the poster and the show-level score live. */
 async function showMeta(title, id) {
   const j = await json(`${API}/search?searchTerm=${encodeURIComponent(title)}`);
   const hit = (j && j.results ? j.results : []).find((d) => d.id === id);
@@ -165,8 +142,6 @@ async function seasons(id) {
     }))
     .sort((a, b) => a.n - b.n);
 }
-
-/* ---------- emit ---------- */
 
 const q = (s) =>
   `'${String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\n/g, " ")}'`;
@@ -219,15 +194,9 @@ ${filmsSrc}
 `;
 }
 
-/* ---------- adding a show ---------- */
-
 const slugify = (name) =>
   name.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 24) || "show";
 
-/* Shows and anime are separate libraries that can hold series of the same
-   name, and the id is also the data filename and the progress bucket. When a
-   name is already taken by a different vault, the new one is suffixed rather
-   than quietly overwriting what is there. */
 function uniqueSlug(name, kind) {
   const base = slugify(name);
   const src = fs.readFileSync(path.join(DATA, "universes.js"), "utf8");
@@ -243,8 +212,6 @@ function uniqueSlug(name, kind) {
   return candidate;
 }
 
-/** A season-per-item catalogue, so the added show behaves like the hand-written
-    ones everywhere outside its own page: vault counts, search, random picks. */
 function catalogueSrc(id, name, shows, films = []) {
   const items = [];
   let w = 0;
@@ -261,9 +228,6 @@ function catalogueSrc(id, name, shows, films = []) {
     });
   });
 
-  /* Films that sit alongside the seasons - El Camino under Breaking Bad -
-     have to stay in the catalogue too, or they stop being counted and their
-     registry entry is left stranded. */
   films.forEach((f) => {
     w += 1;
     items.push(
@@ -392,8 +356,6 @@ async function addShow(term, opts = {}) {
   const kind = opts.kind || "show";
   const quiet = !!opts.quiet;
 
-  /* A bare number is a TMDB id, which is the unambiguous way in — search
-     guesses, an id does not. Everything else is treated as a title. */
   if (/^\d+$/.test(term.trim())) {
     const id = Number(term.trim());
     const detail = await json(`${API}/${id}`);
@@ -427,14 +389,11 @@ async function addShow(term, opts = {}) {
     await sleep(200);
   }
 
-  /* When the title carried a year, prefer the match that actually aired then. */
   if (year && results.length) {
     const dated = results.filter((d) => String(d.first_air_date || "").startsWith(year));
     if (dated.length) results = dated;
   }
 
-  /* Prefer an exact title match over whatever the API ranked first — a search
-     for "86" otherwise lands on something else entirely. */
   const norm = (x) => String(x || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
   const hit =
     results.find((d) => norm(d.name) === norm(bare)) ||
@@ -450,7 +409,6 @@ async function addShow(term, opts = {}) {
   return finishShow(hit, null, opts);
 }
 
-/** Fetch the rest, write the files, register the universe. */
 async function finishShow(hit, detail, opts = {}) {
   const kind = opts.kind || "show";
   const quiet = !!opts.quiet;
@@ -458,10 +416,6 @@ async function finishShow(hit, detail, opts = {}) {
   const name = hit.name;
   const id = uniqueSlug(name, kind);
 
-  /* Adding something that is already here would overwrite its data file, and
-     that is destructive: a universe holding several merged series, or films
-     alongside its seasons, would be flattened back to this one show. Re-adding
-     is refused unless it is asked for explicitly. */
   const registry = fs.readFileSync(path.join(DATA, "universes.js"), "utf8");
   if (new RegExp(`id: "${id}"`).test(registry) && !opts.force) {
     if (!quiet) {
@@ -514,11 +468,6 @@ async function finishShow(hit, detail, opts = {}) {
   return { ok: true, id, name, seasons: se.length, episodes: epCount, poster: meta.poster };
 }
 
-/* ---------- importing a whole list ----------
-   One title per line; a line ending in "=" or blank is treated as a heading.
-   Everything imported is also gathered into a collection, which is how the
-   vault shows it as a single list card. */
-
 async function addList(file, opts) {
   if (!fs.existsSync(file)) {
     console.error(`  ! no such file: ${file}`);
@@ -538,8 +487,6 @@ async function addList(file, opts) {
   let first = null;
 
   for (const t of titles) {
-    /* Anything imported as part of a list is reached through that list's
-       card, not as its own entry in the vault. */
     const r = await addShow(t, {
       kind: opts.kind,
       quiet: true,
@@ -565,8 +512,6 @@ async function addList(file, opts) {
   console.log("\n  Run `npm run build`.");
 }
 
-/* A collection is a curated set of universes — a list card in a vault whose
-   entries are whole shows rather than single titles. */
 function writeCollection(id, name, kind, members, cover, tagline) {
   const file = path.join(DATA, "collections.js");
   let all = {};
@@ -577,8 +522,6 @@ function writeCollection(id, name, kind, members, cover, tagline) {
     all = ctx.window.COLLECTIONS || {};
   }
 
-  /* Re-running an import tops the collection up rather than replacing it, so
-     a follow-up run for a few stragglers does not drop everything else. */
   const existing = (all[id] && all[id].members) || [];
   const combined = [...new Set([...existing, ...members])];
 
@@ -607,11 +550,6 @@ window.COLLECTIONS = ${JSON.stringify(all, null, 2)};
   console.log(`\n  collection "${name}" -> ${combined.length} members`);
 }
 
-/* ---------- production status ----------
-   Whether a series has finished or is still releasing. The search endpoint
-   does not carry it, so it comes from /api/shows/<id> and is written into
-   the generated data, letting the vaults filter without another call. */
-
 async function refreshStatus(only) {
   if (!fs.existsSync(OUT)) return;
   const files = fs
@@ -623,9 +561,6 @@ async function refreshStatus(only) {
   for (const file of files) {
     const p = path.join(OUT, file);
 
-    /* The files are read back rather than pattern-matched: the project
-       formatter rewrites them into multi-line objects, so anything that
-       assumed a one-line shape silently skipped half of them. */
     const ctx = { window: {}, console };
     vm.createContext(ctx);
     try { vm.runInContext(fs.readFileSync(p, "utf8"), ctx); }
@@ -650,19 +585,6 @@ async function refreshStatus(only) {
   }
   console.log(`\n  ${ongoing} series still releasing. Run \`npm run build\`.`);
 }
-
-/* ---------- merging ----------
-   Breaking Bad and Better Call Saul are one thing to watch, not two. A merge
-   folds one universe's shows into another's, so the parent's page carries
-   both and the vault shows a single card.
-
-   Progress survives: an episode key is namespaced by TMDB show id, so the
-   only thing that changes is the bucket it sits in. The pairing is recorded
-   in assets/js/data/merges.js and the app moves the old keys across on the
-   next load.
-
-     npm run series merge breakingbad bettercallsaul
-   ------------------------------------------------------------------ */
 
 function readSeries(id) {
   const p = path.join(OUT, `${id}.js`);
@@ -749,7 +671,6 @@ function mergeShows(parentId, childIds) {
     catalogueSrc(parentId, parentUni.name, shows, films),
   );
 
-  /* The card should say what it now contains. */
   const src = fs.readFileSync(path.join(DATA, "universes.js"), "utf8");
   const at = src.indexOf(`id: "${parentId}"`);
   const end = src.indexOf("\n  },", at);
@@ -777,14 +698,6 @@ function mergeShows(parentId, childIds) {
   console.log(`  "${parentUni.name}" now contains ${shows.length} shows`);
   console.log("\n  Run `npm run build`.");
 }
-
-/* ---------- rebuilding a catalogue ----------
-   The season-level catalogue is derived from the episode data. If the two
-   drift apart — an interrupted run, or an overwrite — this regenerates it
-   from what the series file actually holds.
-
-     npm run series -- rebuild breakingbad
-   ------------------------------------------------------------------ */
 
 function rebuildCatalogue(id) {
   const series = readSeries(id);
@@ -816,15 +729,11 @@ function rebuildCatalogue(id) {
   console.log("\n  Run `npm run build`.");
 }
 
-/* ---------- removing a show ---------- */
-
 function removeShow(term) {
   const key = term.toLowerCase().trim();
   const file = path.join(DATA, "universes.js");
   const src = fs.readFileSync(file, "utf8");
 
-  /* Match on either the id or the display name, so both
-     `npm run series remove supernatural` and `... remove "Supernatural"` work. */
   const entry = new RegExp(
     '\\n  \\{\\n    id: "([^"]+)",[\\s\\S]*?\\n  \\},(?=\\n)',
     "g",
@@ -869,11 +778,7 @@ function removeShow(term) {
   console.log("\n  Run `npm run build` to refresh the vault.");
 }
 
-/* ---------- run ---------- */
-
 (async () => {
-  /* Drop flags and the values that belong to them, so "add 46260 --kind
-     anime" does not read "anime" as another thing to add. */
   const raw = process.argv.slice(2);
   const FLAGS_WITH_VALUES = new Set([
     "--kind", "--collection", "--name", "--tagline", "--section", "--id", "--limit",
@@ -948,8 +853,6 @@ function removeShow(term) {
       process.exit(1);
     }
 
-    /* Flags are stripped from args by the filter above, so what is left is
-       either a title or a TMDB id. */
     const term = args.slice(1).join(" ").trim();
     if (!term) {
       console.error('  usage: npm run series add "show name" [-- --kind anime]');

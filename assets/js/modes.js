@@ -1,11 +1,3 @@
-/* ============================================================
-   MODES - Media Vault holds more than one library. Clicking the
-   logo opens a switcher between them.
-
-   The chosen mode is remembered so the logo takes you back to
-   whichever library you were last in.
-   ============================================================ */
-
 (() => {
   const KEY = "mediavault.mode";
   const MODES = [
@@ -92,8 +84,6 @@
     if (e.key === "Escape" && !modal.hidden) close();
   });
 
-  /* The logo stays an ordinary link home - on a list page that IS the way back,
-     so it must not be hijacked. The switcher gets its own control beside it. */
   document.querySelectorAll(".brand").forEach((brand) => {
     const home = MODES.find((x) => x.id === current());
     if (home) brand.setAttribute("href", home.href);

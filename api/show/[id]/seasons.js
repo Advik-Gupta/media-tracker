@@ -1,11 +1,3 @@
-// api/show/[id]/seasons.js
-//
-// Proxies seriesgraph.com's season-ratings — every season and episode,
-// with its rating. Used for the preview in the Add Show panel, so you can
-// see the season/episode count before you commit to adding something.
-//
-// GET /api/show/<tmdb id>/seasons
-
 export default async function handler(req, res) {
   const { id } = req.query;
   if (!/^\d+$/.test(String(id || ""))) {

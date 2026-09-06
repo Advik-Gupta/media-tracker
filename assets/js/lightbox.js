@@ -1,14 +1,3 @@
-/* ============================================================
-   POSTER LIGHTBOX - click any poster, anywhere, to see it full
-   size. Works on the timeline, the compact rows, My List and the
-   random pick, so it is wired by delegation rather than by each
-   view remembering to opt in.
-
-   Poster clicks are swallowed here: on a tracker row the click
-   would otherwise fall through and open the detail sheet behind
-   the lightbox.
-   ============================================================ */
-
 (() => {
   const SELECTOR = ".tl-poster, .row-poster, .rnd-poster, .wl-sugg-thumb";
 
@@ -20,8 +9,6 @@
   let siblings = [];
   let index = -1;
   let lastFocus = null;
-
-  /* ---------- the shell, built once on first use ---------- */
 
   function build() {
     if (backdrop) return;
@@ -53,14 +40,11 @@
     figure.querySelector(".lb-close").addEventListener("click", close);
     figure.querySelector(".lb-prev").addEventListener("click", () => step(-1));
     figure.querySelector(".lb-next").addEventListener("click", () => step(1));
-    /* clicking the surround closes; clicking the poster itself does not */
     figure.addEventListener("click", (e) => {
       if (e.target === figure || e.target.classList.contains("lb-frame"))
         close();
     });
   }
-
-  /* ---------- what a poster is called ---------- */
 
   function labelFor(holder) {
     const row =
@@ -85,13 +69,10 @@
     return sub ? sub.textContent.trim() : "";
   }
 
-  /* ---------- open / close / navigate ---------- */
-
   function show(holder) {
     const img = holder.querySelector("img");
-    if (!img || !img.getAttribute("src")) return; /* placeholder tile */
-
-    build();
+    if (!img || !img.getAttribute("src"))
+      return; build();
     imgEl.src = img.currentSrc || img.src;
     imgEl.alt = labelFor(holder);
     capEl.textContent = labelFor(holder);
@@ -109,8 +90,6 @@
   }
 
   function open(holder) {
-    /* Only posters that actually have an image can be stepped through, so a
-       run of placeholders never strands the arrows on a blank frame. */
     siblings = [...document.querySelectorAll(SELECTOR)].filter((el) =>
       el.querySelector("img[src]"),
     );
@@ -137,8 +116,6 @@
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
-  /* ---------- wiring ---------- */
-
   document.addEventListener(
     "click",
     (e) => {
@@ -149,9 +126,7 @@
       open(holder);
     },
     true,
-  ); /* capture, so the row's own handler never runs */
-
-  document.addEventListener(
+  ); document.addEventListener(
     "keydown",
     (e) => {
       if (!figure || figure.hidden) return;

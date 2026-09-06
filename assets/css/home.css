@@ -1,9 +1,3 @@
-/* ============================================================
-   HOME - the universe hub
-   ============================================================ */
-
-/* ---------- hero ---------- */
-
 .hero { padding: var(--s6) 0 var(--s3); }
 
 .hero-accent { color: var(--gold); }
@@ -38,13 +32,9 @@
   color: var(--fog);
 }
 
-/* ---------- sections ---------- */
-
 .section { padding-top: var(--s6); }
 .section-head { margin-bottom: 30px; }
 .section-sub { color: var(--muted); font-size: 14.5px; max-width: 60ch; margin-top: 10px; }
-
-/* ---------- section bar ---------- */
 
 .section-bar {
   display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
@@ -67,8 +57,6 @@
 
 .no-results { color: var(--dim); font-size: 14px; padding: 30px 2px; }
 
-/* ---------- universe cards ---------- */
-
 .uni-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -87,7 +75,6 @@
 }
 .uni-card:hover { border-color: var(--gold); }
 
-/* cover art, heavily darkened so the text stays readable */
 .uni-cover { position: absolute; inset: 0; z-index: 0; background: var(--slate); }
 .uni-cover img {
   width: 100%; height: 100%;
@@ -102,7 +89,6 @@
   opacity: .55;
 }
 
-/* Flat scrim, not a gradient - design.md forbids gradients outright. */
 .uni-card::before {
   content: "";
   position: absolute; inset: 0; z-index: 1;
@@ -147,8 +133,6 @@
 .uni-foot-row b { color: var(--bone); font-weight: 500; }
 .uni-arrow { display: inline-block; color: var(--gold); transition: transform .12s var(--ease-out); }
 .uni-card:hover .uni-arrow { transform: translateX(3px); }
-
-/* ---------- data panel ---------- */
 
 .data-panel {
   display: flex;
@@ -195,10 +179,6 @@
 }
 }
 
-/* ============================================================
-   RANDOM PICKER
-   ============================================================ */
-
 .rnd-backdrop {
   position: fixed; inset: 0; z-index: 150;
   background: rgba(20,22,28,.82);
@@ -241,7 +221,7 @@
 
 .rnd-poster {
   position: relative;
-  width: 132px; height: 198px; flex: none;   /* 2:3 poster ratio */
+  width: 132px; height: 198px; flex: none;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -281,7 +261,6 @@
 .rnd-toggle input { accent-color: var(--accent); cursor: pointer; }
 .rnd-empty { color: var(--dim); text-align: center; padding: 40px 0; }
 
-/* keep the poster image above its placeholder initials */
 .rnd-poster img { position: relative; z-index: 1; }
 
 .rnd-source {
@@ -307,7 +286,7 @@
   .rnd-card { flex-direction: column; }
   .rnd-poster {
   position: relative;
-  width: 132px; height: 198px; flex: none;   /* 2:3 poster ratio */
+  width: 132px; height: 198px; flex: none;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -315,10 +294,6 @@
 }
   .rnd-toggle { margin-left: 0; width: 100%; }
 }
-
-/* ============================================================
-   CAROUSEL - 8 cards per page (4 x 2), arrows page left/right
-   ============================================================ */
 
 .carousel-nav {
   display: flex; align-items: center; gap: 8px;
@@ -365,7 +340,6 @@
   align-content: start;
 }
 
-/* a page that is not full should not stretch its cards */
 .carousel-page > .uni-card {
   position: relative;
   display: block;
@@ -380,7 +354,6 @@
 @media (max-width: 1000px) { .carousel-inner { gap: 14px; } .carousel-page { gap: 14px; } }
 @media (max-width: 640px)  { .carousel-inner { gap: 12px; } .carousel-page { gap: 12px; } }
 
-/* storage health line under the data panel */
 .storage-note {
   display: flex; align-items: center; gap: 8px;
   margin-top: 14px;
@@ -394,10 +367,6 @@
   font-family: var(--mono); font-size: .92em;
   background: var(--surface-3); padding: 1px 5px; border-radius: 4px; color: var(--muted);
 }
-
-/* ============================================================
-   MY LIST
-   ============================================================ */
 
 .wl-search { position: relative; display: flex; gap: 10px; margin-top: 32px; max-width: 560px; }
 .wl-search input {
@@ -439,7 +408,6 @@
   font-family: var(--mono); font-size: 10px; color: var(--dim);
 }
 
-/* .wl-row rides on tracker.css's .row - only the extras live here */
 .wl-row { cursor: default; }
 .wl-row .r-sub { margin-top: 2px; }
 .wl-row .r-meta { gap: 8px; }
@@ -460,10 +428,6 @@
   color: var(--dim);
 }
 
-/* ============================================================
-   COUNTRY MAP
-   ============================================================ */
-
 .map-wrap { position: relative; margin-top: 8px; }
 .map-holder {
   position: relative;
@@ -475,10 +439,6 @@
 .map-loading, .map-fail { color: var(--dim); font-family: var(--mono); font-size: 11px; }
 
 .worldmap { width: 100%; aspect-ratio: 2 / 1; min-height: 320px; }
-
-
-
-
 
 .map-panel b { display: block; font-size: 14px; }
 .map-panel span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
@@ -518,12 +478,9 @@
 .map-cta-arrow { margin-left: auto; color: var(--accent); transition: transform .3s var(--ease); }
 .map-cta:hover .map-cta-arrow { transform: translateX(4px); }
 
-/* the By Country card in the Lists carousel */
 .uni-card-map .map-cover { display: grid; place-items: center; background: var(--slate); }
 .uni-card-map .map-cover span { font-size: 44px; opacity: .35; }
 
-
-/* map controls + interaction */
 .map-holder {
   position: relative;
   border: 1px solid var(--line);
@@ -534,17 +491,12 @@
 .worldmap { width: 100%; aspect-ratio: 2 / 1; min-height: 320px; }
 .worldmap.dragging { cursor: grabbing; }
 
-
-
-
 .ctry-progress {
   display: block; height: 2px; border-radius: 2px;
   background: var(--surface-3); margin: 8px 0 4px; overflow: hidden;
 }
 .ctry-progress i { display: block; height: 100%; background: var(--accent); }
 
-
-/* ---------- map tooltip (design.md: flat card, 1px border) ---------- */
 .map-tip {
   background: var(--slate);
   border: 1px solid var(--line);
@@ -563,11 +515,6 @@
 }
 .map-tip:not(.has-list) em { color: var(--fog); }
 
-
-
-/* Listed countries read as active; the rest stay inert.
-   !important is deliberate - jsVectorMap writes the fill back inline every
-   time a hover ends, so anything weaker would be undone on first mouseout. */
 .jvm-region.has-list {
   fill: var(--gold) !important;
   stroke: var(--gold);
@@ -575,10 +522,6 @@
 }
 .jvm-region.has-list:hover { fill-opacity: .72; }
 
-
-/* ---------- jsVectorMap chrome ----------
-   The library ships an opinionated tooltip (solid indigo) and zoom buttons.
-   These rules load after its stylesheet and restate them in our palette. */
 .jvm-container { overflow: visible; }
 
 .jvm-tooltip,
@@ -615,13 +558,6 @@
 .jvm-zoom-btn.jvm-zoomout { top: calc(var(--s2) + 29px); border-top-color: transparent; border-radius: 0 0 2px 2px; }
 .jvm-zoom-btn:hover { border-color: var(--gold); color: var(--gold); z-index: 2; }
 
-/* ---------- archive card ----------
-   Sits first in the shows vault. It is a control, not a link, so it takes
-   the card shape but keeps a dashed edge to say so. */
-/* ---------- archive card ----------
-   A control rather than a link, so it takes the card shape but states the
-   difference: a dashed edge, no artwork, and a single mark set in the
-   corner the way a filing label would be. */
 .uni-card-archive {
   border-style: dashed;
   text-align: left;
@@ -647,7 +583,6 @@
 .uni-card-archive:hover .arch-mark { color: var(--gold); }
 .uni-card-archive .uni-content { z-index: 2; }
 
-/* ---------- add a show ---------- */
 .add-modal .wl-search { position: relative; margin-top: var(--s2); }
 .add-modal .wl-search input {
   width: 100%; height: 40px; padding: 0 12px;
@@ -701,9 +636,6 @@
   padding: 8px 10px; overflow-x: auto; white-space: nowrap;
 }
 
-/* ---------- live preview, before the add command ----------
-   Only reachable when /api is actually serving (a Vercel deploy) — on a
-   static host the search falls straight to .add-cmd instead. */
 .add-preview.loading {
   display: flex; align-items: center; gap: var(--s1);
   padding: var(--s3) var(--s1);
@@ -734,7 +666,6 @@
   display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
 
-/* ---------- removing a show ---------- */
 .uni-remove {
   position: absolute;
   top: 8px; right: 8px;
@@ -764,9 +695,6 @@
 }
 .toast-action:hover { text-decoration: underline; }
 
-/* ---------- restoring one ---------- */
-/* ---------- a collection's own page ----------
-   One list, so every card is laid out at once instead of paged. */
 .uni-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -780,7 +708,6 @@
   .uni-grid .uni-card { height: 148px; }
 }
 
-/* ---------- still releasing ---------- */
 .uni-live {
   font-family: var(--mono);
   font-size: 16px;
@@ -798,7 +725,6 @@
   white-space: nowrap;
 }
 
-/* ---------- merge picker ---------- */
 .add-merge-row {
   display: flex; align-items: center; gap: var(--s1);
   margin-bottom: var(--s1);
@@ -815,10 +741,6 @@
   font-family: var(--sans); font-size: 13px; color: var(--fog);
 }
 
-/* ---------- drag to reorder ----------
-   Cards can be dragged into any order; the arrangement is remembered per
-   vault section. The cursor is the only affordance at rest so the grid
-   stays quiet until you actually pick something up. */
 .uni-card[draggable="true"] { cursor: grab; }
 .uni-card[draggable="true"]:active { cursor: grabbing; }
 .uni-card.dragging {
@@ -829,13 +751,8 @@
 .carousel-page.drop-target,
 .uni-grid.drop-target { outline: 1px dashed var(--line); }
 
-/* While a card is in hand the pages sit flush, so dragging across the seam
-   between them reads as one continuous strip rather than two boxes. */
 .carousel-inner.reordering .carousel-page { outline: 1px dashed var(--line); outline-offset: -4px; }
 
-/* ---------- looking further afield ----------
-   Results from the catalogue come first; anything found on ratingraph is
-   grouped under its own heading so it is clear which is which. */
 .wl-sugg-head {
   padding: 10px var(--s2) 6px;
   font-family: var(--sans);
@@ -866,7 +783,6 @@
   border-top: 1px solid var(--line);
 }
 
-/* A ring that actually turns, so a slow lookup does not look like a hang. */
 .spinner {
   width: 13px;
   height: 13px;
@@ -881,10 +797,6 @@
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation-duration: 2.4s; }
 }
-
-/* ============================================================
-   MY LIST — sorting, filtering, and a panel per entry
-   ============================================================ */
 
 .wl-controls {
   border: 1px solid var(--line);
@@ -940,7 +852,6 @@
 .wl-more:hover { border-color: var(--gold); color: var(--gold); }
 .wl-row.open .wl-more { transform: rotate(180deg); }
 
-/* The panel spans the row's full width rather than sitting in one column. */
 .wl-detail {
   grid-column: 1 / -1;
   margin-top: var(--s2);
@@ -973,10 +884,6 @@
   font-size: 14px;
   color: var(--bone);
 }
-
-/* ============================================================
-   MY LIST — one card per entry, showing what you need to decide
-   ============================================================ */
 
 #wlList { display: flex; flex-direction: column; gap: var(--s2); }
 
@@ -1097,11 +1004,6 @@
   .wc-credits { grid-template-columns: 1fr; }
 }
 
-/* ---------- collapsed by default ----------
-   A list is for scanning first and deciding second, so a card is one line
-   until you open it. Everything the expanded card shows is in the markup
-   either way; only its visibility changes, so opening one costs no work. */
-
 .wcard:not(.open) {
   grid-template-columns: 54px 1fr;
   gap: var(--s2);
@@ -1112,14 +1014,12 @@
 .wcard:not(.open) .wc-head h3 { font-size: 19px; }
 .wcard:not(.open) .wc-poster .ph-init { font-size: 16px; }
 
-/* the long-form parts stay out of the way until asked for */
 .wcard:not(.open) .wc-plot,
 .wcard:not(.open) .wc-credits,
 .wcard:not(.open) .wc-scores,
 .wcard:not(.open) .wc-genres,
 .wcard:not(.open) .wc-foot { display: none; }
 
-/* and the compact summaries stand in for them */
 .wc-genres-mini {
   margin: 0;
   font-size: 13px;
@@ -1138,23 +1038,17 @@
 }
 .wcard.open .wc-mini-rating { display: none; }
 
-/* the title is the control, so it needs to look like one */
 .wc-head h3 { cursor: pointer; }
 .wc-head h3:hover { color: var(--gold); }
 
 .wcard:not(.open) .wc-line { gap: 10px; font-size: 15px; }
 
-/* ---------- adding a show to your own vault ---------- */
 .add-done {
   display: flex; align-items: center; gap: var(--s1); flex-wrap: wrap;
   margin-top: var(--s1);
 }
 .add-done span { font-size: 13px; color: var(--fog); }
 .add-note { font-size: 13px; color: var(--fog); }
-
-/* ============================================================
-   ONE FILM — pages/movies/view.html
-   ============================================================ */
 
 .mv {
   display: grid;
@@ -1210,10 +1104,6 @@
   .mv-poster { width: 180px; }
 }
 
-/* ============================================================
-   ACCOUNT — optional sign-in for cross-device sync
-   ============================================================ */
-
 .acct-panel { padding-bottom: var(--s7); }
 .acct-card {
   border: 1px solid var(--line);
@@ -1253,6 +1143,20 @@
 }
 
 .acct-tabs { display: flex; gap: var(--s1); margin-bottom: var(--s3); }
+.acct-tabs .chip {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--fog);
+  cursor: pointer;
+  transition: border-color 0.12s var(--ease-out), color 0.12s var(--ease-out);
+}
+.acct-tabs .chip:hover { border-color: var(--gold); color: var(--bone); }
+.acct-tabs .chip.active { border-color: var(--gold); color: var(--gold); }
 
 .acct-form { display: flex; flex-direction: column; gap: var(--s2); }
 .acct-form label { display: flex; flex-direction: column; gap: 6px; }
@@ -1285,9 +1189,6 @@
   color: var(--fog) !important;
 }
 
-/* ---------- an empty vault ----------
-   Shows and anime start with nothing in them; the message has to say what
-   to do rather than just sitting blank. */
 .vault-empty {
   border: 1px dashed var(--line);
   border-radius: var(--radius);

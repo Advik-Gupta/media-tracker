@@ -1,29 +1,3 @@
-/* ============================================================
-   CLOUD — optional accounts, so a vault follows you between
-   devices instead of living in one browser.
-
-   Everything still works signed out. Local storage remains the
-   working copy and the source of truth for the running page;
-   Supabase is a mirror that is pulled on sign-in and pushed,
-   debounced, whenever anything changes.
-
-   The whole state travels as one JSON object — the same shape
-   `Store.exportBundle()` produces — because nothing is ever
-   queried across users. See supabase/schema.sql.
-
-   Conflict resolution is last-write-wins on the app's own clock
-   (`Store.lastSaved()`), the same rule the IndexedDB mirror
-   already uses. Two devices editing the same account at once
-   will not merge; the later save wins. That is a deliberate
-   simplification, not an oversight — merging watch state needs a
-   per-key clock, which is a great deal of machinery for a
-   personal tracker.
-
-   Requires assets/js/config.js, written by the build from the
-   environment. With no credentials the module does nothing at
-   all and the site behaves exactly as it did before.
-   ============================================================ */
-
 const Cloud = (() => {
   const CDN =
     "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js";
@@ -35,18 +9,13 @@ const Cloud = (() => {
 
   let client = null;
   let user = null;
-  let token = null; // current access token, for the unload push
+  let token = null;
   let ready = null;
   let pushTimer = null;
   let pulling = false;
   const listeners = new Set();
 
   const notify = () => listeners.forEach((fn) => fn(user));
-
-  /* ---------- loading the SDK ----------
-     Fetched from a CDN rather than bundled, because this project has no
-     bundler. It is only loaded when credentials exist, so a local-only
-     deploy pays nothing for it. */
 
   function loadSdk() {
     if (window.supabase && window.supabase.createClient) return Promise.resolve();
@@ -80,8 +49,8 @@ const Cloud = (() => {
         user = next;
         token = (session && session.access_token) || null;
         notify();
-        /* A fresh sign-in brings that account's state down. */
-        if (changed && user) pull();
+        if (changed && user)
+          pull();
       });
 
       if (user) await pull();
@@ -91,9 +60,6 @@ const Cloud = (() => {
     return ready;
   }
 
-  /* ---------- sync ---------- */
-
-  /** Bring the account's state down, if it is newer than what is here. */
   async function pull() {
     if (!client || !user) return { ok: false };
 
@@ -103,10 +69,9 @@ const Cloud = (() => {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (error) return { ok: false, error: error.message };
+    if (error)
+      return { ok: false, error: error.message };
 
-    /* Nothing stored yet — this account is new, so seed it from whatever
-       this browser already has rather than wiping it. */
     if (!data || !data.data || !Object.keys(data.data).length) {
       await push({ force: true });
       return { ok: true, seeded: true };
@@ -124,7 +89,6 @@ const Cloud = (() => {
     return { ok: true, kept: "remote" };
   }
 
-  /** Send the current state up. Debounced by default. */
   async function push({ force } = {}) {
     if (!client || !user) return { ok: false };
 
@@ -147,16 +111,10 @@ const Cloud = (() => {
     pushTimer = setTimeout(() => push(), PUSH_DELAY);
   }
 
-  /* Any local change is mirrored up, a couple of seconds later so a burst
-     of ticking becomes one request rather than twenty. */
   if (typeof Store !== "undefined" && Store.onChange) {
     Store.onChange(() => schedulePush());
   }
 
-  /* And once more on the way out, so a tick made in the last two seconds is
-     not lost. The SDK's own call would be cancelled as the page goes away,
-     so this is a plain keepalive fetch against PostgREST, which the browser
-     is allowed to finish after the page is gone. Best effort by nature. */
   window.addEventListener("beforeunload", () => {
     if (!client || !user || !token || pulling) return;
     clearTimeout(pushTimer);
@@ -176,16 +134,12 @@ const Cloud = (() => {
           client_updated: Store.lastSaved(),
         }),
       });
-    } catch (e) {
-      /* best effort only */
-    }
+    } catch (e) {}
   });
 
   return {
-    /** Whether the build was given Supabase credentials at all. */
     configured: () => configured,
 
-    /** The signed-in user, or null. Call after ready(). */
     user: () => user,
 
     ready: init,
@@ -196,23 +150,31 @@ const Cloud = (() => {
     },
 
     async signUp(email, password) {
-      await init();
-      if (!client) return { error: "Accounts are not configured." };
-      const { error } = await client.auth.signUp({ email, password });
-      return error ? { error: error.message } : {};
+      try {
+        await init();
+        if (!client) return { error: "Accounts are not configured." };
+        const { error } = await client.auth.signUp({ email, password });
+        return error ? { error: error.message } : {};
+      } catch (e) {
+        return { error: e.message || "Could not reach the server." };
+      }
     },
 
     async signIn(email, password) {
-      await init();
-      if (!client) return { error: "Accounts are not configured." };
-      const { error } = await client.auth.signInWithPassword({ email, password });
-      return error ? { error: error.message } : {};
+      try {
+        await init();
+        if (!client) return { error: "Accounts are not configured." };
+        const { error } = await client.auth.signInWithPassword({ email, password });
+        return error ? { error: error.message } : {};
+      } catch (e) {
+        return { error: e.message || "Could not reach the server." };
+      }
     },
 
     async signOut() {
       await init();
-      if (!client) return;
-      /* Push what is here before letting go of the session. */
+      if (!client)
+        return;
       await push({ force: true });
       await client.auth.signOut();
     },
@@ -222,6 +184,5 @@ const Cloud = (() => {
   };
 })();
 
-/* Start as soon as the page has a Store to sync. Signed out, this is a
-   no-op; with no credentials it does not even load the SDK. */
-if (Cloud.configured()) Cloud.ready();
+if (Cloud.configured())
+  Cloud.ready();

@@ -1,13 +1,3 @@
-/* ============================================================
-   COUNTRIES MAP - built on jsVectorMap, which ships accurate
-   country geometry keyed by ISO 3166-1 alpha-2. That replaces
-   the hand-rolled TopoJSON projection, which mis-drew borders
-   and had no reliable code mapping.
-
-   Countries with a list are filled in Marquee Gold and are
-   clickable; the rest stay flat Slate and are inert.
-   ============================================================ */
-
 (() => {
   const holder = document.getElementById("mapHolder");
   if (!holder) return;
@@ -15,7 +5,6 @@
   const listed = Object.entries(COUNTRIES).filter(([, c]) => c.list);
   const liveCodes = listed.map(([code]) => code);
 
-  /* sidebar list ------------------------------------------------------- */
   const listEl = document.getElementById("countryList");
   const entries = Object.entries(COUNTRIES).sort((a, b) =>
     a[1].name.localeCompare(b[1].name),
@@ -36,7 +25,6 @@
   if (count)
     count.textContent = `${listed.length} of ${entries.length} have a list`;
 
-  /* how far through each country's list you are ------------------------ */
   function progressFor(id) {
     const cat = window.CATALOGUES && window.CATALOGUES[id];
     if (!cat) return null;
@@ -46,7 +34,6 @@
     return { done, total: items.length };
   }
 
-  /* map ---------------------------------------------------------------- */
   let map = null;
 
   function paint() {
@@ -54,9 +41,6 @@
     document.querySelectorAll("#worldMap path[data-code]").forEach((p) => {
       const c = COUNTRIES[p.dataset.code];
       const live = !!(c && c.list);
-      /* Only the class is set here. jsVectorMap rewrites each region's fill
-         when a hover ends, so the colour has to come from CSS or it would be
-         wiped the first time the cursor left the country. */
       p.classList.toggle("has-list", live);
       p.style.cursor = live ? "pointer" : "default";
     });
@@ -64,8 +48,6 @@
 
   const css = getComputedStyle(document.documentElement);
   const tone = (n, fb) => (css.getPropertyValue(n) || fb).trim();
-  /* The landmasses sit on the panel fill, so they take the next tone up -
-     otherwise the whole map reads as one flat block. */
   const LAND = tone("--line", "#2B303D");
   const EDGE = tone("--fog", "#8C90A0");
 
@@ -120,9 +102,6 @@
     });
 
     paint();
-    /* jsVectorMap measures its container on construction. The page is still
-       settling at that point (web fonts, the reveal transition), so the map
-       is re-measured once things have stopped moving and on every resize. */
     resize();
   }
 
@@ -130,9 +109,7 @@
     if (!map) return;
     try {
       map.updateSize();
-    } catch (e) {
-      /* library is mid-teardown */
-    }
+    } catch (e) {}
     paint();
   }
 

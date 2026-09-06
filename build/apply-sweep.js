@@ -1,13 +1,4 @@
 #!/usr/bin/env node
-/* ============================================================
-   Merge a sweep TSV (key<TAB>posterURL) into the film registry.
-
-   The registry is written by build/centralise.js and then run
-   through the project formatter, so entries are multi-line with
-   double-quoted keys. This walks the file line by line rather
-   than pattern-matching a one-line shape, which silently matched
-   nothing after the reformat.
-   ============================================================ */
 const fs = require("fs");
 const path = require("path");
 
@@ -35,8 +26,6 @@ for (let i = 0; i < lines.length; i++) {
   const line = lines[i];
   out.push(line);
 
-  /* The formatter keeps short entries on one line and expands longer ones,
-     so both shapes have to be handled. */
   const inline = line.match(/^  "([^"]+)": \{(.*)\},\s*$/);
   if (inline && posters.has(inline[1])) {
     unmatched.delete(inline[1]);
@@ -54,8 +43,6 @@ for (let i = 0; i < lines.length; i++) {
   if (!posters.has(key)) continue;
   unmatched.delete(key);
 
-  /* Find this entry's closing brace, and leave it alone if it already has
-     a poster - a sweep must never overwrite a good URL. */
   let end = i + 1;
   let body = [];
   while (end < lines.length && !/^  \},?\s*$/.test(lines[end])) {
@@ -65,9 +52,8 @@ for (let i = 0; i < lines.length; i++) {
   if (body.some((l) => /^\s*poster:/.test(l))) { hadOne += 1; continue; }
 
   const url = posters.get(key).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-  /* Emit the rest of the entry now, then the new field, so the poster lands
-     just before the closing brace. */
-  for (const l of body) out.push(l);
+  for (const l of body)
+    out.push(l);
   out.push(`    poster: "${url}",`);
   added += 1;
   i = end - 1;

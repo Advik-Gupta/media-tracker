@@ -1,15 +1,4 @@
 #!/usr/bin/env node
-/* ============================================================
-   Remove film registry entries that no catalogue references.
-
-   A failed or retried import can leave records behind — a list
-   written, then rewritten under different keys, leaves the first
-   set stranded. Nothing reads them, but they show up in counts
-   and in poster sweeps.
-
-     node build/prune-registry.js --dry
-     node build/prune-registry.js
-   ============================================================ */
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
@@ -31,8 +20,6 @@ for (const cat of Object.values(ctx.window.CATALOGUES || {})) {
   (cat.items || []).forEach((it) => { if (it.film) used.add(it.film); });
 }
 
-/* A series page renders its films straight from the episode data, so those
-   keys are in use even when no catalogue lists them. */
 const SERIES_DIR = path.join(DATA, "series");
 if (fs.existsSync(SERIES_DIR)) {
   const sctx = { window: {}, console };
@@ -59,9 +46,10 @@ const out = [];
 const drop = new Set(orphans);
 for (let i = 0; i < lines.length; i++) {
   const m = lines[i].match(/^  "([^"]+)": \{/);
-  if (!m || !drop.has(m[1])) { out.push(lines[i]); continue; }
-  /* skip the whole record, single-line or expanded */
-  if (/\},\s*$/.test(lines[i])) continue;
+  if (!m || !drop.has(m[1]))
+    { out.push(lines[i]); continue; }
+  if (/\},\s*$/.test(lines[i]))
+    continue;
   while (i < lines.length && !/^  \},?\s*$/.test(lines[i])) i += 1;
 }
 fs.writeFileSync(REG, out.join("\n"));

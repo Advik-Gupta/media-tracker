@@ -1,16 +1,3 @@
-/* ============================================================
-   SERIES - the shows vault's season/episode grid.
-   Same design language as the rest: flat fills, 1px rules,
-   no gradients. The only colour that carries meaning here is
-   the rating band on each episode.
-   ============================================================ */
-
-/* ---------- rating bands ----------
-   The seven-step scale seriesgraph uses, so a grid read here means the same
-   thing as a grid read there. Filled rather than outlined: at a glance the
-   episode grid should read as a block of colour.
-
-   No band carries an outline: every chip is its own fill, edge to edge. */
 :root {
   --b-cinema: #3b9cfa;
   --b-awesome: #2d6a4b;
@@ -86,15 +73,12 @@
 }
 .rating-key i {
   font-style: normal;
-  /* width and style only - the colour comes from the band, and a
-     shorthand here would reset it to currentColor */
+
   border-width: 1px;
   border-style: solid;
   border-radius: 2px;
   padding: 2px 8px;
 }
-
-/* ---------- show block ---------- */
 
 .series-wrap {
   padding-top: var(--s5);
@@ -107,7 +91,6 @@
   border-top: 1px solid var(--line);
 }
 
-/* The control bar is sticky, so anything scrolled to needs to clear it. */
 .show,
 .season,
 .ep {
@@ -167,8 +150,7 @@
   color: var(--fog);
 }
 .show-meta span[class^="r-"] {
-  /* width and style only - the colour comes from the band, and a
-     shorthand here would reset it to currentColor */
+
   border-width: 1px;
   border-style: solid;
   border-radius: 2px;
@@ -225,8 +207,6 @@
   background: var(--gold);
   transition: width 0.2s var(--ease-out);
 }
-
-/* ---------- season ---------- */
 
 .season + .season {
   margin-top: var(--s5);
@@ -317,8 +297,7 @@
 }
 .season-meta i {
   font-style: normal;
-  /* width and style only - the colour comes from the band, and a
-     shorthand here would reset it to currentColor */
+
   border-width: 1px;
   border-style: solid;
   border-radius: 2px;
@@ -342,8 +321,6 @@
   color: var(--bone);
   font-variant-numeric: tabular-nums;
 }
-
-/* ---------- episodes ---------- */
 
 .ep-grid {
   display: grid;
@@ -379,8 +356,7 @@
   font-weight: 700;
   letter-spacing: 0.5px;
   text-align: center;
-  /* width and style only - the colour comes from the band, and a
-     shorthand here would reset it to currentColor */
+
   border-width: 1px;
   border-style: solid;
   border-radius: var(--radius-sm);
@@ -458,8 +434,6 @@
   display: none;
 }
 
-/* Dense mode drops the titles and packs the grid to rating chips only -
-   useful on a 500-episode run where the shape of the ratings is the point. */
 .dense .ep-grid {
   grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   gap: 6px;
@@ -481,8 +455,6 @@
   text-align: center;
   font-size: 16px;
 }
-
-/* ---------- films sit alongside the seasons ---------- */
 
 .film-block .show-head {
   border-bottom: none;
@@ -512,11 +484,6 @@
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   }
 }
-
-/* ============================================================
-   FILLER — anime runs padded with episodes that are not in the
-   manga. Marking one takes it out of the count entirely.
-   ============================================================ */
 
 .ep.filler { opacity: .55; }
 .ep.filler .ep-rating { filter: saturate(.35); }
@@ -630,13 +597,11 @@
   .filler-head, .filler-tools, .filler-body, .filler-foot { padding-inline: var(--s2); }
 }
 
-/* A series marked as still releasing by hand, overriding the baked status. */
 #markOngoing.active {
   border-color: var(--teal);
   color: var(--teal);
 }
 
-/* ---------- the dynamic view page ---------- */
 .view-status {
   display: flex; align-items: center; gap: var(--s1);
   padding: var(--s4) 0;

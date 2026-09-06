@@ -1,12 +1,4 @@
 #!/usr/bin/env node
-/* ============================================================
-   Applies resolved poster URLs into the list data files.
-   Idempotent - safe to run repeatedly as more URLs resolve.
-
-     node build/apply-list-posters.js [path/to/resolved.tsv]
-
-   TSV format:  <universe>\t<itemId>\t<posterUrl>
-   ============================================================ */
 const fs = require("fs");
 const path = require("path");
 
@@ -35,7 +27,8 @@ for (const [uni, map] of Object.entries(byUni)) {
   let added = 0;
   for (const [id, url] of Object.entries(map)) {
     const esc = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    if (new RegExp(`'${esc}':`).test(s)) continue; // already present
+    if (new RegExp(`'${esc}':`).test(s))
+      continue;
     s = s.replace(
       "const POSTERS = {\n",
       `const POSTERS = {\n  '${id}': '${url}',\n`,

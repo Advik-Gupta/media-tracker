@@ -1,18 +1,4 @@
 #!/usr/bin/env node
-/* ============================================================
-   OMDb POSTER BACKFILL
-
-   Fills in every catalogue entry that has no poster, using OMDb.
-   Run once with your key; it writes the URLs straight into the
-   data files and is safe to re-run (it only touches gaps).
-
-     OMDB_KEY=yourkey node build/omdb-posters.js
-     node build/omdb-posters.js yourkey
-
-   Options:
-     --dry     look everything up but write nothing
-     --limit N stop after N lookups (the free tier allows 1,000/day)
-   ============================================================ */
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -33,7 +19,6 @@ for (const f of fs.readdirSync(DATA)) {
 }
 const cats = ctx.window.CATALOGUES;
 
-/* every entry that still has no poster */
 const gaps = [];
 for (const [uni, cat] of Object.entries(cats)) {
   for (const it of cat.items) {
@@ -47,7 +32,6 @@ console.log(`${gaps.length} entries without a poster\n`);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function lookup({ title, year, type }) {
-  /* exact title + year first, then title alone, then a search */
   const tries = [
     { t: title, y: year, type },
     { t: title, y: year },
@@ -59,7 +43,7 @@ async function lookup({ title, year, type }) {
       const res = await fetch(`https://www.omdbapi.com/?${qs}`);
       const d = await res.json();
       if (d && d.Response !== 'False' && d.Poster && d.Poster !== 'N/A') return d.Poster;
-    } catch (e) { /* try the next shape */ }
+    } catch (e) {}
     await sleep(120);
   }
   const qs = new URLSearchParams({ apikey: KEY, s: title });
@@ -68,7 +52,7 @@ async function lookup({ title, year, type }) {
     const d = await res.json();
     const hit = (d.Search || []).find((x) => x.Poster && x.Poster !== 'N/A');
     if (hit) return hit.Poster;
-  } catch (e) { /* give up on this one */ }
+  } catch (e) {}
   return null;
 }
 

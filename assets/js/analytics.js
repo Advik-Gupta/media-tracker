@@ -1,17 +1,3 @@
-/* ============================================================
-   ANALYTICS — what your progress actually looks like.
-
-   Everything here is computed in the browser from three sources:
-   the catalogues (what exists), the progress store (what you have
-   ticked) and _stats.js (one rating, runtime and year per episode,
-   baked at build time so the page does not have to load a hundred
-   episode files).
-
-   Charts are hand-drawn SVG rather than a library: the palette and
-   the flat, unshadowed treatment are the same rules as the rest of
-   the site, and a chart library would fight both.
-   ============================================================ */
-
 (() => {
   const el = (id) => document.getElementById(id);
   const root = el("analytics");
@@ -42,10 +28,6 @@
 
   const state = { vault: "all" };
 
-  /* ---------- gathering ----------
-     One pass builds every figure the page needs, so a vault switch is a
-     recompute rather than a dozen separate walks. */
-
   const store = Store.exportAll();
   const EP_KEY = /^e\d+-\d+x\d+$/;
 
@@ -55,19 +37,17 @@
     const seen = new Set();
     let titles = 0;
     let watched = 0;
-    /* Episodes are unique to their show, so they never double-count; titles
-       can sit on several shelves, so those are deduped through `seen`. */
     let epTotal = 0;
     let epDone = 0;
     let minutes = 0;
 
-    const byDecade = new Map();   // decade -> { total, done }
-    const byVault = new Map();    // vault  -> { total, done }
-    const ratings = new Array(11).fill(0); // watched episodes, by whole rating
-    const filmScores = [];                 // watched films, by IMDb score
-    const genres = new Map();              // genre -> { total, done }
-    const rated = [];                      // ratings of finished titles
-    const shelves = [];           // per-universe progress
+    const byDecade = new Map();
+    const byVault = new Map();
+    const ratings = new Array(11).fill(0);
+    const filmScores = [];
+    const genres = new Map();
+    const rated = [];
+    const shelves = [];
     const records = { best: null, worst: null };
 
     for (const u of UNIS) {
@@ -81,9 +61,10 @@
       let uTotal = 0;
       let uDone = 0;
 
-      /* Episode-based universes report through the baked stats. */
       if (meta && EPS[u.id]) {
-        for (const [key, [r10, mins, year, epTitle]] of Object.entries(EPS[u.id])) {
+        for (const [key, [r10, mins, year, epTitle]] of Object.entries(
+          EPS[u.id],
+        )) {
           if (filler[key]) continue;
           uTotal += 1;
           epTotal += 1;
@@ -110,7 +91,6 @@
             byDecade.set(d, row);
           }
         }
-        /* the decade totals need the unwatched side too */
         for (const [key, [, , year]] of Object.entries(EPS[u.id])) {
           if (filler[key] || bucket[key]) continue;
           const d = year ? Math.floor(year / 10) * 10 : 0;
@@ -121,7 +101,6 @@
         }
       }
 
-      /* Everything else counts through its catalogue. */
       if (cat && cat.items) {
         const items =
           typeof resolvedItems === "function" ? resolvedItems(cat) : cat.items;
@@ -132,18 +111,14 @@
           const first = !seen.has(key);
           seen.add(key);
 
-          /* A film in both the MCU and the IMDb 250 is one title overall but
-             belongs to both shelves. Only the global tallies dedupe; a
-             shelf's own total has to count everything on it, or its
-             percentage is measured against the wrong denominator. */
           if (first) titles += 1;
           uTotal += meta && EPS[u.id] ? 0 : 1;
 
-          const d = it.release ? Math.floor(Number(it.release.slice(0, 4)) / 10) * 10 : 0;
+          const d = it.release
+            ? Math.floor(Number(it.release.slice(0, 4)) / 10) * 10
+            : 0;
           const row = d ? byDecade.get(d) || { total: 0, done: 0 } : null;
 
-          /* Genres come from the ratingraph pass; a title without them is
-             simply not counted rather than bucketed as "unknown". */
           const g = Array.isArray(it.genres) ? it.genres : [];
           const watchedNow = Store.has(...ref);
           if (first) {
@@ -177,9 +152,6 @@
       v.done += uDone;
       byVault.set(vault, v);
 
-      /* A universe holding several series is several things to watch, so it
-         is reported as several rows: Berlin's progress says nothing about
-         Money Heist's and averaging them together hides both. */
       const perShow = (meta && meta.perShow) || [];
       if (perShow.length > 1 && EPS[u.id]) {
         for (const sh of perShow) {
@@ -216,7 +188,6 @@
       }
     }
 
-    /* Every decade row needs total to mean "all of them", not "the rest". */
     for (const [, row] of byDecade) row.total += row.done;
 
     return {
@@ -230,15 +201,17 @@
       ratings,
       filmScores,
       genres: [...genres.entries()]
-        .map(([name, r]) => ({ name, ...r, pct: r.total ? (r.done / r.total) * 100 : 0 }))
+        .map(([name, r]) => ({
+          name,
+          ...r,
+          pct: r.total ? (r.done / r.total) * 100 : 0,
+        }))
         .sort((x, y) => y.done - x.done || y.total - x.total),
       rated,
       shelves,
       records,
     };
   }
-
-  /* ---------- drawing ---------- */
 
   const fmtHours = (m) =>
     m >= 1440 ? `${(m / 1440).toFixed(1)}d` : `${Math.round(m / 60)}h`;
@@ -251,7 +224,6 @@
     </div>`;
   }
 
-  /** A column chart. Bars are buttons so the whole thing is keyboard reachable. */
   function columns(rows, opts = {}) {
     if (!rows.length) return `<p class="a-empty">Nothing to show yet.</p>`;
     const max = Math.max(...rows.map((r) => r.value), 1);
@@ -273,7 +245,6 @@
     </div>`;
   }
 
-  /** Horizontal bars, for anything with a long label. */
   function bars(rows) {
     if (!rows.length) return `<p class="a-empty">Nothing to show yet.</p>`;
     return `<div class="barlist">
@@ -290,7 +261,6 @@
     </div>`;
   }
 
-  /** A ring, for one proportion. */
   function ring(done, total, label) {
     const pct = total ? (done / total) * 100 : 0;
     const C = 2 * Math.PI * 52;
@@ -308,17 +278,20 @@
   }
 
   const BAND = (r) =>
-    r >= 9.7 ? "cinema"
-    : r >= 9 ? "awesome"
-    : r >= 8 ? "great"
-    : r >= 7 ? "good"
-    : r >= 6 ? "average"
-    : r >= 5 ? "bad"
-    : "garbage";
+    r >= 9.7
+      ? "cinema"
+      : r >= 9
+        ? "awesome"
+        : r >= 8
+          ? "great"
+          : r >= 7
+            ? "good"
+            : r >= 6
+              ? "average"
+              : r >= 5
+                ? "bad"
+                : "garbage";
 
-  /* "Ozymandias — Breaking Bad, S05E14". The episode title rides along in the
-     stats index and the show name comes from the counts index, so a record
-     can name itself without loading any episode data. */
   function describe(rec) {
     if (!rec) return "";
     const m = rec.key.match(/^e(\d+)-(\d+)x(\d+)$/);
@@ -330,25 +303,32 @@
     const showName = (show && show.title) || rec.uni.name;
 
     const code = `S${String(m[2]).padStart(2, "0")}E${String(m[3]).padStart(2, "0")}`;
-    return rec.title ? `${rec.title} — ${showName}, ${code}` : `${showName}, ${code}`;
+    return rec.title
+      ? `${rec.title} - ${showName}, ${code}`
+      : `${showName}, ${code}`;
   }
-
-  /* ---------- what each vault measures ----------
-     A film shelf counts titles and a series shelf counts episodes, so the
-     headline figures cannot be the same four numbers everywhere. */
 
   const EPISODIC = new Set(["show", "anime"]);
 
   function headlineCards(d, totalDone, totalAll) {
     const startedCount = d.shelves.filter((s) => s.done > 0).length;
-    const doneCount = d.shelves.filter((s) => s.total && s.done === s.total).length;
+    const doneCount = d.shelves.filter(
+      (s) => s.total && s.done === s.total,
+    ).length;
     const v = state.vault;
-
 
     if (EPISODIC.has(v)) {
       return [
-        statCard(totalDone, "episodes watched", `of ${totalAll.toLocaleString()}`),
-        statCard(Math.round(d.minutes / 60), "hours watched", fmtHours(d.minutes)),
+        statCard(
+          totalDone,
+          "episodes watched",
+          `of ${totalAll.toLocaleString()}`,
+        ),
+        statCard(
+          Math.round(d.minutes / 60),
+          "hours watched",
+          fmtHours(d.minutes),
+        ),
         statCard(startedCount, "series started", `of ${d.shelves.length}`),
         statCard(doneCount, "completed", "every episode"),
       ].join("");
@@ -359,22 +339,26 @@
         statCard(totalDone, "films watched", `of ${totalAll.toLocaleString()}`),
         statCard(startedCount, "shelves started", `of ${d.shelves.length}`),
         statCard(doneCount, "completed", "start to finish"),
-        statCard(Math.round(d.minutes / 60), "hours logged", "where runtimes are known"),
+        statCard(
+          Math.round(d.minutes / 60),
+          "hours logged",
+          "where runtimes are known",
+        ),
       ].join("");
     }
 
     return [
       statCard(totalDone, "finished", `of ${totalAll.toLocaleString()}`),
-      statCard(Math.round(d.minutes / 60), "hours watched", fmtHours(d.minutes)),
+      statCard(
+        Math.round(d.minutes / 60),
+        "hours watched",
+        fmtHours(d.minutes),
+      ),
       statCard(startedCount, "shelves started", `of ${d.shelves.length}`),
       statCard(doneCount, "completed", "start to finish"),
     ].join("");
   }
 
-  /* Ratings only exist per episode. Films carry a score for about a fifth of
-     the catalogue, so charting that would be a chart
-     of what happens to have data rather than of anything you did. Those
-     vaults get a figure that is actually theirs instead. */
   function qualityPanel(d) {
     const v = state.vault;
     const anyEpisodes = d.ratings.some((n) => n > 0);
@@ -422,13 +406,12 @@
   const busiestDecade = (d) => {
     const rows = d.byDecade.filter(([, r]) => r.done > 0);
     if (!rows.length) return null;
-    const [decade, row] = rows.reduce((a, b) => (b[1].done > a[1].done ? b : a));
+    const [decade, row] = rows.reduce((a, b) =>
+      b[1].done > a[1].done ? b : a,
+    );
     return { decade, done: row.done };
   };
 
-  /* Genres arrive with the ratingraph pass. Until that has run there is
-     nothing to draw, so the panel takes itself out rather than showing an
-     empty frame. */
   function genrePanel(d) {
     const top = d.genres.filter((g) => g.done > 0).slice(0, 12);
     if (!top.length) return "";
@@ -452,19 +435,12 @@
     </section>`;
   }
 
-  /* ---------- render ---------- */
-
   function render() {
     const d = gather();
 
-    /* The headline counts each thing once. Shelf percentages deliberately do
-       not — a film on three lists is one film here and three entries there. */
     const totalDone = d.epDone + d.watched;
     const totalAll = d.epTotal + d.titles;
 
-    /* Ranking everything by percentage just lists the finished ones, which
-       says nothing. What is useful is how far through the unfinished ones
-       you are — and, separately, what you actually completed. */
     const inProgress = d.shelves
       .filter((s) => s.done > 0 && s.done < s.total)
       .sort((a, b) => b.pct - a.pct || b.done - a.done)
@@ -510,7 +486,7 @@
             d.byDecade.map(([dec, row]) => ({
               label: `${String(dec).slice(2)}s`,
               value: row.done,
-              title: `${dec}s — ${row.done} of ${row.total} finished`,
+              title: `${dec}s - ${row.done} of ${row.total} finished`,
             })),
             { label: "Finished titles by decade" },
           )}
@@ -556,7 +532,8 @@
           <h2>Records</h2>
           <div class="records">
             ${
-              d.records.best && (state.vault === "all" || EPISODIC.has(state.vault))
+              d.records.best &&
+              (state.vault === "all" || EPISODIC.has(state.vault))
                 ? `<div class="record">
                      <span class="rlabel">Best you have seen</span>
                      <b class="r-${BAND(d.records.best.rating)}">${d.records.best.rating.toFixed(1)}</b>
@@ -565,7 +542,8 @@
                 : ""
             }
             ${
-              d.records.worst && (state.vault === "all" || EPISODIC.has(state.vault))
+              d.records.worst &&
+              (state.vault === "all" || EPISODIC.has(state.vault))
                 ? `<div class="record">
                      <span class="rlabel">Worst you have seen</span>
                      <b class="r-${BAND(d.records.worst.rating)}">${d.records.worst.rating.toFixed(1)}</b>
@@ -623,9 +601,6 @@
     countUp();
   }
 
-  /* The big numbers count up once, on each render. Switching the filter
-     re-renders mid-animation, so each run carries a token and a stale frame
-     drops out rather than writing its own target into the new markup. */
   let renderToken = 0;
 
   function countUp() {
@@ -638,8 +613,6 @@
         return;
       }
 
-      /* The value is written first and animated second, so an interrupted
-         run leaves the real figure rather than whatever frame it died on. */
       const final = target.toLocaleString();
       node.textContent = final;
 

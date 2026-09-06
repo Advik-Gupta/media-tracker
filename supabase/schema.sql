@@ -1,5 +1,5 @@
 -- ============================================================
--- MEDIA VAULT — Supabase schema
+-- MEDIA VAULT - Supabase schema
 --
 -- Run this once, in the SQL Editor of your Supabase project.
 --
@@ -15,7 +15,7 @@
 -- every shape change.
 --
 -- The row is protected by row level security, so an account can
--- only ever see and write its own — that is enforced by the
+-- only ever see and write its own - that is enforced by the
 -- database, not by the app.
 -- ============================================================
 

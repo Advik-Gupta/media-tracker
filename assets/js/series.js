@@ -1,15 +1,3 @@
-/* ============================================================
-   SERIES - the shows vault's own view. Where the film side uses
-   a timeline, a show is better read as a grid: every season a
-   block, every episode a tile carrying its IMDb rating.
-
-   Progress is per episode. A season header ticks all of its
-   episodes at once and shows a partial state when only some are
-   done, so nothing has to be counted by hand.
-
-   Episode data is baked at build time by build/seriesgraph.js.
-   ============================================================ */
-
 (() => {
   const UNI = document.body.dataset.universe;
   const DATA = (window.SERIES || {})[UNI];
@@ -18,13 +6,8 @@
 
   const CAT = (window.CATALOGUES || {})[UNI] || {};
 
-  /* A merged-in series brings its progress with it. */
   if (Store.migrateMerges) Store.migrateMerges();
 
-  /* ---------- keys ----------
-     One key per episode, namespaced by TMDB show id so two shows in the
-     same universe cannot collide. Films keep the shared film key they
-     already had, so ticking one here still ticks it in every film list. */
   const epRef = (showId, s, e) => [UNI, `e${showId}-${s}x${e}`];
   const filmRef = (f) =>
     typeof progressRef === "function"
@@ -39,30 +22,19 @@
 
   const aired = (ep) => ep.d && new Date(ep.d) <= new Date();
 
-  /* ---------- filler ----------
-     Anime runs padded out with episodes that are not in the manga. Marking
-     one filler takes it out of the count entirely: watched or not, it stops
-     affecting the percentage, so the number reflects the actual story.
-
-     Kept in its own per-universe bucket rather than mixed in with progress,
-     so it rides along with the backups and the vault page can read it
-     without loading the episode data. */
   const FILLER = `__filler_${UNI}`;
   const fillerKey = (showId, s, e) => `e${showId}-${s}x${e}`;
   const isFiller = (showId, s, e) => Store.has(FILLER, fillerKey(showId, s, e));
   const canMarkFiller = (document.body.dataset.mode || "") === "anime";
 
-
-  /* The seven-band scale, matching the one seriesgraph uses, so a grid read
-     here means the same thing as a grid read there. */
   const BANDS = [
-    { min: 9.7, key: "cinema",  label: "Absolute Cinema" },
+    { min: 9.7, key: "cinema", label: "Absolute Cinema" },
     { min: 9.0, key: "awesome", label: "Awesome" },
-    { min: 8.0, key: "great",   label: "Great" },
-    { min: 7.0, key: "good",    label: "Good" },
+    { min: 8.0, key: "great", label: "Great" },
+    { min: 7.0, key: "good", label: "Good" },
     { min: 6.0, key: "average", label: "Average" },
-    { min: 5.0, key: "bad",     label: "Bad" },
-    { min: -1,  key: "garbage", label: "Garbage" },
+    { min: 5.0, key: "bad", label: "Bad" },
+    { min: -1, key: "garbage", label: "Garbage" },
   ];
   function band(r) {
     if (r == null) return "na";
@@ -70,8 +42,6 @@
   }
 
   const fmtRating = (r) => (r == null ? "–" : r.toFixed(1));
-
-  /* ---------- state ---------- */
 
   const state = {
     collapsed: new Set(),
@@ -83,28 +53,17 @@
   try {
     const saved = JSON.parse(localStorage.getItem(COLLAPSE_KEY) || "[]");
     if (Array.isArray(saved)) saved.forEach((k) => state.collapsed.add(k));
-  } catch (e) {
-    /* first visit */
-  }
+  } catch (e) {}
 
   function rememberCollapsed() {
     try {
       localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...state.collapsed]));
-    } catch (e) {
-      /* private window */
-    }
+    } catch (e) {}
   }
 
-  /* Seasons over this many episodes start collapsed - Naruto Shippuden is
-     500 entries and would otherwise bury everything below it. */
   const BIG_SEASON = 60;
   let firstRender = true;
 
-  /* ---------- counting ---------- */
-
-  /* Filler is excluded here, which is what keeps it out of every count that
-     follows - the season line, the show bar and the page total all read
-     through this one function. */
   const seasonRefs = (show, season) =>
     season.episodes
       .filter(aired)
@@ -133,8 +92,6 @@
       ...(DATA.films || []).map(filmRef),
     ];
   }
-
-  /* ---------- rendering ---------- */
 
   function episodeTile(show, season, ep) {
     const ref = epRef(show.id, season.n, ep.n);
@@ -226,11 +183,13 @@
               <button class="btn btn-ghost sm" data-show-toggle="${show.id}">
                 ${done === total && total ? "Unmark all" : "Mark all watched"}
               </button>
-              ${canMarkFiller
-                ? `<button class="btn btn-ghost sm" data-filler-open="${show.id}">
+              ${
+                canMarkFiller
+                  ? `<button class="btn btn-ghost sm" data-filler-open="${show.id}">
                      Mark fillers${fillerCount(show) ? ` (${fillerCount(show)})` : ""}
                    </button>`
-                : ""}
+                  : ""
+              }
             </div>
           </div>
         </header>
@@ -294,8 +253,6 @@
     if (typeof initReveal === "function") initReveal();
   }
 
-  /* ---------- summary ---------- */
-
   function updateSummary() {
     const refs = allRefs();
     const { done, total } = tally(refs);
@@ -344,12 +301,6 @@
     }
   }
 
-  /* ---------- the filler picker ----------
-     A grid of small squares, one per episode, because picking fifty of them
-     one row at a time is the actual job. Click toggles, shift-click fills
-     the range from the last click, and the text box takes the range lists
-     that filler guides are usually published as ("26-97, 101-106"). */
-
   let fillerShow = null;
   let lastPicked = null;
 
@@ -373,7 +324,8 @@
       document.body.append(backdrop, el);
       backdrop.addEventListener("click", closeFiller);
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && document.getElementById("fillerModal")) closeFiller();
+        if (e.key === "Escape" && document.getElementById("fillerModal"))
+          closeFiller();
       });
     }
 
@@ -390,7 +342,10 @@
     if (!el) return;
     el.classList.remove("show");
     bd.classList.remove("show");
-    setTimeout(() => { el.remove(); bd.remove(); }, 200);
+    setTimeout(() => {
+      el.remove();
+      bd.remove();
+    }, 200);
     fillerShow = null;
     render();
   }
@@ -418,7 +373,9 @@
       </div>
 
       <div class="filler-body">
-        ${show.seasons.map((se) => `
+        ${show.seasons
+          .map(
+            (se) => `
           <section class="filler-season">
             <header>
               <b>Season ${se.n}</b>
@@ -427,14 +384,18 @@
               </button>
             </header>
             <div class="filler-grid">
-              ${se.episodes.map((ep) => {
-                const on = isFiller(show.id, se.n, ep.n);
-                return `<button class="fsq${on ? " on" : ""}"
+              ${se.episodes
+                .map((ep) => {
+                  const on = isFiller(show.id, se.n, ep.n);
+                  return `<button class="fsq${on ? " on" : ""}"
                           data-s="${se.n}" data-e="${ep.n}"
                           title="${esc(ep.t || "")}">${ep.n}</button>`;
-              }).join("")}
+                })
+                .join("")}
             </div>
-          </section>`).join("")}
+          </section>`,
+          )
+          .join("")}
       </div>
 
       <div class="filler-foot">
@@ -448,7 +409,9 @@
     el.querySelector("#fillerClear").addEventListener("click", () => {
       const refs = [];
       show.seasons.forEach((se) =>
-        se.episodes.forEach((ep) => refs.push([FILLER, fillerKey(show.id, se.n, ep.n)])),
+        se.episodes.forEach((ep) =>
+          refs.push([FILLER, fillerKey(show.id, se.n, ep.n)]),
+        ),
       );
       Store.setRefs(refs, false);
       drawFiller();
@@ -463,7 +426,10 @@
       btn.addEventListener("click", () => {
         const n = Number(btn.dataset.fillerSeason);
         const se = show.seasons.find((x) => x.n === n);
-        const refs = se.episodes.map((ep) => [FILLER, fillerKey(show.id, n, ep.n)]);
+        const refs = se.episodes.map((ep) => [
+          FILLER,
+          fillerKey(show.id, n, ep.n),
+        ]);
         const allOn = refs.every((r) => Store.has(...r));
         Store.setRefs(refs, !allOn);
         drawFiller();
@@ -492,7 +458,6 @@
     );
   }
 
-  /** Accepts "26-97, 101-106, 220" and marks them, per season if given as 2x5-9. */
   function applyRange() {
     const input = document.getElementById("fillerRange");
     const text = input.value.trim();
@@ -505,8 +470,6 @@
       const part = chunk.trim();
       if (!part) return;
 
-      /* "2x5-9" scopes to a season; a bare range applies to whichever season
-         holds those numbers, which is what a single-season run needs. */
       const scoped = part.match(/^(\d+)\s*[x:]\s*(\d+)(?:\s*-\s*(\d+))?$/i);
       const plain = part.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
 
@@ -525,7 +488,9 @@
         show.seasons.forEach((se) =>
           se.episodes
             .filter((ep) => ep.n >= from && ep.n <= to)
-            .forEach((ep) => refs.push([FILLER, fillerKey(show.id, se.n, ep.n)])),
+            .forEach((ep) =>
+              refs.push([FILLER, fillerKey(show.id, se.n, ep.n)]),
+            ),
         );
       }
     });
@@ -534,8 +499,6 @@
     input.value = "";
     drawFiller();
   }
-
-  /* ---------- interaction ---------- */
 
   root.addEventListener("click", (e) => {
     const ep = e.target.closest(".ep");
@@ -597,8 +560,6 @@
     }
   });
 
-  /* Ticking one episode only needs its counters redrawn, not the whole page -
-     a 500-episode season is too much markup to rebuild on every click. */
   function refreshCounters() {
     DATA.shows.forEach((show) => {
       const showEl = root.querySelector(`.show[data-show="${show.id}"]`);
@@ -628,11 +589,6 @@
     updateSummary();
   }
 
-  /* ---------- still releasing ----------
-     The status baked in at build time comes from seriesgraph, which can be
-     behind a newly announced season. This lets the page say otherwise, and
-     the vault reads the same flag. */
-
   const FLAGS = "__flags";
   const ongoingKey = `ongoing:${UNI}`;
   const endedKey = `ended:${UNI}`;
@@ -656,26 +612,21 @@
     btn.setAttribute("aria-pressed", String(on));
     btn.textContent = on ? "◉ Ongoing" : "Mark ongoing";
     btn.title = on
-      ? "Marked as still releasing — click to mark finished"
+      ? "Marked as still releasing - click to mark finished"
       : "Mark as still releasing";
   }
 
-  /* Bound directly rather than through the `on` helper below, which is not
-     defined until the control-bar section further down. */
   const ongoingBtn = document.getElementById("markOngoing");
-  if (ongoingBtn) ongoingBtn.addEventListener("click", () => {
-    const next = !ongoingNow();
-    /* Both keys are written so the choice sticks whichever way it disagrees
-       with the baked-in status. */
-    Store.setRefs([[FLAGS, ongoingKey]], next);
-    Store.setRefs([[FLAGS, endedKey]], !next);
-    syncOngoingBtn();
-    if (typeof toast === "function") {
-      toast(next ? "Marked as still releasing" : "Marked as finished");
-    }
-  });
-
-  /* ---------- control bar ---------- */
+  if (ongoingBtn)
+    ongoingBtn.addEventListener("click", () => {
+      const next = !ongoingNow();
+      Store.setRefs([[FLAGS, ongoingKey]], next);
+      Store.setRefs([[FLAGS, endedKey]], !next);
+      syncOngoingBtn();
+      if (typeof toast === "function") {
+        toast(next ? "Marked as still releasing" : "Marked as finished");
+      }
+    });
 
   const on = (id, fn) => {
     const el = document.getElementById(id);
@@ -712,8 +663,6 @@
   });
 
   on("jumpNext", () => {
-    /* Expand whatever season the next unwatched episode is in first, or the
-       scroll would land on a collapsed block. */
     for (const show of DATA.shows) {
       for (const season of show.seasons) {
         const next = season.episodes.find(

@@ -3,32 +3,97 @@
    from seriesgraph.com. Do not edit by hand; run `npm run series`.
    ============================================================ */
 
-(window.SERIES ||= {})['thequeensgambit'] = {
+(window.SERIES ||= {})["thequeensgambit"] = {
   shows: [
-  { id: 87739, title: 'The Queen\'s Gambit', year: '2020', score: 8.5,
-    status: 'Ended', lastAir: '2020-10-23',
-    poster: 'https://image.tmdb.org/t/p/w342/zU0htwkhNvBQdVSIKB9s6hgVeFK.jpg', backdrop: 'https://image.tmdb.org/t/p/w780/34OGjFEbHj0E3lE2w0iTUVq0CBz.jpg',
-    overview: '',
-    seasons: [
-    { n: 1, episodes: [
-      { n: 1, t: 'Openings', r: 8.4, v: 14285, d: '2020-10-23', m: 59, s: 'https://image.tmdb.org/t/p/w300/4taUmpWKaTH2dRisytelueNoo8s.jpg',
-        o: 'Sent to an orphanage at age 9, Beth develops an uncanny knack for chess — and a growing dependence on the green tranquilizers given to the children.' },
-      { n: 2, t: 'Exchanges', r: 8.7, v: 13316, d: '2020-10-23', m: 65, s: 'https://image.tmdb.org/t/p/w300/gmNLUrlRLPS5evVvh0wEI5I4cIs.jpg',
-        o: 'Suddenly plunged into a confusing new life in suburbia, teenage Beth studies her high school classmates and hatches a plan to enter a chess tournament.' },
-      { n: 3, t: 'Doubled Pawns', r: 8.4, v: 12102, d: '2020-10-23', m: 46, s: 'https://image.tmdb.org/t/p/w300/r1JYQ0YdrPOm59MlVwPkResu0Qw.jpg',
-        o: 'The trip to Cincinnati launches Beth and her mother into a whirlwind of travel and press coverage. Beth sets her sights on the U.S. Open in Las Vegas.' },
-      { n: 4, t: 'Middle Game', r: 8.4, v: 11741, d: '2020-10-23', m: 49, s: 'https://image.tmdb.org/t/p/w300/3CCEL9SoI5cm7g0hUb5Q6iTYbLi.jpg',
-        o: 'Russian class opens the door to a new social scene. In Mexico City, Beth meets the intimidating Borgov, while her mother cozies up to a pen pal.' },
-      { n: 5, t: 'Fork', r: 8.2, v: 11367, d: '2020-10-23', m: 48, s: 'https://image.tmdb.org/t/p/w300/3RpR9mXX3aZn04srmJRIERYxrrP.jpg',
-        o: 'Back home in Kentucky, a shaken Beth reconnects with a former opponent who offers to help sharpen her game ahead of the U.S. Championship.' },
-      { n: 6, t: 'Adjournment', r: 8.4, v: 11466, d: '2020-10-23', m: 60, s: 'https://image.tmdb.org/t/p/w300/hcPwSnmUAoCGDJInlt82SlKCMjO.jpg',
-        o: 'After training with Benny in New York, Beth heads to Paris for her rematch with Borgov. But a wild night sends her into a self-destructive spiral.' },
-      { n: 7, t: 'End Game', r: 9.2, v: 15336, d: '2020-10-23', m: 68, s: 'https://image.tmdb.org/t/p/w300/mKRLkntwgMThg5U8iJcpDj4ewMc.jpg',
-        o: 'A visit from an old friend forces Beth to reckon with her past and rethink her priorities — just in time for the biggest match of her life.' },
-    ] },
-    ] },
+    {
+      id: 87739,
+      title: "The Queen's Gambit",
+      year: "2020",
+      score: 8.5,
+      status: "Ended",
+      lastAir: "2020-10-23",
+      poster: "https://image.tmdb.org/t/p/w342/zU0htwkhNvBQdVSIKB9s6hgVeFK.jpg",
+      backdrop:
+        "https://image.tmdb.org/t/p/w780/34OGjFEbHj0E3lE2w0iTUVq0CBz.jpg",
+      overview: "",
+      seasons: [
+        {
+          n: 1,
+          episodes: [
+            {
+              n: 1,
+              t: "Openings",
+              r: 8.4,
+              v: 14285,
+              d: "2020-10-23",
+              m: 59,
+              s: "https://image.tmdb.org/t/p/w300/4taUmpWKaTH2dRisytelueNoo8s.jpg",
+              o: "Sent to an orphanage at age 9, Beth develops an uncanny knack for chess - and a growing dependence on the green tranquilizers given to the children.",
+            },
+            {
+              n: 2,
+              t: "Exchanges",
+              r: 8.7,
+              v: 13316,
+              d: "2020-10-23",
+              m: 65,
+              s: "https://image.tmdb.org/t/p/w300/gmNLUrlRLPS5evVvh0wEI5I4cIs.jpg",
+              o: "Suddenly plunged into a confusing new life in suburbia, teenage Beth studies her high school classmates and hatches a plan to enter a chess tournament.",
+            },
+            {
+              n: 3,
+              t: "Doubled Pawns",
+              r: 8.4,
+              v: 12102,
+              d: "2020-10-23",
+              m: 46,
+              s: "https://image.tmdb.org/t/p/w300/r1JYQ0YdrPOm59MlVwPkResu0Qw.jpg",
+              o: "The trip to Cincinnati launches Beth and her mother into a whirlwind of travel and press coverage. Beth sets her sights on the U.S. Open in Las Vegas.",
+            },
+            {
+              n: 4,
+              t: "Middle Game",
+              r: 8.4,
+              v: 11741,
+              d: "2020-10-23",
+              m: 49,
+              s: "https://image.tmdb.org/t/p/w300/3CCEL9SoI5cm7g0hUb5Q6iTYbLi.jpg",
+              o: "Russian class opens the door to a new social scene. In Mexico City, Beth meets the intimidating Borgov, while her mother cozies up to a pen pal.",
+            },
+            {
+              n: 5,
+              t: "Fork",
+              r: 8.2,
+              v: 11367,
+              d: "2020-10-23",
+              m: 48,
+              s: "https://image.tmdb.org/t/p/w300/3RpR9mXX3aZn04srmJRIERYxrrP.jpg",
+              o: "Back home in Kentucky, a shaken Beth reconnects with a former opponent who offers to help sharpen her game ahead of the U.S. Championship.",
+            },
+            {
+              n: 6,
+              t: "Adjournment",
+              r: 8.4,
+              v: 11466,
+              d: "2020-10-23",
+              m: 60,
+              s: "https://image.tmdb.org/t/p/w300/hcPwSnmUAoCGDJInlt82SlKCMjO.jpg",
+              o: "After training with Benny in New York, Beth heads to Paris for her rematch with Borgov. But a wild night sends her into a self-destructive spiral.",
+            },
+            {
+              n: 7,
+              t: "End Game",
+              r: 9.2,
+              v: 15336,
+              d: "2020-10-23",
+              m: 68,
+              s: "https://image.tmdb.org/t/p/w300/mKRLkntwgMThg5U8iJcpDj4ewMc.jpg",
+              o: "A visit from an old friend forces Beth to reckon with her past and rethink her priorities - just in time for the biggest match of her life.",
+            },
+          ],
+        },
+      ],
+    },
   ],
-  films: [
-
-  ],
+  films: [],
 };

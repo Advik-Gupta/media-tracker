@@ -1,21 +1,8 @@
-/* ============================================================
-   RATINGRAPH — live title search.
-
-   ratingraph's search endpoint sends CORS headers, so the browser
-   can call it. Its detail pages do not, which is why the genres
-   and ratings on the catalogue are baked in by build/ratingraph.js
-   instead of fetched here.
-
-   Everything is cached per query for the life of the page, so
-   arrowing back and forth over the same search costs nothing.
-   ============================================================ */
-
 window.RatingGraph = (() => {
   const SITE = "https://www.ratingraph.com";
   const CDN = "https://cdn.ratingraph.com";
   const cache = new Map();
 
-  /** One result: { id, title, year, kind, poster, path }. */
   function shape(r) {
     const id = (String(r.path || "").match(/-(\d+)\/?$/) || [])[1] || null;
     return {

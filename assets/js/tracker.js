@@ -1,9 +1,3 @@
-/* ============================================================
-   TRACKER - filtering, sorting, grouping, timeline rendering, detail sheet.
-   The dataset is chosen by <body data-universe="…"> and read from
-   window.CATALOGUES, so this file is universe-agnostic.
-   ============================================================ */
-
 (() => {
   const UNIVERSE = document.body.dataset.universe;
   const CAT = (window.CATALOGUES || {})[UNIVERSE];
@@ -14,12 +8,8 @@
     return;
   }
 
-  /* Carry over any ticks made before this universe's titles were linked. */
   Store.migrateLinks();
 
-  /* Each list entry carries a `film` key; the facts (title, poster, runtime)
-     come from the central registry, the entry supplies its list-specific
-     fields. Resolving once here keeps the rest of this file unchanged. */
   const DATA = CAT.items.map((it) =>
     typeof resolveFilm === "function" && it.film ? resolveFilm(it) : it,
   );
@@ -30,8 +20,6 @@
   const WATCH_BLOCKS = CAT.watchBlocks;
   const ERAS = CAT.eras;
 
-  /* Where this item's progress lives - a shared bucket when it is `link`ed
-     to the same film in another list, otherwise this universe's own bucket. */
   const refOf = (it) => progressRef(UNIVERSE, it);
   const isWatched = (it) => Store.has(...refOf(it));
   const sameWork = (a, b) => {
@@ -40,13 +28,6 @@
     return x[0] === y[0] && x[1] === y[1];
   };
 
-  /* ---------- posters ---------- */
-
-  /* Posters are remote URLs so the deployed site ships no image files. A bare
-     filename still resolves inside this universe's folder, so local art can be
-     dropped in at any time without touching this code. */
-  /* The key a poster override is filed under - the same identity progress
-     uses, so a title shared across lists keeps one poster everywhere. */
   const posterKey = (it) =>
     it.film || it.link || `${UNIVERSE}/${it.alias || it.id}`;
 
@@ -59,7 +40,6 @@
     return CAT.imgDir + f;
   };
 
-  /* Initials used on the generated placeholder tile. */
   const initials = (title) =>
     title
       .replace(/^(The|A|Star Wars:?)\s+/i, "")
@@ -70,13 +50,9 @@
       .join("")
       .toUpperCase();
 
-  /* The placeholder markup is always present underneath the image, so a file
-     that is missing or fails to load degrades to the tile rather than to a
-     broken-image icon. */
   function posterHTML(it, cls) {
     const src = posterSrc(it);
     const fallback = `<span class="ph-init">${initials(it.title)}</span>`;
-    /* The stamp is inert until the row or card carries .done - CSS reveals it. */
     const stamp = '<span class="stamp">Seen</span>';
     if (!src) return `<div class="${cls} ph">${fallback}${stamp}</div>`;
     return `<div class="${cls}">${fallback}<img src="${src}" alt="Poster for ${esc(it.title)}"
@@ -90,12 +66,6 @@
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
     );
 
-  /* ---------- state ---------- */
-
-  /* The timeline is for franchises, where watch order is the whole point.
-     A curated list is just a set of titles, so those get
-     a poster grid and a compact list instead — and remember the choice
-     separately, so switching a list to Grid does not flip the franchises. */
   const KIND = document.body.dataset.kind || "movie";
   const IS_TIMELINE_KIND = KIND === "movie";
   const VIEWS = IS_TIMELINE_KIND ? ["timeline", "rows"] : ["grid", "rows"];
@@ -127,19 +97,14 @@
     sheetBackdrop: document.getElementById("sheetBackdrop"),
   };
 
-  /* ---------- sorting ---------- */
-
   const SORTERS = {
     watch: (a, b) => a.w - b.w,
     release: (a, b) => a.release.localeCompare(b.release) || a.w - b.w,
     chrono: (a, b) => a.chrono - b.chrono || a.w - b.w,
     relevance: (a, b) => relOf(a).rank - relOf(b).rank || a.w - b.w,
-    /* Rating first, then list position, so anything without a rating sinks
-       rather than randomly interleaving with the rated ones. */
     rating: (a, b) => (ratingOf(b) ?? -1) - (ratingOf(a) ?? -1) || a.w - b.w,
   };
 
-  /* A rating from ratingraph, falling back to whatever the catalogue had. */
   const ratingOf = (it) =>
     typeof it.rgRating === "number"
       ? it.rgRating
@@ -149,13 +114,8 @@
 
   const genresOf = (it) => (Array.isArray(it.genres) ? it.genres : []);
 
-  /* ---------- grouping ---------- */
-
   const GROUPERS = {
     watch: (it) => {
-      /* Some universes carry a tail of material that sits outside the main
-         run - the Fox X-Men films, the non-EON Bonds, the classic King Kongs.
-         Those use watch numbers from 201 up and get their own header. */
       const side = CAT.sideGroup;
       if (side && it.saga === side.saga) {
         return { key: "side", title: side.title, sub: side.sub };
@@ -164,8 +124,6 @@
         WATCH_BLOCKS.find((b) => it.w <= b.max) ||
         WATCH_BLOCKS[WATCH_BLOCKS.length - 1]
       ).phase;
-      /* Fall back rather than throw if a dataset gains a watch block without a
-         matching PHASE_META entry - one bad key should not blank the page. */
       const p = PHASE_META[n] || { label: "Other", sub: "" };
       return { key: "p" + n, title: p.label, sub: p.sub };
     },
@@ -186,8 +144,6 @@
       return { key: it.rel, title: r.label, sub: r.blurb };
     },
 
-    /* Whole-point bands, so the headers read as "9s, 8s, 7s" rather than a
-       header per distinct decimal. */
     rating: (it) => {
       const r = ratingOf(it);
       if (r == null) return { key: "unrated", title: "Not rated", sub: "" };
@@ -200,16 +156,14 @@
     },
   };
 
-  /* ---------- filtering ---------- */
-
   function visible() {
     const q = state.query.trim().toLowerCase();
 
     return DATA.filter((it) => {
       if (state.rel.size && !state.rel.has(it.rel)) return false;
-      if (state.type.size && !state.type.has(it.type)) return false;
+      if (state.type.size && !state.type.has(it.type))
+        return false;
 
-      /* Genres are additive: picking two shows anything in either. */
       if (state.genre.size) {
         const g = genresOf(it);
         if (!g.some((x) => state.genre.has(x))) return false;
@@ -241,8 +195,6 @@
     });
   }
 
-  /* ---------- shared bits ---------- */
-
   const CHECK_SVG =
     '<svg viewBox="0 0 14 14"><path d="M2 7.5 5.5 11 12 3.5"/></svg>';
 
@@ -254,8 +206,6 @@
       relevance: it.w > 200 ? `X${it.w - 200}` : it.w,
     }[state.sort];
   }
-
-  /* ---------- timeline card ---------- */
 
   const typeOf = (it) =>
     TYPE_META[it.type] || {
@@ -305,15 +255,6 @@
     return wrap;
   }
 
-  /* ---------- entries that are tracked elsewhere ----------
-     A list can hold a series that is also tracked in its own right — Breaking
-     Bad is in Top Rated Shows and has its own page. The registry entry keeps
-     the TMDB id, which is what ties the two together, so the list can show
-     how far through it you actually are rather than a bare unwatched tile.
-
-     Only the counts index is needed for this, not the episode data, so a list
-     page stays as light as it was. */
-
   const SERIES_BY_TMDB = (() => {
     const map = new Map();
     const counts = window.SERIES_COUNTS || {};
@@ -325,7 +266,6 @@
 
   const EP_RE = /^e(\d+)-\d+x\d+$/;
 
-  /** How far through a tracked series this account is, as a fraction. */
   function trackedProgress(it) {
     const tmdb = it.tmdb || (typeof FILMS !== "undefined" && FILMS[it.film] && FILMS[it.film].tmdb);
     if (!tmdb) return null;
@@ -347,9 +287,6 @@
     return { done, total, pct: total ? Math.min(100, (done / total) * 100) : 0, href: hit.uni };
   }
 
-  /* ---------- the detail page ----------
-     A film gets its own page, fetched from OMDb on arrival. Series entries
-     in a list already link to their season grid, so this is films only. */
   function detailLink(it) {
     if (!it.film) return "";
     const isSeries = it.type === "show" || it.type === "season" || tmdbOf(it);
@@ -358,11 +295,6 @@
                title="Details for ${esc(it.title)}" aria-label="Details for ${esc(it.title)}"
                onclick="event.stopPropagation()">i</a>`;
   }
-
-  /* ---------- poster card ----------
-     The Letterboxd shape: the poster does the work, everything else is a
-     caption under it. The whole card opens the details; only the tick and
-     the poster itself do anything else. */
 
   function gridItem(it) {
     const watched = isWatched(it);
@@ -406,8 +338,6 @@
     return card;
   }
 
-  /* ---------- compact row ---------- */
-
   function rowItem(it) {
     const tracked = trackedProgress(it);
     const watched =
@@ -439,7 +369,6 @@
     return row;
   }
 
-  /* shared click/keyboard wiring for both views */
   function bindCard(wrap, it, clickTarget) {
     wrap.querySelector(".tl-check").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -454,8 +383,6 @@
       }
     });
   }
-
-  /* ---------- render ---------- */
 
   let revealObserver;
 
@@ -495,7 +422,7 @@
             <span class="gcount">${done} / ${inGroup.length} watched</span>
           </div>`;
         frag.appendChild(head);
-        itemIndex = 0; // restart the left/right alternation in each era
+        itemIndex = 0;
       }
       frag.appendChild(
         state.view === "timeline"
@@ -513,7 +440,6 @@
     updateSpine();
   }
 
-  /* slide each timeline item in as it enters the viewport */
   function observeItems() {
     if (revealObserver) revealObserver.disconnect();
     const items = el.list.querySelectorAll(".tl-item");
@@ -537,7 +463,6 @@
     items.forEach((n) => revealObserver.observe(n));
   }
 
-  /* the spine fills to wherever you have scrolled to */
   function updateSpine() {
     const fill = document.getElementById("tlFill");
     if (!fill || state.view !== "timeline") return;
@@ -561,13 +486,9 @@
     { passive: true },
   );
 
-  /* ---------- toggling ---------- */
-
   function toggle(it) {
     const nowWatched = Store.toggle(...refOf(it));
 
-    /* Update every node showing this work, including any alias twin — and
-       every view, since a grid card carries the same watched styling. */
     document.querySelectorAll(".tl-item, .row, .pcard").forEach((node) => {
       const other = DATA.find((d) => (d.film || d.id) === node.dataset.id);
       if (!other || !sameWork(other, it)) return;
@@ -604,9 +525,6 @@
     });
   }
 
-  /* ---------- summary ---------- */
-
-
   function updateSummary(shown) {
     const canonical = DATA.filter((it) => !it.alias);
     const done = canonical.filter(isWatched).length;
@@ -629,12 +547,6 @@
     document.getElementById("ringFg").style.strokeDashoffset =
       C - (pct / 100) * C;
   }
-
-  /* ---------- a list entry that is a series ----------
-     A series in a list is one lookup away from having its own page with every
-     episode on it. If it is already tracked, the sheet links to it and says
-     how far along you are; if it is not, it hands over the one command that
-     adds it — by TMDB id, which resolves directly instead of searching. */
 
   const ADD_KIND = document.body.dataset.mode === "anime" ? "anime" : "show";
 
@@ -669,8 +581,6 @@
         <button class="btn sm" id="sheetCopy">Copy command</button>
       </div>`;
   }
-
-  /* ---------- detail sheet ---------- */
 
   function openSheet(it) {
     const type = typeOf(it);
@@ -750,8 +660,6 @@
       closeSheet();
     });
 
-    /* Saving re-renders so the new image shows on the card behind the sheet
-       as well as in the sheet itself. */
     const urlField = el.sheetBody.querySelector("#posterUrl");
     const note = el.sheetBody.querySelector("#posterNote");
 
@@ -770,7 +678,6 @@
 
     el.sheetBody.querySelector("#posterReset").addEventListener("click", () => {
       Store.setPoster(posterKey(it), "");
-      /* Back to whatever the registry has, which may be nothing. */
       const fallback = it.poster || (CAT.posters && CAT.posters[it.id]) || "";
       urlField.value = fallback;
       note.textContent = "";
@@ -801,8 +708,6 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeSheet();
   });
-
-  /* ---------- filter chips ---------- */
 
   function countBy(fn) {
     const m = {};
@@ -873,8 +778,6 @@
     });
     buildChips(document.getElementById("phaseChips"), entries, "phase");
 
-    /* Genres come from ratingraph and are only there once the enrichment pass
-       has run, so the whole row hides itself when the catalogue has none. */
     const genreBox = document.getElementById("genreChips");
     if (genreBox) {
       const counts = {};
@@ -898,8 +801,6 @@
       }
     }
 
-    /* A floor rather than a range: "at least this good" is the question
-       anyone actually asks of a list. */
     const ratingBox = document.getElementById("ratingChips");
     if (ratingBox) {
       const rated = DATA.filter((it) => ratingOf(it) != null).length;
@@ -925,8 +826,6 @@
       }
     }
   }
-
-  /* ---------- controls ---------- */
 
   el.filterToggle.addEventListener("click", () => {
     const open = el.drawer.hidden;
@@ -1033,8 +932,6 @@
     );
   });
 
-  /* ---------- countdown ---------- */
-
   function initCountdown() {
     const upcoming = DATA.filter((it) => isFuture(it.release)).sort((a, b) =>
       a.release.localeCompare(b.release),
@@ -1069,15 +966,11 @@
     setInterval(tick, 1000);
   }
 
-  /* ---------- go ---------- */
-
   initFilters();
   initCountdown();
   render();
   initReveal();
 
-  /* If the IndexedDB mirror turns out to hold newer progress than
-     localStorage, it restores asynchronously - repaint when that happens. */
   Store.onChange((data, meta) => {
     if (meta && meta.restored) render();
   });
