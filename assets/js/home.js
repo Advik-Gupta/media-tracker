@@ -423,7 +423,22 @@
         ? UserVault.asUniverses(kind)
         : [];
 
-    let list = (SELF_SERVE ? mine : UNIVERSES)
+    /* A built-in show you've already started ticking episodes for (through
+       a list, say) counts as yours too, even though nobody explicitly
+       "added" it - being merely listed somewhere never does that on its
+       own. */
+    const mineIds = new Set(mine.map((u) => u.id));
+    const trackedBuiltIn = SELF_SERVE
+      ? UNIVERSES.filter((u) => (u.kind || "movie") === kind)
+          .filter((u) => !mineIds.has(u.id))
+          .filter((u) => (window.SERIES_COUNTS || {})[u.id])
+          .filter((u) => {
+            const s = statsFor(u);
+            return s && s.done > 0;
+          })
+      : [];
+
+    let list = (SELF_SERVE ? [...mine, ...trackedBuiltIn] : UNIVERSES)
       .filter((u) => (u.kind || "movie") === kind)
       .filter((u) => !gone.has(u.id))
       .filter((u) => !u.fromList)

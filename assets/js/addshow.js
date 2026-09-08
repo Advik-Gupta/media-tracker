@@ -37,8 +37,7 @@
              placeholder="${PLACEHOLDER}" aria-label="Name or id" />
     </div>
     <p class="add-hint" id="addHint">Type a name - results appear once you stop typing.</p>
-    <div id="addResults"></div>
-    <div id="addMerge"></div>`;
+    <div id="addResults"></div>`;
 
   document.body.append(backdrop, modal);
 
@@ -46,71 +45,7 @@
   const hint = modal.querySelector("#addHint");
   const results = modal.querySelector("#addResults");
 
-  function renderMerge() {
-    const box = modal.querySelector("#addMerge");
-    const mine = (typeof UNIVERSES !== "undefined" ? UNIVERSES : []).filter(
-      (u) => (u.kind || "movie") === (document.body.dataset.mode || "show"),
-    );
-    if (mine.length < 2) {
-      box.innerHTML = "";
-      return;
-    }
-
-    const opts = (sel) =>
-      mine
-        .map(
-          (u) =>
-            `<option value="${esc(u.id)}"${u.id === sel ? " selected" : ""}>${esc(u.name)}</option>`,
-        )
-        .join("");
-
-    box.innerHTML = `
-      <div class="add-restore">
-        <h4>Merge two series</h4>
-        <p class="add-hint">Fold one into another - the parent keeps its page, and progress moves with it.</p>
-        <div class="add-merge-row">
-          <select id="mergeChild" aria-label="Series to fold in">${opts(mine[1].id)}</select>
-          <span>into</span>
-          <select id="mergeParent" aria-label="Series to keep">${opts(mine[0].id)}</select>
-        </div>
-        <div id="mergeOut"></div>
-      </div>`;
-
-    const child = box.querySelector("#mergeChild");
-    const parent = box.querySelector("#mergeParent");
-    const out = box.querySelector("#mergeOut");
-
-    const update = () => {
-      if (child.value === parent.value) {
-        out.innerHTML = `<p class="add-hint">Pick two different series.</p>`;
-        return;
-      }
-      out.innerHTML = `
-        <div class="add-cmd">
-          <code>npm run series merge ${esc(parent.value)} ${esc(child.value)} &amp;&amp; npm run build</code>
-          <button class="btn btn-accent sm" id="mergeCopy">Copy command</button>
-        </div>`;
-      out.querySelector("#mergeCopy").addEventListener("click", async (e) => {
-        const text = `npm run series merge ${parent.value} ${child.value} && npm run build`;
-        try {
-          await navigator.clipboard.writeText(text);
-          e.currentTarget.textContent = "Copied";
-        } catch (err) {
-          e.currentTarget.textContent = "Select it above";
-        }
-        setTimeout(() => {
-          e.currentTarget.textContent = "Copy command";
-        }, 1800);
-      });
-    };
-
-    child.addEventListener("change", update);
-    parent.addEventListener("change", update);
-    update();
-  }
-
   const open = () => {
-    renderMerge();
     backdrop.hidden = modal.hidden = false;
     requestAnimationFrame(() => {
       backdrop.classList.add("show");
@@ -133,16 +68,16 @@
     if (e.key === "Escape" && !modal.hidden) close();
   });
 
-  const have = new Set([
-    ...(typeof UNIVERSES !== "undefined" ? UNIVERSES : [])
-      .filter((u) => u.kind === MODE)
-      .map((u) => u.name.toLowerCase()),
-    ...(typeof UserVault !== "undefined"
+  /* Being tracked somewhere - a curated list, a built-in universe - is not
+     the same as being added. Only what this browser actually added counts
+     as "already here". */
+  const have = new Set(
+    typeof UserVault !== "undefined"
       ? UserVault.list()
           .filter((x) => x.kind === MODE)
           .map((x) => x.name.toLowerCase())
-      : []),
-  ]);
+      : [],
+  );
 
   let timer = null;
   let lastQuery = "";
