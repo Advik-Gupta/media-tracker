@@ -153,7 +153,11 @@ const Cloud = (() => {
       try {
         await init();
         if (!client) return { error: "Accounts are not configured." };
-        const { error } = await client.auth.signUp({ email, password });
+        const { error } = await client.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/pages/account.html` },
+        });
         return error ? { error: error.message } : {};
       } catch (e) {
         return { error: e.message || "Could not reach the server." };

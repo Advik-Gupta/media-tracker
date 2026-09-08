@@ -44,9 +44,18 @@
   const uni = known ? known.uni : UserVault.uniOf(id);
   const showIds = known ? known.meta.perShow.map((s) => String(s.id)) : [id];
 
+  const FRESH_MS = 15 * 60 * 1000;
+
   async function load({ force } = {}) {
-    statusEl.hidden = false;
-    statusEl.innerHTML = `<i class="spinner"></i>${force ? "Refreshing" : "Fetching episodes"}…`;
+    const cached = UserVault.data(uni);
+
+    if (cached) {
+      render(cached, { stale: false });
+      if (!force && UserVault.dataAge(uni) < FRESH_MS) return;
+    } else {
+      statusEl.hidden = false;
+      statusEl.innerHTML = `<i class="spinner"></i>${force ? "Refreshing" : "Fetching episodes"}…`;
+    }
 
     let failed = false;
 
@@ -89,12 +98,18 @@
       });
 
       const data = { shows, films: [] };
+      const changed = JSON.stringify(data) !== JSON.stringify(cached);
       UserVault.setData(uni, data);
-      return render(data, { stale: false });
+      if (!cached || changed) return render(data, { stale: false });
+      return;
     }
 
-    const cached = UserVault.data(uni);
-    if (cached) return render(cached, { stale: true });
+    if (cached) {
+      statusEl.hidden = false;
+      statusEl.innerHTML =
+        '<div class="view-stale">Showing the last saved copy - refreshing it failed.</div>';
+      return;
+    }
 
     fail(
       failed

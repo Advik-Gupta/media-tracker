@@ -468,13 +468,13 @@ window.SERIES_COUNTS = {
       {
         "id": 94664,
         "title": "Mushoku Tensei: Jobless Reincarnation",
-        "episodes": 57,
+        "episodes": 58,
         "ongoing": true,
         "poster": "https://image.tmdb.org/t/p/w342/gLKOYIMyKlUHW0SVdskhgf9C0yy.jpg"
       }
     ],
     "primary": 94664,
-    "episodes": 57,
+    "episodes": 58,
     "films": 0,
     "shows": 1,
     "poster": "https://image.tmdb.org/t/p/w342/gLKOYIMyKlUHW0SVdskhgf9C0yy.jpg",
@@ -482,7 +482,7 @@ window.SERIES_COUNTS = {
     "ongoingTitles": [
       "Mushoku Tensei: Jobless Reincarnation"
     ],
-    "upcoming": 4,
+    "upcoming": 3,
     "lastAir": "2026-08-24"
   },
   "naruto": {

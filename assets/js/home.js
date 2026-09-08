@@ -216,6 +216,23 @@
     }
   }
 
+  function removeUserShow(uni) {
+    const kind = uni.kind || "show";
+    const entry = UserVault.list().find((x) => x.uni === uni.id);
+    const data = UserVault.data(uni.id);
+    UserVault.remove(uni.id);
+    renderGrid(kind);
+    if (typeof toast === "function" && entry) {
+      toast(`Removed ${uni.name}`, {
+        label: "Undo",
+        action: () => {
+          UserVault.add(entry, data);
+          renderGrid(kind);
+        },
+      });
+    }
+  }
+
   window.vaultHidden = {
     get: hiddenIds,
     set: setHidden,
@@ -362,7 +379,8 @@
       del.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        removeUniverse(uni);
+        if (uni.userAdded) removeUserShow(uni);
+        else removeUniverse(uni);
       });
       el.appendChild(del);
     }

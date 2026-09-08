@@ -1,6 +1,7 @@
 const UserVault = (() => {
   const LIST_KEY = "mediavault.myshows";
   const DATA_KEY = "mediavault.showdata";
+  const META_KEY = "mediavault.showdata.meta";
 
   const read = (key, fallback) => {
     try {
@@ -141,9 +142,17 @@ const UserVault = (() => {
       return read(DATA_KEY, {})[uni] || null;
     },
 
+    dataAge(uni) {
+      const at = read(META_KEY, {})[uni];
+      return at ? Date.now() - at : Infinity;
+    },
+
     setData(uni, data) {
       const all = read(DATA_KEY, {});
       all[uni] = data;
+      const meta = read(META_KEY, {});
+      meta[uni] = Date.now();
+      write(META_KEY, meta);
       return write(DATA_KEY, all);
     },
 
@@ -183,6 +192,9 @@ const UserVault = (() => {
       const all = read(DATA_KEY, {});
       delete all[uni];
       write(DATA_KEY, all);
+      const meta = read(META_KEY, {});
+      delete meta[uni];
+      write(META_KEY, meta);
     },
 
     asUniverses(kind) {

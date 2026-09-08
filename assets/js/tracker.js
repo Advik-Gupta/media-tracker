@@ -560,25 +560,22 @@
     const tmdb = tmdbOf(it);
     if (!tmdb) return "";
 
+    const viewHref = `pages/${ADD_KIND === "anime" ? "anime" : "shows"}/view.html?id=${tmdb}`;
     const tracked = trackedProgress(it);
     if (tracked) {
-      const uni = (typeof UNIVERSES !== "undefined" ? UNIVERSES : []).find(
-        (u) => u.id === tracked.href,
-      );
       return `
         <div class="sheet-series">
           <span class="rlabel">Tracked</span>
           <p>${tracked.done} of ${tracked.total} episodes watched.</p>
-          ${uni ? `<a class="btn btn-accent" href="${uni.href}">Open ${esc(uni.name)}</a>` : ""}
+          <a class="btn btn-accent" href="${viewHref}">Open episode guide</a>
         </div>`;
     }
 
     return `
       <div class="sheet-series">
-        <span class="rlabel">Not tracked yet</span>
-        <p>Add it to get every season and episode, with ratings.</p>
-        <code id="sheetCmd">npm run series add ${tmdb} -- --kind ${ADD_KIND}</code>
-        <button class="btn sm" id="sheetCopy">Copy command</button>
+        <span class="rlabel">Episode guide</span>
+        <p>See every season and episode, with ratings. Adding it to your own shows (from the ${ADD_KIND === "anime" ? "anime" : "shows"} page) is separate and optional.</p>
+        <a class="btn btn-accent" href="${viewHref}">Open episode guide</a>
       </div>`;
   }
 
