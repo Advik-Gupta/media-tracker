@@ -35,7 +35,9 @@
 - **Personal shows & anime vault** - search any series and add it; each visitor's additions live only in their own browser (or account), never on the shared site
 - **Dynamic show pages** - episode grids are fetched on demand rather than baked at build time, so an added show is fully interactive immediately
 - **Movie detail pages** - ratings, cast, director and plot fetched from OMDb on arrival, with a plain "no details found" fallback for titles it doesn't have
-- **Progress tracking** - per-episode and per-film watched state, filler marking, an ongoing/hiatus override, drag-to-reorder carousels, archive and hide
+- **Progress tracking** - per-episode and per-film watched state, filler marking, seasons markable as not worth watching, an ongoing/hiatus override, drag-to-reorder carousels, and archive/hide - automatic or manual
+- **My List, for shows and anime too** - save a title by name as a reference (poster, year, blurb) without adding it; promote it to a tracked show whenever you actually decide to
+- **Hold Tab to switch libraries** - hold it for about three seconds anywhere to cycle Movies → Shows → Anime; a quick tap still behaves as normal keyboard navigation
 - **Analytics** - completion by universe, total runtime logged, best- and worst-rated episodes with the show and episode name attached
 - **Films by country** - an interactive world map linking into per-country lists
 - **Optional accounts** - sign in to sync watch state across devices; everything works fully signed out, saved to that browser only

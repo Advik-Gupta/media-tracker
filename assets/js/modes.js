@@ -99,4 +99,73 @@
     btn.addEventListener("click", open);
     brand.insertAdjacentElement("afterend", btn);
   });
+
+  /* ---------- hold Tab to cycle libraries ----------
+     A single Tab press still behaves normally - only a sustained hold
+     (which the browser reports as repeated keydowns) is intercepted, so
+     keyboard navigation everywhere else is untouched. */
+
+  const HOLD_MS = 3000;
+  let holding = false;
+  let holdTimer = null;
+  let hint = null;
+
+  const isTypingTarget = (el) =>
+    !!el &&
+    (el.tagName === "INPUT" ||
+      el.tagName === "TEXTAREA" ||
+      el.tagName === "SELECT" ||
+      el.isContentEditable);
+
+  function nextMode() {
+    const idx = MODES.findIndex((m) => m.id === current());
+    return MODES[(idx + 1) % MODES.length];
+  }
+
+  function showHint(next) {
+    hint = document.createElement("div");
+    hint.className = "tabcycle-hint";
+    hint.innerHTML = `<i></i><span>Keep holding to switch to ${next.name}</span>`;
+    document.body.appendChild(hint);
+    requestAnimationFrame(() => hint && hint.classList.add("show"));
+  }
+
+  function hideHint() {
+    if (!hint) return;
+    const el = hint;
+    hint = null;
+    el.classList.remove("show");
+    setTimeout(() => el.remove(), 180);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    if (isTypingTarget(document.activeElement)) return;
+
+    if (holding) {
+      e.preventDefault();
+      return;
+    }
+
+    holding = true;
+    showHint(nextMode());
+    holdTimer = setTimeout(() => {
+      const next = nextMode();
+      remember(next.id);
+      location.href = next.href;
+    }, HOLD_MS);
+  });
+
+  document.addEventListener("keyup", (e) => {
+    if (e.key !== "Tab") return;
+    holding = false;
+    clearTimeout(holdTimer);
+    hideHint();
+  });
+
+  window.addEventListener("blur", () => {
+    holding = false;
+    clearTimeout(holdTimer);
+    hideHint();
+  });
 })();

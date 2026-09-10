@@ -151,8 +151,8 @@ const VAULTS = {
     mode: "show",
     home: "pages/shows.html",
     back: "All shows",
-    list: null,
-    listLabel: null,
+    list: "pages/shows/mylist.html",
+    listLabel: "My List",
     title: "Shows",
     eyebrow: "",
     noun: "shows",
@@ -161,8 +161,8 @@ const VAULTS = {
     mode: "anime",
     home: "pages/anime.html",
     back: "All anime",
-    list: null,
-    listLabel: null,
+    list: "pages/anime/mylist.html",
+    listLabel: "My List",
     title: "Anime",
     eyebrow: "",
     noun: "anime",
@@ -556,11 +556,20 @@ for (const page of ["countries", "shows", "anime"]) {
 }
 
 const wlTpl = fs.readFileSync(path.join(__dirname, "watchlist.ejs"), "utf8");
-for (const vault of Object.values(VAULTS).filter((v) => v.list)) {
+{
+  const vault = VAULTS.movie;
   const mine = universes.filter((u) => vaultOf(u) === vault);
   writeHtml(
     vault.list,
     ejs.render(wlTpl, { universes: mine, vault, base: "../" }),
+  );
+}
+
+const wishTpl = fs.readFileSync(path.join(__dirname, "wishlist.ejs"), "utf8");
+for (const mode of ["show", "anime"]) {
+  writeHtml(
+    VAULTS[mode].list,
+    ejs.render(wishTpl, { vault: VAULTS[mode], base: "../../" }),
   );
 }
 

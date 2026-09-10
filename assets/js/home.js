@@ -248,9 +248,22 @@
 
   const isArchived = (uni) => {
     if (!ARCHIVE_KINDS.has(uni.kind || "movie")) return false;
+    const flags = Store.exportAll().__flags || {};
+    if (flags[`archived:${uni.id}`]) return true;
+    if (flags[`unarchived:${uni.id}`]) return false;
     const s = statsFor(uni);
     return s.total > 0 && s.done >= s.total;
   };
+
+  function toggleArchived(uni) {
+    const next = !isArchived(uni);
+    Store.setRefs([["__flags", `archived:${uni.id}`]], next);
+    Store.setRefs([["__flags", `unarchived:${uni.id}`]], !next);
+    renderGrid(uni.kind || "movie");
+    if (typeof toast === "function") {
+      toast(next ? `Archived ${uni.name}` : `Unarchived ${uni.name}`);
+    }
+  }
 
   function archiveCard(count, i, kind) {
     const el = document.createElement("button");
@@ -264,10 +277,10 @@
         <p class="uni-tagline">${
           showingArchive
             ? "Everything still in progress"
-            : "Finished shows, filed away"
+            : "Finished, or filed away yourself"
         }</p>
         <div class="uni-foot-row">
-          <span><b>${count}</b> finished</span>
+          <span><b>${count}</b> archived</span>
           <span class="uni-arrow">${showingArchive ? "←" : "→"}</span>
         </div>
       </div>`;
@@ -370,6 +383,23 @@
       </div>`;
 
     if (ARCHIVE_KINDS.has(uni.kind || "movie")) {
+      const archived = isArchived(uni);
+      const arch = document.createElement("button");
+      arch.type = "button";
+      arch.className = "uni-archive-toggle";
+      arch.title = archived ? `Unarchive ${uni.name}` : `Archive ${uni.name}`;
+      arch.setAttribute(
+        "aria-label",
+        archived ? `Unarchive ${uni.name}` : `Archive ${uni.name}`,
+      );
+      arch.textContent = archived ? "↩" : "▤";
+      arch.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleArchived(uni);
+      });
+      el.appendChild(arch);
+
       const del = document.createElement("button");
       del.type = "button";
       del.className = "uni-remove";

@@ -685,6 +685,25 @@
 .uni-remove:focus-visible { opacity: 1; }
 .uni-remove:hover { border-color: var(--cinder); color: var(--cinder); }
 
+.uni-archive-toggle {
+  position: absolute;
+  top: 8px; right: 40px;
+  z-index: 3;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: rgba(20, 22, 28, .78);
+  color: var(--fog);
+  font-size: 12px; line-height: 1;
+  opacity: 0;
+  transition: opacity .12s var(--ease-out), border-color .12s var(--ease-out),
+              color .12s var(--ease-out);
+}
+.uni-card:hover .uni-archive-toggle,
+.uni-archive-toggle:focus-visible { opacity: 1; }
+.uni-archive-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
 .toast-action {
   margin-left: var(--s2);
   font-family: var(--sans); font-size: 13px; font-weight: 600;
@@ -1205,3 +1224,62 @@
   margin-bottom: var(--s1);
 }
 .vault-empty p { margin: 0 auto; max-width: 46ch; font-size: 14px; line-height: 1.6; }
+
+/* ---------- My List (shows/anime wishlist) ---------- */
+
+.u-wishlist .empty {
+  text-align: center;
+  color: var(--fog);
+  font-size: 15px;
+  padding: var(--s7) 0;
+}
+
+.wish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: var(--s5);
+}
+
+.wish-card {
+  display: flex;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--slate);
+  padding: var(--s3);
+}
+.wish-cover {
+  width: 84px;
+  height: 124px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.wish-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wish-body { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.wish-body h3 {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  line-height: 1.2;
+}
+.wish-year {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--dim);
+}
+.wish-overview {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fog);
+  margin-top: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.wish-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: var(--s2); }
+.wish-msg { font-size: 12px; color: var(--cinder); margin-top: 4px; }

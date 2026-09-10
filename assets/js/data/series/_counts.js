@@ -686,13 +686,13 @@ window.SERIES_COUNTS = {
       {
         "id": 65942,
         "title": "Re:ZERO -Starting Life in Another World-",
-        "episodes": 81,
+        "episodes": 82,
         "ongoing": true,
         "poster": "https://image.tmdb.org/t/p/w342/oHqYrPAsIiTD5m4DuxumV4er8BU.jpg"
       }
     ],
     "primary": 65942,
-    "episodes": 81,
+    "episodes": 82,
     "films": 0,
     "shows": 1,
     "poster": "https://image.tmdb.org/t/p/w342/oHqYrPAsIiTD5m4DuxumV4er8BU.jpg",
@@ -700,7 +700,7 @@ window.SERIES_COUNTS = {
     "ongoingTitles": [
       "Re:ZERO -Starting Life in Another World-"
     ],
-    "upcoming": 4,
+    "upcoming": 3,
     "lastAir": "2026-08-26"
   },
   "rickandmorty": {

@@ -2,6 +2,7 @@ const UserVault = (() => {
   const LIST_KEY = "mediavault.myshows";
   const DATA_KEY = "mediavault.showdata";
   const META_KEY = "mediavault.showdata.meta";
+  const WISH_KEY = "mediavault.mywishlist";
 
   const read = (key, fallback) => {
     try {
@@ -221,6 +222,47 @@ const UserVault = (() => {
         if (d) out[x.uni] = countsFor(d);
       });
       return out;
+    },
+
+    /* ---------- wishlist ----------
+       A reference, not a tracked show: a name and a poster you jotted down
+       to decide on later. It never touches `list()` or the shows/anime
+       grid - only Add show does that. */
+
+    wishlist(kind) {
+      return read(WISH_KEY, [])
+        .filter((x) => !kind || x.kind === kind)
+        .filter((x) => x && x.id != null);
+    },
+
+    hasWish(tmdbId) {
+      return this.wishlist().some((x) => String(x.id) === String(tmdbId));
+    },
+
+    /** `hit` is the shape a search result already comes in - kept as-is
+     *  (raw `poster_path`, not a resolved URL) so it can be handed straight
+     *  to `transform()` later, without a second search, if this gets
+     *  promoted into an actual tracked show. */
+    addWish(hit, kind) {
+      const list = read(WISH_KEY, []);
+      if (list.some((x) => String(x.id) === String(hit.id))) return false;
+      list.unshift({
+        id: Number(hit.id),
+        kind: kind === "anime" ? "anime" : "show",
+        name: hit.name,
+        poster_path: hit.poster_path || "",
+        year: String(hit.first_air_date || "").slice(0, 4),
+        overview: hit.overview || "",
+        addedAt: Date.now(),
+      });
+      return write(WISH_KEY, list);
+    },
+
+    removeWish(tmdbId) {
+      const list = read(WISH_KEY, []).filter(
+        (x) => String(x.id) !== String(tmdbId),
+      );
+      return write(WISH_KEY, list);
     },
   };
 })();

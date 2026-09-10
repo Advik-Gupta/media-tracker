@@ -598,6 +598,38 @@ body.u-countries {
   border-color: var(--accent);
 }
 
+.tabcycle-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--slate);
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--bone);
+  opacity: 0;
+  transform: translate(-50%, 8px);
+  transition: opacity .15s var(--ease-out), transform .15s var(--ease-out);
+  pointer-events: none;
+}
+.tabcycle-hint.show { opacity: 1; transform: translate(-50%, 0); }
+.tabcycle-hint i {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  border-top-color: var(--gold);
+  animation: tabcycle-spin .6s linear infinite;
+}
+@keyframes tabcycle-spin { to { transform: rotate(360deg); } }
+
 .lb-backdrop {
   position: fixed;
   inset: 0;

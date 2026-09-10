@@ -186,7 +186,11 @@ const Store = (() => {
       commit();
     },
 
-    _refetchable: ["mediavault.showdata", "watchvault.omdb.v1"],
+    _refetchable: [
+      "mediavault.showdata",
+      "mediavault.showdata.meta",
+      "watchvault.omdb.v1",
+    ],
 
     exportBundle() {
       const prefs = {};
