@@ -343,6 +343,14 @@ const Store = (() => {
       return cache.updated;
     },
 
+    /** Bump the save clock without touching progress data - for changes
+     *  that live outside `cache.data` (added shows, wishlist, hidden
+     *  universes) but still need `lastSaved()` to be honest and a sync
+     *  to be scheduled. */
+    touch() {
+      commit();
+    },
+
     health() {
       return { ...status };
     },

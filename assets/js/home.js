@@ -195,6 +195,7 @@
       const out = {};
       [...ids].forEach((id) => (out[id] = prev[id] || now));
       localStorage.setItem(HIDDEN_KEY, JSON.stringify(out));
+      Store.touch();
     } catch (e) {}
   }
 

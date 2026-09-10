@@ -185,6 +185,7 @@ const UserVault = (() => {
 
       write(LIST_KEY, list);
       if (data) this.setData(uni, data);
+      if (typeof Store !== "undefined") Store.touch();
       return true;
     },
 
@@ -196,6 +197,7 @@ const UserVault = (() => {
       const meta = read(META_KEY, {});
       delete meta[uni];
       write(META_KEY, meta);
+      if (typeof Store !== "undefined") Store.touch();
     },
 
     asUniverses(kind) {
@@ -255,14 +257,18 @@ const UserVault = (() => {
         overview: hit.overview || "",
         addedAt: Date.now(),
       });
-      return write(WISH_KEY, list);
+      const ok = write(WISH_KEY, list);
+      if (typeof Store !== "undefined") Store.touch();
+      return ok;
     },
 
     removeWish(tmdbId) {
       const list = read(WISH_KEY, []).filter(
         (x) => String(x.id) !== String(tmdbId),
       );
-      return write(WISH_KEY, list);
+      const ok = write(WISH_KEY, list);
+      if (typeof Store !== "undefined") Store.touch();
+      return ok;
     },
   };
 })();
