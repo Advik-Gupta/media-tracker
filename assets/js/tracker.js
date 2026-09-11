@@ -241,10 +241,8 @@
           ${it.sub ? `<p class="tl-sub">${esc(it.sub)}</p>` : ""}
           <div class="tl-badges">
             <span class="badge rel">${rel.label}</span>
-            <span class="badge" style="--bc:${type.color}">${type.short}</span>
-            <span class="badge plain">${it.eps ? it.eps + " ep · " : ""}${fmtRuntime(it.mins)}</span>
-            <span class="badge plain">${it.release.slice(0, 4)}</span>
             ${it.upcoming ? '<span class="badge up">Upcoming</span>' : ""}
+            <span class="tl-meta-text">${type.short} · ${it.eps ? it.eps + " ep · " : ""}${fmtRuntime(it.mins)} · ${it.release.slice(0, 4)}</span>
           </div>
           ${it.note ? `<p class="tl-note">${esc(it.note)}</p>` : ""}
         </div>
@@ -359,8 +357,7 @@
       </div>
       <div class="r-meta">
         <span class="badge rel">${rel.label}</span>
-        <span class="badge" style="--bc:${type.color}">${type.short}</span>
-        <span>${it.eps ? it.eps + " ep · " : ""}${fmtRuntime(it.mins)}</span>
+        <span>${type.short} · ${it.eps ? it.eps + " ep · " : ""}${fmtRuntime(it.mins)}</span>
         ${detailLink(it)}
         <span class="r-index">${indexLabel(it)}</span>
       </div>`;

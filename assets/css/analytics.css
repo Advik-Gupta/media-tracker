@@ -6,22 +6,21 @@
 }
 
 .a-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--s2);
-  margin-bottom: var(--s4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s6);
+  margin-bottom: var(--s5);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--line);
 }
 .acard {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--slate);
-  padding: var(--s3);
+  min-width: 110px;
 }
 .acard b {
   display: block;
   font-family: var(--mono);
-  font-size: 44px;
-  font-weight: 700;
+  font-size: 34px;
+  font-weight: 600;
   line-height: 1;
   letter-spacing: 0.5px;
   color: var(--gold);
@@ -29,11 +28,11 @@
 }
 .acard span {
   display: block;
-  margin-top: var(--s1);
+  margin-top: 6px;
+  font-family: var(--sans);
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--fog);
 }
 .acard em {
@@ -41,9 +40,9 @@
   margin-top: 4px;
   font-style: normal;
   font-family: var(--mono);
-  font-size: 16px;
-  letter-spacing: 0.5px;
-  color: var(--fog);
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  color: var(--dim);
 }
 
 .a-row {
@@ -58,11 +57,6 @@
   background: var(--slate);
   padding: var(--s3);
   min-width: 0;
-}
-.a-panel h2 {
-  font-family: var(--display);
-  font-size: 22px;
-  letter-spacing: 0.25px;
 }
 .a-sub {
   margin: 4px 0 var(--s3);

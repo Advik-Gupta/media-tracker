@@ -511,50 +511,6 @@ for (const c of Object.values(collections)) {
   );
 }
 
-const PAGE_SECTIONS = {
-  shows: [
-    { kind: "collection", id: "lists", title: "Lists" },
-    { kind: "show", id: "shows", title: "Show universes" },
-  ],
-  anime: [
-    { kind: "collection", id: "lists", title: "Lists" },
-    { kind: "anime", id: "anime", title: "Anime" },
-  ],
-};
-const countryData = fs.readFileSync(
-  path.join(ROOT, "assets/js/data/countries.js"),
-  "utf8",
-);
-const countryLists = [
-  ...new Set(
-    [...countryData.matchAll(/list:\s*'([a-z0-9-]+)'/g)].map((m) => m[1]),
-  ),
-];
-
-for (const page of ["countries", "shows", "anime"]) {
-  const vault =
-    VAULTS[page === "shows" ? "show" : page === "anime" ? "anime" : "movie"];
-
-  const kinds = new Set((PAGE_SECTIONS[page] || []).map((s) => s.kind));
-  const mine = kinds.size
-    ? universes.filter((u) => kinds.has(u.kind || "movie"))
-    : universes;
-
-  writeHtml(
-    `pages/${page}.html`,
-    ejs.render(fs.readFileSync(path.join(__dirname, `${page}.ejs`), "utf8"), {
-      universes: mine,
-      allUniverses: universes,
-      sections: PAGE_SECTIONS[page] || [],
-      totalEntries: 0,
-      countryLists,
-      collections,
-      vault,
-      base: "../",
-    }),
-  );
-}
-
 const wlTpl = fs.readFileSync(path.join(__dirname, "watchlist.ejs"), "utf8");
 {
   const vault = VAULTS.movie;
@@ -642,6 +598,27 @@ for (const [mode, tpl, sectionTitle] of [
     }),
   );
 }
+
+const countriesTpl = fs.readFileSync(path.join(__dirname, "countries.ejs"), "utf8");
+const countryLists = (() => {
+  const ctx = { window: {}, console };
+  vm.createContext(ctx);
+  vm.runInContext(
+    fs.readFileSync(path.join(DATA, "countries.js"), "utf8") + ";this.C = COUNTRIES;",
+    ctx,
+  );
+  return Object.values(ctx.C)
+    .map((c) => c.list)
+    .filter(Boolean);
+})();
+writeHtml(
+  "pages/countries.html",
+  ejs.render(countriesTpl, {
+    base: "../",
+    countryLists,
+    vault: VAULTS.movie,
+  }),
+);
 
 const css = [
   "/* ============================================================",

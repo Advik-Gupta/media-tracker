@@ -149,8 +149,8 @@
     const paint = () => {
       const user = Cloud.user();
       slot.innerHTML = user
-        ? `<a class="btn btn-ghost" href="pages/account.html" title="${esc(user.email || "")}">Synced</a>`
-        : `<a class="btn btn-ghost" href="pages/account.html">Sign in</a>`;
+        ? `<a class="nav-link${user ? " active" : ""}" href="pages/account.html" title="${esc(user.email || "")}">Synced</a>`
+        : `<a class="nav-link" href="pages/account.html">Sign in</a>`;
     };
     paint();
     Cloud.onAuth(paint);

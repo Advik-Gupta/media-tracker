@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@400;500;600;700&family=Agdasima:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Inter:wght@400;450;500;600;650;700&family=Agdasima:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/css/base.css" />
@@ -31,7 +31,7 @@
           <span class="crumb">/ <%= u.name %></span>
           <span class="topbar-spacer"></span>
           <span id="acctChip"></span>
-          <% if (vault.list) { %><a class="btn btn-ghost" href="<%= vault.list %>">★ <%= vault.listLabel %></a><% } %>
+          <% if (vault.list) { %><a class="nav-link" href="<%= vault.list %>">★ <%= vault.listLabel %></a><% } %>
           <button
             class="btn btn-ghost"
             id="jumpNext"

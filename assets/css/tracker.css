@@ -1,5 +1,6 @@
 .hero {
-  padding: var(--s6) 0 var(--s4);
+  padding-top: var(--s6);
+  padding-bottom: var(--s4);
 }
 .hero-accent {
   color: var(--gold);
@@ -423,14 +424,20 @@
   padding: var(--s2);
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--slate);
+  background: rgba(255, 255, 255, 0.025);
+  transition:
+    border-color 0.15s var(--ease-out),
+    background 0.15s var(--ease-out),
+    transform 0.15s var(--ease-out);
   cursor: pointer;
   overflow: hidden;
   isolation: isolate;
   transition: border-color 0.12s var(--ease-out);
 }
 .tl-card:hover {
-  border-color: var(--rc);
+  border-color: color-mix(in srgb, var(--rc) 45%, transparent);
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-2px);
 }
 
 .tl-item.done .tl-card {
@@ -519,11 +526,11 @@
 }
 
 .tl-title {
-  font-family: var(--display);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 0.25px;
-  line-height: 1.2;
+  font-family: var(--sans);
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
 }
 .tl-sub {
   font-family: var(--mono);
@@ -1048,20 +1055,28 @@
 .pcard .tl-check {
   top: 8px;
   right: 8px;
-  background: rgba(20, 22, 28, 0.72);
+  background: rgba(10, 11, 14, 0.72);
+  backdrop-filter: blur(6px);
   border-color: rgba(237, 233, 221, 0.35);
+  opacity: 0;
+  transition: opacity .15s var(--ease-out), background .12s var(--ease-out);
 }
 .pcard .tl-check svg {
-  stroke: rgba(237, 233, 221, 0.75);
+  stroke: rgba(237, 233, 221, 0.85);
+}
+.pcard:hover .tl-check,
+.pcard:focus-within .tl-check,
+.pcard.done .tl-check {
+  opacity: 1;
 }
 .pcard:hover .tl-check {
-  background: rgba(20, 22, 28, 0.9);
+  background: rgba(10, 11, 14, 0.9);
 }
 
 .pcard-body { padding-top: 10px; min-width: 0; }
 .pcard-title {
-  font-family: var(--display);
-  font-size: 18px; font-weight: 700; letter-spacing: .25px; line-height: 1.2;
+  font-family: var(--sans);
+  font-size: 15px; font-weight: 650; letter-spacing: -.01em; line-height: 1.3;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .pcard.done .pcard-title { text-decoration: line-through; text-decoration-color: var(--fog); }
@@ -1181,8 +1196,16 @@
   top: 8px;
   left: 8px;
   z-index: 2;
-  background: rgba(20, 22, 28, 0.72);
+  background: rgba(10, 11, 14, 0.72);
+  backdrop-filter: blur(6px);
   border-color: rgba(237, 233, 221, 0.35);
-  color: rgba(237, 233, 221, 0.75);
+  color: rgba(237, 233, 221, 0.85);
+  opacity: 0;
+  transition: opacity .15s var(--ease-out), background .12s var(--ease-out),
+              border-color .12s var(--ease-out), color .12s var(--ease-out);
 }
-.pcard:hover .pcard-info { background: rgba(20, 22, 28, 0.9); }
+.pcard:hover .pcard-info,
+.pcard:focus-within .pcard-info {
+  opacity: 1;
+}
+.pcard:hover .pcard-info { background: rgba(10, 11, 14, 0.9); }
