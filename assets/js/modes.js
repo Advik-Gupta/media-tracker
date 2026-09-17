@@ -29,75 +29,23 @@
     } catch {}
   };
 
-  const backdrop = document.createElement("div");
-  backdrop.className = "mode-backdrop";
-  backdrop.hidden = true;
-
-  const modal = document.createElement("aside");
-  modal.className = "mode-modal";
-  modal.hidden = true;
-  modal.setAttribute("aria-label", "Switch library");
-  modal.innerHTML = `
-    <div class="mode-head">
-      <h3>Media Vault</h3>
-      <button class="mode-close" aria-label="Close">✕</button>
-    </div>
-    <p class="mode-sub">Pick a library.</p>
-    <div class="mode-grid">
-      ${MODES.map(
-        (m) => `
-        <a class="mode-card${m.id === current() ? " active" : ""}" href="${m.href}" data-mode="${m.id}">
-          <span class="mode-icon">${m.icon}</span>
-          <b>${m.name}</b>
-          <span class="mode-tagline">${m.tagline}</span>
-          <span class="mode-blurb">${m.blurb}</span>
-          ${m.id === current() ? '<span class="mode-badge">You are here</span>' : ""}
-        </a>`,
-      ).join("")}
-    </div>`;
-
-  document.body.append(backdrop, modal);
-
-  const open = () => {
-    backdrop.hidden = modal.hidden = false;
-    requestAnimationFrame(() => {
-      backdrop.classList.add("show");
-      modal.classList.add("show");
-    });
-  };
-  const close = () => {
-    backdrop.classList.remove("show");
-    modal.classList.remove("show");
-    setTimeout(() => {
-      backdrop.hidden = modal.hidden = true;
-    }, 320);
-  };
-
-  backdrop.addEventListener("click", close);
-  modal.querySelector(".mode-close").addEventListener("click", close);
-  modal
-    .querySelectorAll(".mode-card")
-    .forEach((a) =>
-      a.addEventListener("click", () => remember(a.dataset.mode)),
-    );
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !modal.hidden) close();
-  });
-
   document.querySelectorAll(".brand").forEach((brand) => {
     const home = MODES.find((x) => x.id === current());
     if (home) brand.setAttribute("href", home.href);
     brand.setAttribute("title", `Back to ${home ? home.name : "home"}`);
 
-    if (brand.parentElement.querySelector(".mode-switch")) return;
-    const btn = document.createElement("button");
-    btn.className = "mode-switch";
-    btn.type = "button";
-    btn.title = "Switch library";
-    btn.setAttribute("aria-label", "Switch library");
-    btn.innerHTML = `<span>${(home && home.icon) || "🎬"}</span><i>▾</i>`;
-    btn.addEventListener("click", open);
-    brand.insertAdjacentElement("afterend", btn);
+    if (brand.parentElement.querySelector(".mode-links")) return;
+    const nav = document.createElement("nav");
+    nav.className = "mode-links";
+    nav.setAttribute("aria-label", "Switch library");
+    nav.innerHTML = MODES.map(
+      (m) =>
+        `<a class="nav-link${m.id === current() ? " active" : ""}" href="${m.href}" data-mode="${m.id}">${m.name}</a>`,
+    ).join("");
+    nav.querySelectorAll("a").forEach((a) =>
+      a.addEventListener("click", () => remember(a.dataset.mode)),
+    );
+    brand.insertAdjacentElement("afterend", nav);
   });
 
   /* ---------- hold Tab to cycle libraries ----------
@@ -167,5 +115,16 @@
     holding = false;
     clearTimeout(holdTimer);
     hideHint();
+  });
+
+  /* ---------- share-list footer link, everywhere ---------- */
+
+  document.querySelectorAll('.foot-link[href="pages/analytics.html"]').forEach((link) => {
+    if (link.parentElement.querySelector(".foot-link-share")) return;
+    const share = document.createElement("a");
+    share.className = "foot-link foot-link-share";
+    share.href = "pages/sharelist.html";
+    share.textContent = "🔗 Share a list";
+    link.insertAdjacentElement("afterend", share);
   });
 })();

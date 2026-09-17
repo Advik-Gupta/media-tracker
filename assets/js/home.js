@@ -14,6 +14,7 @@
   const KINDS = {};
   if (document.getElementById("listGrid")) KINDS.list = "listGrid";
   if (document.getElementById("movieGrid")) KINDS.movie = "movieGrid";
+  if (document.getElementById("artistGrid")) KINDS.artist = "artistGrid";
   if (document.getElementById("showGrid")) KINDS.show = "showGrid";
   if (document.getElementById("animeGrid")) KINDS.anime = "animeGrid";
   if (document.getElementById("showlistGrid")) KINDS.showlist = "showlistGrid";
@@ -459,15 +460,20 @@
        "added" it - being merely listed somewhere never does that on its
        own. */
     const mineIds = new Set(mine.map((u) => u.id));
-    const trackedBuiltIn = SELF_SERVE
-      ? UNIVERSES.filter((u) => (u.kind || "movie") === kind)
+    let trackedBuiltIn = [];
+    if (SELF_SERVE) {
+      try {
+        trackedBuiltIn = UNIVERSES.filter((u) => (u.kind || "movie") === kind)
           .filter((u) => !mineIds.has(u.id))
           .filter((u) => (window.SERIES_COUNTS || {})[u.id])
           .filter((u) => {
             const s = statsFor(u);
             return s && s.done > 0;
-          })
-      : [];
+          });
+      } catch (e) {
+        console.error("Media Vault: could not compute tracked built-ins", e);
+      }
+    }
 
     let list = (SELF_SERVE ? [...mine, ...trackedBuiltIn] : UNIVERSES)
       .filter((u) => (u.kind || "movie") === kind)
@@ -680,12 +686,24 @@
     }
   }
 
+  /* A card that throws while building must never take the rest of the
+     grid down with it - `unshift`-ed new entries land at index 0, so one
+     bad card here used to blank everything after it too. */
+  function safeCard(make, j, uni) {
+    try {
+      return make(j);
+    } catch (e) {
+      console.error("Media Vault: card failed to render", uni, e);
+      return document.createComment("card failed");
+    }
+  }
+
   function paint(kind, grid, cells) {
     const { cols, n } = perPage();
     grid.innerHTML = "";
 
     if (grid.classList.contains("uni-grid")) {
-      cells.forEach((make, j) => grid.appendChild(make(j)));
+      cells.forEach((make, j) => grid.appendChild(safeCard(make, j)));
       makeSortable(kind, grid);
 
       const empty = document.querySelector(`[data-empty="${kind}"]`);
@@ -708,7 +726,9 @@
       const page = document.createElement("div");
       page.className = "carousel-page";
       page.style.setProperty("--cols", cols);
-      cells.slice(i, i + n).forEach((make, j) => page.appendChild(make(j)));
+      cells
+        .slice(i, i + n)
+        .forEach((make, j) => page.appendChild(safeCard(make, j)));
       grid.appendChild(page);
     }
 

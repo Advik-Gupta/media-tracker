@@ -90,3 +90,36 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- ============================================================
+-- Shared lists - a named set of films, handed out by a short
+-- code. No account needed to create or read one: the code itself
+-- is the access control, the same way a paste-bin link works.
+-- Never linked to a user_id, so there is nothing here to attach
+-- to an account even if the creator later signs in.
+-- ============================================================
+
+create table if not exists public.shared_lists (
+  code       text primary key,
+  name       text not null,
+  items      jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+comment on table public.shared_lists is
+  'A named list of films, fetched and created by its short code - no account required.';
+
+alter table public.shared_lists enable row level security;
+
+drop policy if exists "shared lists are publicly readable" on public.shared_lists;
+create policy "shared lists are publicly readable"
+  on public.shared_lists for select
+  using (true);
+
+drop policy if exists "anyone can create a shared list" on public.shared_lists;
+create policy "anyone can create a shared list"
+  on public.shared_lists for insert
+  with check (
+    char_length(name) between 1 and 80
+    and jsonb_array_length(items) between 1 and 300
+  );

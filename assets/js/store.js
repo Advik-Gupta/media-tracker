@@ -3,6 +3,7 @@ const SHARED_BUCKET = "__shared";
 const VAULT_FOLDER = {
   movie: "movies",
   list: "movies",
+  artist: "movies",
   show: "shows",
   showlist: "shows",
   anime: "anime",

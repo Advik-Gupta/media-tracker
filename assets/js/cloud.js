@@ -142,6 +142,11 @@ const Cloud = (() => {
 
     user: () => user,
 
+    /** The raw Supabase client, once `ready()` resolves - for callers
+     *  that need a table Cloud itself doesn't know about (shared lists,
+     *  say). Null when accounts aren't configured. */
+    client: () => client,
+
     ready: init,
 
     onAuth(fn) {

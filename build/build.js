@@ -83,6 +83,7 @@ const ctxFilms = (() => {
 const VAULT_FOLDER = {
   movie: "movies",
   list: "movies",
+  artist: "movies",
   show: "shows",
   showlist: "shows",
   anime: "anime",
@@ -168,7 +169,7 @@ const VAULTS = {
     noun: "anime",
   },
 };
-const LIST_VAULT = { list: "movie", showlist: "show", animelist: "anime" };
+const LIST_VAULT = { list: "movie", showlist: "show", animelist: "anime", artist: "movie" };
 const vaultOf = (u) => VAULTS[LIST_VAULT[u.kind] || u.kind || "movie"];
 
 function writeSeriesIndex() {
@@ -393,6 +394,7 @@ function sweepPages() {
     wanted.add(`pages/${page}.html`);
   for (const v of Object.values(VAULTS)) if (v.list) wanted.add(v.list);
   wanted.add("pages/account.html");
+  wanted.add("pages/sharelist.html");
   wanted.add("pages/movies/view.html");
   wanted.add("pages/shows/view.html");
   wanted.add("pages/anime/view.html");
@@ -477,6 +479,13 @@ writeHtml(
 );
 
 writeHtml(
+  "pages/sharelist.html",
+  ejs.render(fs.readFileSync(path.join(__dirname, "sharelist.ejs"), "utf8"), {
+    base: "../",
+  }),
+);
+
+writeHtml(
   "pages/movies/view.html",
   ejs.render(fs.readFileSync(path.join(__dirname, "movie.ejs"), "utf8"), {
     base: PAGE_BASE,
@@ -532,6 +541,7 @@ for (const mode of ["show", "anime"]) {
 const SECTIONS = [
   { kind: "list", id: "lists", title: "Lists" },
   { kind: "movie", id: "movies", title: "Movie universes" },
+  { kind: "artist", id: "artists", title: "Artists" },
 ];
 const totalEntries = new Set(
   universes.flatMap((u) =>

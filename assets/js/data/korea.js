@@ -5,16 +5,16 @@
 (() => {
 
 const ITEMS = [
-  { w: 1, film: 'parasite-1982', type: 'film', saga: 'd1980', phase: 1, chrono: 1982, cLabel: '1982', rel: 'essential' },
+  { w: 1, film: 'parasite-2019', type: 'film', saga: 'd2010', phase: 1, chrono: 2019, cLabel: '2019', rel: 'essential' },
   { w: 2, film: 'memories-of-murder-2003', type: 'film', saga: 'd2000', phase: 1, chrono: 2003, cLabel: '2003', rel: 'essential' },
   { w: 3, film: 'oldboy-2003', type: 'film', saga: 'd2000', phase: 1, chrono: 2003, cLabel: '2003', rel: 'essential' },
   { w: 4, film: 'handmaiden-2016', type: 'film', saga: 'd2010', phase: 1, chrono: 2016, cLabel: '2016', rel: 'essential' },
   { w: 5, film: 'burning-2018', type: 'film', saga: 'd2010', phase: 1, chrono: 2018, cLabel: '2018', rel: 'essential' },
   { w: 6, film: 'poetry-2010', type: 'film', saga: 'd2010', phase: 1, chrono: 2010, cLabel: '2010', rel: 'essential' },
   { w: 7, film: 'peppermint-candy-1999', type: 'film', saga: 'd1990', phase: 1, chrono: 1999, cLabel: '1999', rel: 'recommended' },
-  { w: 8, film: 'mother-2009', type: 'film', saga: 'd2000', phase: 1, chrono: 2009, cLabel: '2009', rel: 'recommended' },
+  { w: 8, film: 'mother-2026', type: 'film', saga: 'd2020', phase: 1, chrono: 2026, cLabel: '2026', rel: 'recommended' },
   { w: 9, film: 'wailing-2016', type: 'film', saga: 'd2010', phase: 1, chrono: 2016, cLabel: '2016', rel: 'recommended' },
-  { w: 10, film: 'spring-summer-fall-winter-and-spring-1969', type: 'film', saga: 'd1960', phase: 1, chrono: 1969, cLabel: '1969', rel: 'recommended' },
+  { w: 10, film: 'spring-summer-fall-winter-and-spring-2003', type: 'film', saga: 'd2000', phase: 1, chrono: 2003, cLabel: '2003', rel: 'recommended' },
   { w: 11, film: 'secret-sunshine-2007', type: 'film', saga: 'd2000', phase: 1, chrono: 2007, cLabel: '2007', rel: 'recommended' },
   { w: 12, film: 'oasis-2002', type: 'film', saga: 'd2000', phase: 1, chrono: 2002, cLabel: '2002', rel: 'recommended' },
   { w: 13, film: '3-iron-2004', type: 'film', saga: 'd2000', phase: 1, chrono: 2004, cLabel: '2004', rel: 'recommended' },
@@ -22,7 +22,7 @@ const ITEMS = [
   { w: 15, film: 'train-to-busan-2016', type: 'film', saga: 'd2010', phase: 1, chrono: 2016, cLabel: '2016', rel: 'recommended' },
   { w: 16, film: 'tale-of-two-sisters-2003', type: 'film', saga: 'd2000', phase: 1, chrono: 2003, cLabel: '2003', rel: 'recommended' },
   { w: 17, film: 'i-saw-the-devil-2010', type: 'film', saga: 'd2010', phase: 1, chrono: 2010, cLabel: '2010', rel: 'recommended' },
-  { w: 18, film: 'host-2020', type: 'film', saga: 'd2020', phase: 1, chrono: 2020, cLabel: '2020', rel: 'recommended' },
+  { w: 18, film: 'host-2013', type: 'film', saga: 'd2010', phase: 1, chrono: 2013, cLabel: '2013', rel: 'recommended' },
   { w: 19, film: 'decision-to-leave-2022', type: 'film', saga: 'd2020', phase: 1, chrono: 2022, cLabel: '2022', rel: 'optional' },
   { w: 20, film: 'lady-vengeance-2005', type: 'film', saga: 'd2000', phase: 1, chrono: 2005, cLabel: '2005', rel: 'optional' },
   { w: 21, film: 'sympathy-for-mr-vengeance-2002', type: 'film', saga: 'd2000', phase: 1, chrono: 2002, cLabel: '2002', rel: 'optional' },
@@ -32,7 +32,7 @@ const ITEMS = [
   { w: 25, film: 'good-the-bad-the-weird-2008', type: 'film', saga: 'd2000', phase: 1, chrono: 2008, cLabel: '2008', rel: 'optional' },
   { w: 26, film: 'new-world-2005', type: 'film', saga: 'd2000', phase: 2, chrono: 2005, cLabel: '2005', rel: 'optional' },
   { w: 27, film: 'bittersweet-life-2005', type: 'film', saga: 'd2000', phase: 2, chrono: 2005, cLabel: '2005', rel: 'optional' },
-  { w: 28, film: 'man-from-nowhere-1961', type: 'film', saga: 'd1960', phase: 2, chrono: 1961, cLabel: '1961', rel: 'optional' },
+  { w: 28, film: 'man-from-nowhere-2010', type: 'film', saga: 'd2010', phase: 2, chrono: 2010, cLabel: '2010', rel: 'optional' },
   { w: 29, film: 'thirst-2009', type: 'film', saga: 'd2000', phase: 2, chrono: 2009, cLabel: '2009', rel: 'optional' },
   { w: 30, film: 'house-of-hummingbird-2018', type: 'film', saga: 'd2010', phase: 2, chrono: 2018, cLabel: '2018', rel: 'optional' },
 ];
@@ -48,8 +48,6 @@ const REL_META = {
 };
 
 const SAGA_META = {
-  d1960: { label: '1960s', range: '' },
-  d1980: { label: '1980s', range: '' },
   d1990: { label: '1990s', range: '' },
   d2000: { label: '2000s', range: '' },
   d2010: { label: '2010s', range: '' },
@@ -68,8 +66,6 @@ const WATCH_BLOCKS = [
 ];
 
 const ERAS = [
-  { max: 1970, key: 'd1960', title: '1960s', sub: '' },
-  { max: 1990, key: 'd1980', title: '1980s', sub: '' },
   { max: 2000, key: 'd1990', title: '1990s', sub: '' },
   { max: 2010, key: 'd2000', title: '2000s', sub: '' },
   { max: 2020, key: 'd2010', title: '2010s', sub: '' },

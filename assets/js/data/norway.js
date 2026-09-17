@@ -10,14 +10,14 @@ const ITEMS = [
   { w: 3, film: 'oslo-august-31st-2011', type: 'film', saga: 'd2010', phase: 1, chrono: 2011, cLabel: '2011', rel: 'essential' },
   { w: 4, film: 'bothersome-man-2006', type: 'film', saga: 'd2000', phase: 1, chrono: 2006, cLabel: '2006', rel: 'essential' },
   { w: 5, film: 'reprise-2006', type: 'film', saga: 'd2000', phase: 1, chrono: 2006, cLabel: '2006', rel: 'essential' },
-  { w: 6, film: 'thelma-2024', type: 'film', saga: 'd2020', phase: 1, chrono: 2024, cLabel: '2024', rel: 'essential' },
+  { w: 6, film: 'thelma-2017', type: 'film', saga: 'd2010', phase: 1, chrono: 2017, cLabel: '2017', rel: 'essential' },
   { w: 7, film: 'troubled-water-2008', type: 'film', saga: 'd2000', phase: 1, chrono: 2008, cLabel: '2008', rel: 'essential' },
-  { w: 8, film: 'innocents-2021', type: 'film', saga: 'd2020', phase: 1, chrono: 2021, cLabel: '2021', rel: 'essential' },
+  { w: 8, film: 'innocents-1961', type: 'film', saga: 'd1960', phase: 1, chrono: 1961, cLabel: '1961', rel: 'essential' },
   { w: 9, film: 'wave-2015', type: 'film', saga: 'd2010', phase: 1, chrono: 2015, cLabel: '2015', rel: 'essential' },
   { w: 10, film: 'sick-of-myself-2022', type: 'film', saga: 'd2020', phase: 1, chrono: 2022, cLabel: '2022', rel: 'essential' },
   { w: 11, film: 'troll-hunter-2010', type: 'film', saga: 'd2010', phase: 1, chrono: 2010, cLabel: '2010', rel: 'recommended' },
   { w: 12, film: 'headhunters-2011', type: 'film', saga: 'd2010', phase: 1, chrono: 2011, cLabel: '2011', rel: 'recommended' },
-  { w: 13, film: 'nine-lives-2016', type: 'film', saga: 'd2010', phase: 1, chrono: 2016, cLabel: '2016', rel: 'recommended' },
+  { w: 13, film: 'nine-lives-2005', type: 'film', saga: 'd2000', phase: 1, chrono: 2005, cLabel: '2005', rel: 'recommended' },
   { w: 14, film: 'painter-and-the-thief-2020', type: 'film', saga: 'd2020', phase: 1, chrono: 2020, cLabel: '2020', rel: 'recommended' },
   { w: 15, film: 'ninjababy-2021', type: 'film', saga: 'd2020', phase: 1, chrono: 2021, cLabel: '2021', rel: 'recommended' },
   { w: 16, film: 'sons-2024', type: 'film', saga: 'd2020', phase: 1, chrono: 2024, cLabel: '2024', rel: 'recommended' },
@@ -30,7 +30,7 @@ const ITEMS = [
   { w: 23, film: 'pathfinder-2007', type: 'film', saga: 'd2000', phase: 1, chrono: 2007, cLabel: '2007', rel: 'recommended' },
   { w: 24, film: 'king-s-choice-2016', type: 'film', saga: 'd2010', phase: 1, chrono: 2016, cLabel: '2016', rel: 'recommended' },
   { w: 25, film: 'in-order-of-disappearance-2014', type: 'film', saga: 'd2010', phase: 1, chrono: 2014, cLabel: '2014', rel: 'recommended' },
-  { w: 26, film: 'troll-2022', type: 'film', saga: 'd2020', phase: 2, chrono: 2022, cLabel: '2022', rel: 'recommended' },
+  { w: 26, film: 'troll-1986', type: 'film', saga: 'd1980', phase: 2, chrono: 1986, cLabel: '1986', rel: 'recommended' },
   { w: 27, film: 'thousand-times-good-night-2013', type: 'film', saga: 'd2010', phase: 2, chrono: 2013, cLabel: '2013', rel: 'recommended' },
   { w: 28, film: 'max-manus-man-of-war-2008', type: 'film', saga: 'd2000', phase: 2, chrono: 2008, cLabel: '2008', rel: 'recommended' },
   { w: 29, film: '12th-man-2017', type: 'film', saga: 'd2010', phase: 2, chrono: 2017, cLabel: '2017', rel: 'recommended' },
@@ -49,12 +49,12 @@ const ITEMS = [
   { w: 42, film: 'ugly-stepsister-2025', type: 'film', saga: 'd2020', phase: 2, chrono: 2025, cLabel: '2025', rel: 'optional' },
   { w: 43, film: 'beware-of-children-2019', type: 'film', saga: 'd2010', phase: 2, chrono: 2019, cLabel: '2019', rel: 'optional' },
   { w: 44, film: 'loveable-2024', type: 'film', saga: 'd2020', phase: 2, chrono: 2024, cLabel: '2024', rel: 'optional' },
-  { w: 45, film: 'dreams', type: 'film', saga: 'dna', phase: 2, chrono: 0, cLabel: '-', rel: 'optional' },
+  { w: 45, film: 'dreams-2025', type: 'film', saga: 'd2020', phase: 2, chrono: 2025, cLabel: '2025', rel: 'optional' },
   { w: 46, film: 'rules-for-everything', type: 'film', saga: 'dna', phase: 2, chrono: 0, cLabel: '-', rel: 'optional' },
   { w: 47, film: 'free-jimmy-2006', type: 'film', saga: 'd2000', phase: 2, chrono: 2006, cLabel: '2006', rel: 'optional' },
   { w: 48, film: 'kon-tiki-2012', type: 'film', saga: 'd2010', phase: 2, chrono: 2012, cLabel: '2012', rel: 'optional' },
   { w: 49, film: 'man-who-saved-the-world-2013', type: 'film', saga: 'd2010', phase: 2, chrono: 2013, cLabel: '2013', rel: 'optional' },
-  { w: 50, film: 'wave-2-2015', type: 'film', saga: 'd2010', phase: 2, chrono: 2015, cLabel: '2015', rel: 'optional' },
+  { w: 50, film: 'wave-2-2008', type: 'film', saga: 'd2000', phase: 2, chrono: 2008, cLabel: '2008', rel: 'optional' },
 ];
 
 const TYPE_META = {
@@ -68,7 +68,9 @@ const REL_META = {
 };
 
 const SAGA_META = {
+  d1960: { label: '1960s', range: '' },
   d1970: { label: '1970s', range: '' },
+  d1980: { label: '1980s', range: '' },
   d1990: { label: '1990s', range: '' },
   d2000: { label: '2000s', range: '' },
   d2010: { label: '2010s', range: '' },
@@ -87,7 +89,9 @@ const WATCH_BLOCKS = [
 ];
 
 const ERAS = [
+  { max: 1970, key: 'd1960', title: '1960s', sub: '' },
   { max: 1980, key: 'd1970', title: '1970s', sub: '' },
+  { max: 1990, key: 'd1980', title: '1980s', sub: '' },
   { max: 2000, key: 'd1990', title: '1990s', sub: '' },
   { max: 2010, key: 'd2000', title: '2000s', sub: '' },
   { max: 2020, key: 'd2010', title: '2010s', sub: '' },
