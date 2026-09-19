@@ -14,7 +14,7 @@
     />
     <link rel="stylesheet" href="assets/css/base.css?v=11ed68de" />
     <link rel="stylesheet" href="assets/css/universes.css?v=46e45a19" />
-    <link rel="stylesheet" href="assets/css/home.css?v=95fb0a5b" />
+    <link rel="stylesheet" href="assets/css/home.css?v=358aa385" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%233d8c79'/%3E%3C/svg%3E"
@@ -59,14 +59,28 @@
         </div>
       </section>
 
-      <section class="wrap section" id="mybooks">
+      <section class="wrap section" id="collections">
         <div class="section-bar reveal">
+          <h2>Collections</h2>
+          <p class="section-sub">Curated by author and by series - browse freely, add whatever you want to your own shelves.</p>
+        </div>
+        <div class="uni-grid" id="collectionGrid"></div>
+      </section>
+
+      <section class="wrap section" id="mybooks">
+        <div class="section-bar reveal book-toolbar">
           <h2>My Books</h2>
-          <div class="sl-search-modes" style="margin:0;">
-            <button class="chip active" data-shelf="all">All</button>
-            <button class="chip" data-shelf="want">Want to read</button>
-            <button class="chip" data-shelf="reading">Reading</button>
-            <button class="chip" data-shelf="read">Read</button>
+          <div class="book-toolbar-controls">
+            <div class="sl-search-modes" style="margin:0;">
+              <button class="chip active" data-shelf="all">All</button>
+              <button class="chip" data-shelf="want">Want to read</button>
+              <button class="chip" data-shelf="reading">Reading</button>
+              <button class="chip" data-shelf="read">Read</button>
+            </div>
+            <div class="sl-search-modes book-view-toggle">
+              <button class="chip active" data-view="grid" aria-label="Grid view">▦</button>
+              <button class="chip" data-view="list" aria-label="List view">☰</button>
+            </div>
           </div>
         </div>
         <div class="uni-grid" id="bookGrid"></div>
@@ -105,8 +119,15 @@
     <script src="assets/js/store.js?v=1da2f974"></script>
     <script src="assets/js/cloud.js?v=b5e50792"></script>
     <script src="assets/js/userbooks.js?v=0de4b94a"></script>
+    <script src="assets/js/data/books/asoiaf.js?v=f6f82eb2"></script>
+    <script src="assets/js/data/books/camus.js?v=0fdbeb8b"></script>
+    <script src="assets/js/data/books/dostoevsky.js?v=c5f8500c"></script>
+    <script src="assets/js/data/books/kafka.js?v=c750aa8d"></script>
+    <script src="assets/js/data/books/nietzsche.js?v=4cfe7689"></script>
+    <script src="assets/js/data/books/sanderson-cosmere.js?v=5ae13095"></script>
+    <script src="assets/js/data/books/wheel-of-time.js?v=e9ceb703"></script>
     <script src="assets/js/modes.js?v=4f1ea5a4"></script>
-    <script src="assets/js/bookshelf.js?v=2b922e68"></script>
+    <script src="assets/js/bookshelf.js?v=274dff15"></script>
     <script src="assets/js/account.js?v=8a75cf76"></script>
   </body>
 </html>

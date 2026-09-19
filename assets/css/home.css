@@ -1435,3 +1435,95 @@
 
 .book-sheet .rnd-card { align-items: flex-start; }
 .book-sheet .rnd-poster { width: 140px; height: 210px; }
+
+.collection-sheet { width: min(560px, calc(100vw - 32px)); max-height: 82vh; display: flex; flex-direction: column; }
+.collection-list { overflow-y: auto; margin: var(--s2) -4px 0; padding: 0 4px; display: flex; flex-direction: column; gap: 4px; }
+.collection-row { width: 100%; cursor: default; }
+.collection-row .wl-sugg-cta { display: none; }
+
+/* ---------- Books: toolbar, list view, mobile ---------- */
+
+.book-toolbar { flex-direction: column; align-items: flex-start; }
+
+/* .book-card is a flex-row (cover beside text, not overlay-on-poster like
+   .uni-card normally is), so it needs a wider minimum column than the
+   generic vault grid gives it or the text column has nowhere to go. */
+#bookGrid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+@media (max-width: 900px) {
+  #bookGrid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+}
+@media (max-width: 640px) {
+  #bookGrid { grid-template-columns: 1fr; gap: var(--s1); }
+}
+.book-toolbar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  width: 100%;
+  flex-wrap: wrap;
+}
+.book-view-toggle { flex: none; }
+.book-view-toggle .chip { width: 32px; padding: 0; justify-content: center; font-size: 14px; }
+
+#bookGrid.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.book-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .02);
+  cursor: pointer;
+  position: relative;
+  transition: border-color .12s var(--ease-out), background .12s var(--ease-out);
+}
+.book-row:hover { border-color: var(--line-strong); background: rgba(255,255,255,.04); }
+.book-row-thumb {
+  width: 34px; height: 50px; flex: none;
+  border-radius: 3px; overflow: hidden; background: var(--surface-2);
+}
+.book-row-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.book-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.book-row-title {
+  font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: -.005em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.book-row-sub { font-size: 12px; color: var(--fog); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.book-row-shelf {
+  flex: none;
+  font-size: 11px; font-weight: 600; color: var(--gold);
+  padding: 3px 9px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  white-space: nowrap;
+}
+.book-row .book-stars { flex: none; margin-top: 0; padding-right: 30px; }
+.book-row-remove { position: static; opacity: 0; flex: none; }
+.book-row:hover .book-row-remove, .book-row-remove:focus-visible { opacity: 1; }
+
+@media (max-width: 900px) {
+  .hero-stats { gap: 24px 32px; }
+}
+
+@media (max-width: 640px) {
+  .book-toolbar-controls { gap: var(--s1); }
+  .sl-search-modes { gap: 4px; }
+  .sl-search-modes .chip { height: 28px; padding: 0 10px; font-size: 12px; }
+  .book-row-sub, .book-row .book-stars { display: none; }
+  .book-row-shelf { font-size: 10px; padding: 2px 7px; }
+  .book-group-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: var(--s1); }
+  .book-group-card { padding: 10px 12px; }
+  .book-cover { width: 62px; height: 92px; }
+  .wish-card { padding: var(--s2); gap: 10px; }
+  .book-shelf-pick { gap: 4px; }
+  .book-shelf-opt { height: 24px; padding: 0 8px; font-size: 10.5px; }
+  .collection-sheet .wl-sugg-sub { display: none; }
+}

@@ -2602,7 +2602,7 @@ const UNIVERSES = [
         relevance: "Tier",
       },
     },
-    kind: "list",
+    kind: "artist",
     addedAt: "2026-09-17T15:48:06.613Z",
     cover: "https://upload.wikimedia.org/wikipedia/en/1/1e/Everything_Everywhere_All_at_Once.jpg",
     name: "A24 Studios",

@@ -55,7 +55,8 @@ function loadCatalogues() {
       f === "universes.js" ||
       f === "countries.js" ||
       f.startsWith("_") ||
-      f === "series"
+      f === "series" ||
+      f === "books"
     )
       continue;
     try {
@@ -486,10 +487,16 @@ writeHtml(
   }),
 );
 
+const bookCollectionsDir = path.join(DATA, "books");
+const bookCollections = fs.existsSync(bookCollectionsDir)
+  ? fs.readdirSync(bookCollectionsDir).filter((f) => f.endsWith(".js"))
+  : [];
+
 writeHtml(
   "pages/books.html",
   ejs.render(fs.readFileSync(path.join(__dirname, "books.ejs"), "utf8"), {
     base: "../",
+    bookCollections,
   }),
 );
 

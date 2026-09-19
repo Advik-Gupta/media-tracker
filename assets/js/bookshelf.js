@@ -154,10 +154,12 @@
   let activeShelf = "all";
   let activeAuthor = null;
   let activeCategory = null;
+  let activeView = localStorage.getItem("mediavault.bookview") || "grid";
 
   const grid = document.getElementById("bookGrid");
   const empty = document.getElementById("bookEmpty");
   const shelfChips = document.querySelectorAll("[data-shelf]");
+  const viewChips = document.querySelectorAll("[data-view]");
 
   shelfChips.forEach((b) =>
     b.addEventListener("click", () => {
@@ -168,6 +170,18 @@
       paintGrid();
     }),
   );
+
+  viewChips.forEach((b) =>
+    b.addEventListener("click", () => {
+      activeView = b.dataset.view;
+      viewChips.forEach((x) => x.classList.toggle("active", x === b));
+      try {
+        localStorage.setItem("mediavault.bookview", activeView);
+      } catch {}
+      paintGrid();
+    }),
+  );
+  viewChips.forEach((b) => b.classList.toggle("active", b.dataset.view === activeView));
 
   function starRow(book) {
     return `<span class="book-stars" data-key="${esc(book.key)}">
@@ -235,9 +249,48 @@
     if (activeAuthor) list = list.filter((b) => b.authors.some((a) => (a.key || a.name) === activeAuthor));
     if (activeCategory) list = list.filter((b) => (b.subjects || []).includes(activeCategory));
 
+    grid.classList.toggle("list-view", activeView === "list");
     grid.innerHTML = "";
-    list.forEach((b) => grid.appendChild(bookCard(b)));
+    list.forEach((b) => grid.appendChild(activeView === "list" ? bookRow(b) : bookCard(b)));
     if (empty) empty.hidden = list.length > 0;
+  }
+
+  function bookRow(book) {
+    const el = document.createElement("article");
+    el.className = "book-row reveal in";
+    el.dataset.key = book.key;
+    const cover = UserBooks.coverUrl(book.cover, "S");
+    const authors = book.authors.map((a) => esc(a.name)).join(", ") || "Unknown author";
+    el.innerHTML = `
+      <span class="book-row-thumb${cover ? "" : " ph"}">
+        ${cover ? `<img src="${cover}" alt="" loading="lazy" decoding="async">` : ""}
+      </span>
+      <span class="book-row-main">
+        <b class="book-row-title">${esc(book.title)}</b>
+        <span class="book-row-sub">${authors}${book.year ? ` · ${book.year}` : ""}</span>
+      </span>
+      <span class="book-row-shelf">${UserBooks.SHELF_LABEL[book.shelf]}</span>
+      ${starRow(book)}
+      <button type="button" class="uni-remove book-row-remove" title="Remove ${esc(book.title)}" aria-label="Remove ${esc(book.title)}">✕</button>`;
+
+    el.querySelector(".book-row-remove").addEventListener("click", (e) => {
+      e.stopPropagation();
+      UserBooks.remove(book.key);
+      if (typeof toast === "function") toast(`Removed ${book.title}`);
+      paintStats();
+      paintGrid();
+      paintGroups();
+    });
+    el.querySelectorAll("[data-star]").forEach((btn) =>
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const n = Number(btn.dataset.star);
+        UserBooks.setRating(book.key, book.myRating === n ? 0 : n);
+        paintGrid();
+      }),
+    );
+    el.addEventListener("click", () => openDetail(book));
+    return el;
   }
 
   /* ---------- authors / categories ---------- */
@@ -312,6 +365,7 @@
   sheetBackdrop.addEventListener("click", closeSheet);
 
   async function openDetail(book) {
+    sheet.className = "rnd-modal book-sheet";
     const cover = UserBooks.coverUrl(book.cover, "L");
     sheet.innerHTML = `
       <div class="rnd-head">
@@ -352,7 +406,90 @@
     }
   }
 
+  /* ---------- collections (curated, built-in) ---------- */
+
+  const collectionGrid = document.getElementById("collectionGrid");
+
+  function paintCollections() {
+    if (!collectionGrid) return;
+    const all = window.BOOK_COLLECTIONS || {};
+    collectionGrid.innerHTML = "";
+    Object.entries(all).forEach(([id, col]) => {
+      const cover = col.books.find((b) => b.cover);
+      const el = document.createElement("button");
+      el.type = "button";
+      el.className = "uni-card reveal in";
+      el.innerHTML = `
+        <div class="uni-cover">
+          ${cover ? `<img src="${UserBooks.coverUrl(cover.cover, "M")}" alt="" loading="lazy" decoding="async">` : ""}
+        </div>
+        <div class="uni-content">
+          <h3>${esc(col.name)}</h3>
+          <p class="uni-tagline">${esc(col.tagline || "")}</p>
+          <div class="uni-foot-row">
+            <span><b>${col.books.length}</b> books</span>
+            <span class="uni-arrow">→</span>
+          </div>
+        </div>`;
+      el.addEventListener("click", () => openCollection(id, col));
+      collectionGrid.appendChild(el);
+    });
+  }
+
+  function openCollection(id, col) {
+    sheet.className = "rnd-modal book-sheet collection-sheet";
+    sheet.innerHTML = `
+      <div class="rnd-head">
+        <h3>${esc(col.name)}</h3>
+        <button class="rnd-close" aria-label="Close">✕</button>
+      </div>
+      <p class="add-hint">${esc(col.tagline || "")}${col.author ? ` · ${esc(col.author)}` : ""}</p>
+      <div class="collection-list" id="collectionList"></div>`;
+    sheet.querySelector(".rnd-close").addEventListener("click", closeSheet);
+
+    const list = sheet.querySelector("#collectionList");
+    col.books.forEach((b) => {
+      const owned = b.key && UserBooks.has(b.key);
+      const cover = UserBooks.coverUrl(b.cover, "S");
+      const row = document.createElement("div");
+      row.className = "wl-sugg collection-row";
+      row.innerHTML = `
+        <span class="wl-sugg-thumb${cover ? "" : " ph"}">
+          ${cover ? `<img src="${cover}" alt="" loading="lazy">` : ""}
+        </span>
+        <span class="wl-sugg-main">
+          <b class="wl-sugg-title">${esc(b.title)}</b>
+          <span class="wl-sugg-sub">${esc(b.author || "")}${b.year ? ` · ${b.year}` : ""}</span>
+        </span>
+        <button class="btn sm" data-add-collection ${owned || !b.key ? "disabled" : ""}>
+          ${!b.key ? "Unavailable" : owned ? "Added" : "+ Add"}
+        </button>`;
+      row.querySelector("[data-add-collection]").addEventListener("click", () => {
+        if (!b.key) return;
+        UserBooks.add(
+          { key: `/works/${b.key}`, title: b.title, author_name: b.author ? [b.author] : [], cover_i: b.cover, first_publish_year: b.year, subject: [col.name] },
+          "want",
+        );
+        if (typeof toast === "function") toast(`Added ${b.title}`);
+        const btn = row.querySelector("[data-add-collection]");
+        btn.disabled = true;
+        btn.textContent = "Added";
+        paintStats();
+        paintGrid();
+        paintGroups();
+      });
+      list.appendChild(row);
+    });
+
+    sheetBackdrop.hidden = sheet.hidden = false;
+    requestAnimationFrame(() => {
+      sheetBackdrop.classList.add("show");
+      sheet.classList.add("show");
+    });
+  }
+
   paintStats();
   paintGrid();
   paintGroups();
+  paintCollections();
 })();
