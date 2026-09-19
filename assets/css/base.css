@@ -213,6 +213,22 @@ h2 {
   gap: 20px;
 }
 
+@media (max-width: 640px) {
+  .topbar-inner {
+    height: 60px;
+    gap: 10px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+  }
+  .topbar-inner::-webkit-scrollbar { display: none; }
+  .topbar-inner > * { flex: none; }
+  .topbar-spacer { min-width: 8px; flex: none; }
+  .brand span:not(.brand-mark) { display: none; }
+  .mode-links { gap: 0; }
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -491,6 +507,33 @@ body.u-countries {
     padding: 0 6px;
     font-size: 12.5px;
   }
+}
+
+.pwa-install {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  max-width: min(480px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  font-size: 13.5px;
+  color: var(--bone);
+  opacity: 0;
+  transform: translate(-50%, 16px);
+  transition: opacity .2s var(--ease-out), transform .2s var(--ease-out);
+}
+.pwa-install.show { opacity: 1; transform: translate(-50%, 0); }
+.pwa-install-actions { display: flex; gap: 8px; flex: none; }
+@media (max-width: 560px) {
+  .pwa-install { flex-direction: column; align-items: stretch; text-align: center; }
+  .pwa-install-actions { justify-content: center; }
 }
 
 .tabcycle-hint {

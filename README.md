@@ -20,6 +20,7 @@
 - [TMDB](https://www.themoviedb.org/) episode data via [seriesgraph.com](https://seriesgraph.com), proxied through Vercel functions since it sends no CORS header
 - [OMDb](https://www.omdbapi.com/) for movie ratings, cast and plot - called directly from the browser
 - [ratingraph.com](https://www.ratingraph.com/) for the movie/show search used when adding to My List
+- [Open Library](https://openlibrary.org/developers/api) for the books vault - search is proxied (no CORS header either), covers and work details are called directly
 
 **Accounts (optional)**
 
@@ -40,6 +41,9 @@
 - **Hold Tab to switch libraries** - hold it for about three seconds anywhere to cycle Movies → Shows → Anime; a quick tap still behaves as normal keyboard navigation
 - **Analytics** - completion by universe, total runtime logged, best- and worst-rated episodes with the show and episode name attached
 - **Films by country** - an interactive world map linking into per-country lists
+- **Books vault** - search Open Library, shelve a title (want to read / reading / read), rate it, and browse what you've added by author or by category
+- **Share a list** - build a named list of films and hand it out with a short code or a link; no account needed on either end, and a received list can be saved for later
+- **Installable (PWA)** - add it to your phone's home screen for an app-like, full-screen experience with basic offline support for pages you've already opened
 - **Optional accounts** - sign in to sync watch state across devices; everything works fully signed out, saved to that browser only
 - **Export / import** - a dated JSON backup of everything local storage holds, portable between browsers with no account needed
 

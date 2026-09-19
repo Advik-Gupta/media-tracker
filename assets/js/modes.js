@@ -20,6 +20,8 @@
     },
     { id: 'anime', name: 'Anime', tagline: 'Animation', href: 'pages/anime.html', icon: '🌸',
       blurb: 'Every series episode by episode, with ratings season by season.' },
+    { id: 'book', name: 'Books', tagline: 'Reading list', href: 'pages/books.html', icon: '📚',
+      blurb: 'Search Open Library, shelve it, track it by author and category.' },
   ];
 
   const current = () => document.body.dataset.mode || "movie";
@@ -127,4 +129,67 @@
     share.textContent = "🔗 Share a list";
     link.insertAdjacentElement("afterend", share);
   });
+
+  /* ---------- PWA: service worker + install prompt ---------- */
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
+
+  const DISMISS_KEY = "mediavault.installDismissed";
+  const isStandalone =
+    window.matchMedia?.("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  function installBanner(html, onGo) {
+    if (isStandalone || localStorage.getItem(DISMISS_KEY) || document.querySelector(".pwa-install")) return;
+    const bar = document.createElement("div");
+    bar.className = "pwa-install";
+    bar.innerHTML = `
+      <span>${html}</span>
+      <div class="pwa-install-actions">
+        ${onGo ? '<button class="btn btn-accent sm" id="pwaGo">Install</button>' : ""}
+        <button class="btn btn-ghost sm" id="pwaNo">${onGo ? "Not now" : "Got it"}</button>
+      </div>`;
+    document.body.appendChild(bar);
+    requestAnimationFrame(() => bar.classList.add("show"));
+
+    const dismiss = () => {
+      bar.classList.remove("show");
+      setTimeout(() => bar.remove(), 250);
+    };
+    document.getElementById("pwaNo").addEventListener("click", () => {
+      try {
+        localStorage.setItem(DISMISS_KEY, "1");
+      } catch {}
+      dismiss();
+    });
+    if (onGo) document.getElementById("pwaGo").addEventListener("click", () => onGo(dismiss));
+  }
+
+  let deferredInstall = null;
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstall = e;
+    installBanner("📲 Install Media Vault for quick access from your home screen", async (dismiss) => {
+      dismiss();
+      if (!deferredInstall) return;
+      deferredInstall.prompt();
+      await deferredInstall.userChoice;
+      deferredInstall = null;
+    });
+  });
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if (isIOS && !isStandalone) {
+    setTimeout(
+      () =>
+        installBanner(
+          "📲 Add Media Vault to your Home Screen: tap Share, then “Add to Home Screen”.",
+        ),
+      1500,
+    );
+  }
 })();

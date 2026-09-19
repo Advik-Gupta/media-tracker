@@ -395,6 +395,7 @@ function sweepPages() {
   for (const v of Object.values(VAULTS)) if (v.list) wanted.add(v.list);
   wanted.add("pages/account.html");
   wanted.add("pages/sharelist.html");
+  wanted.add("pages/books.html");
   wanted.add("pages/movies/view.html");
   wanted.add("pages/shows/view.html");
   wanted.add("pages/anime/view.html");
@@ -481,6 +482,13 @@ writeHtml(
 writeHtml(
   "pages/sharelist.html",
   ejs.render(fs.readFileSync(path.join(__dirname, "sharelist.ejs"), "utf8"), {
+    base: "../",
+  }),
+);
+
+writeHtml(
+  "pages/books.html",
+  ejs.render(fs.readFileSync(path.join(__dirname, "books.ejs"), "utf8"), {
     base: "../",
   }),
 );
