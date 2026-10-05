@@ -155,7 +155,7 @@
           </button>
         </header>
         <div class="ep-grid">
-          ${season.episodes.map((ep) => episodeTile(show, season, ep)).join("")}
+          ${season.episodes.map((ep) => (typeof Arcs !== "undefined" && canMarkFiller ? Arcs.before(show, season.n, ep.n) : "") + episodeTile(show, season, ep)).join("")}
         </div>
       </section>`;
   }
@@ -256,8 +256,16 @@
 
     root.classList.toggle("hide-watched", state.hideWatched);
     root.classList.toggle("dense", state.dense);
-    if (canMarkFiller && typeof Arcs !== "undefined" && DATA.shows[0])
-      Arcs.render(DATA.shows[0], UNI);
+    if (canMarkFiller && typeof Arcs !== "undefined" && DATA.shows[0]) {
+      Arcs.setHost({ uni: UNI, show: DATA.shows[0], rerender: render });
+      Arcs.renderManager(DATA.shows[0]);
+    }
+    const arcsBtn = document.getElementById("arcsView");
+    if (arcsBtn) {
+      arcsBtn.hidden = !canMarkFiller;
+      arcsBtn.classList.toggle("active", Arcs.enabled());
+      arcsBtn.setAttribute("aria-pressed", String(Arcs.enabled()));
+    }
     updateSummary();
     if (typeof initReveal === "function") initReveal();
   }
@@ -677,6 +685,11 @@
     e.currentTarget.classList.toggle("active", state.hideWatched);
     e.currentTarget.setAttribute("aria-pressed", String(state.hideWatched));
     root.classList.toggle("hide-watched", state.hideWatched);
+  });
+
+  on("arcsView", () => {
+    Arcs.toggle();
+    render();
   });
 
   on("denseView", (e) => {
