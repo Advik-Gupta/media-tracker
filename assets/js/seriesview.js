@@ -95,15 +95,39 @@
   function compose(shows) {
     if (!saved) return { shows, films: [] };
     const page = UserVault.page(id);
+    const gone = new Set(page.hidden);
+    const hiddenSeasons = [];
+    shows = shows.map((sh) => ({
+      ...sh,
+      seasons: sh.seasons.filter((se) => {
+        const key = `s:${sh.id}:${se.n}`;
+        if (!gone.has(key)) return true;
+        hiddenSeasons.push({ key, title: sh.title, n: se.n, episodes: se.episodes.length });
+        return false;
+      }),
+    }));
     const films = page.films.map((f) => ({ ...f, film: f.key }));
     const valid = new Set(defaultUnits(shows, films));
     const units = page.units.filter((x) => valid.has(x));
     defaultUnits(shows, films).forEach((x) => {
-      if (!units.includes(x)) units.push(x);
+      if (units.includes(x)) return;
+      const [type, showId, n] = x.split(":");
+      if (type !== "s") return units.push(x);
+      let after = -1;
+      let first = -1;
+      units.forEach((u, i) => {
+        const [t, sid, sn] = u.split(":");
+        if (t !== "s" || sid !== showId) return;
+        if (first < 0) first = i;
+        if (Number(sn) < Number(n)) after = i;
+      });
+      if (after >= 0) units.splice(after + 1, 0, x);
+      else if (first >= 0) units.splice(first, 0, x);
+      else units.push(x);
     });
     const buckets = {};
     shows.forEach((sh) => (buckets[sh.id] = UserVault.uniOf(sh.id)));
-    return { shows, films, units, buckets, hostId: Number(id) };
+    return { shows, films, units, buckets, hiddenSeasons, hostId: Number(id) };
   }
 
   async function load({ force } = {}) {

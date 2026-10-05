@@ -21,6 +21,7 @@
     UserVault.savePage(HOST, {
       units: DATA.units,
       films: DATA.films.map(({ film, ...rest }) => rest),
+      hidden: (DATA.hiddenSeasons || []).map((h) => h.key),
     });
     page.render();
   }
@@ -49,6 +50,8 @@
   /* ---------- order ---------- */
 
   function orderTab() {
+    const seasonCount = DATA.units.filter((u) => u.startsWith("s:")).length;
+    const hidden = DATA.hiddenSeasons || [];
     const rows = DATA.units
       .map((unit, i) => {
         const l = unitLabel(unit);
@@ -59,13 +62,45 @@
             <span class="pe-main"><b>${esc(l.title)}</b><small>${esc(l.sub)}</small></span>
             <button class="btn btn-ghost sm" data-move="-1" data-i="${i}" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
             <button class="btn btn-ghost sm" data-move="1" data-i="${i}" aria-label="Move down" ${i === DATA.units.length - 1 ? "disabled" : ""}>↓</button>
-            ${l.film ? `<button class="btn btn-ghost sm danger" data-drop-film="${esc(unit.slice(2))}">Remove</button>` : ""}
+            ${
+              l.film
+                ? `<button class="btn btn-ghost sm danger" data-drop-film="${esc(unit.slice(2))}">Remove</button>`
+                : seasonCount > 1
+                  ? `<button class="btn btn-ghost sm danger" data-hide-season="${esc(unit)}">Remove</button>`
+                  : ""
+            }
           </li>`;
       })
       .join("");
     return `
       <p class="pe-hint">Drag a row, or use the arrows. Seasons and films can go in any order.</p>
-      <ol class="pe-list">${rows}</ol>`;
+      <ol class="pe-list">${rows}</ol>
+      ${
+        hidden.length
+          ? `<h4 class="pe-sub">Removed seasons</h4>
+             <ol class="pe-list">${hidden
+               .map(
+                 (h) => `
+               <li class="pe-row">
+                 <span class="pe-main"><b>${esc(h.title)} · Season ${h.n}</b><small>${h.episodes} episodes · not shown or counted</small></span>
+                 <button class="btn sm" data-restore-season="${esc(h.key)}">Restore</button>
+               </li>`,
+               )
+               .join("")}</ol>`
+          : ""
+      }`;
+  }
+
+  function setHidden(keys) {
+    UserVault.savePage(HOST, {
+      units: DATA.units,
+      films: DATA.films.map(({ film, ...rest }) => rest),
+      hidden: keys,
+    });
+    try {
+      sessionStorage.setItem("mv.editPage", "order");
+    } catch (e) {}
+    location.reload();
   }
 
   function move(from, to) {
@@ -89,6 +124,18 @@
         save();
         draw();
       }),
+    );
+    body.querySelectorAll("[data-hide-season]").forEach((b) =>
+      b.addEventListener("click", () =>
+        setHidden([...(DATA.hiddenSeasons || []).map((h) => h.key), b.dataset.hideSeason]),
+      ),
+    );
+    body.querySelectorAll("[data-restore-season]").forEach((b) =>
+      b.addEventListener("click", () =>
+        setHidden(
+          (DATA.hiddenSeasons || []).map((h) => h.key).filter((k) => k !== b.dataset.restoreSeason),
+        ),
+      ),
     );
     let dragging = null;
     body.querySelectorAll(".pe-row").forEach((row) => {
@@ -404,4 +451,11 @@
     if (e.key === "Escape" && document.getElementById("pageEditModal")) close();
   });
   trigger.addEventListener("click", open);
+  try {
+    if (sessionStorage.getItem("mv.editPage")) {
+      tab = sessionStorage.getItem("mv.editPage");
+      sessionStorage.removeItem("mv.editPage");
+      open();
+    }
+  } catch (e) {}
 })();

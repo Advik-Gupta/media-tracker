@@ -224,12 +224,17 @@ const UserVault = (() => {
       return {
         units: Array.isArray(p.units) ? p.units : [],
         films: Array.isArray(p.films) ? p.films : [],
+        hidden: Array.isArray(p.hidden) ? p.hidden : [],
       };
     },
 
     savePage(hostId, page) {
       const all = this.pages();
-      all[hostId] = { units: page.units || [], films: page.films || [] };
+      all[hostId] = {
+        units: page.units || [],
+        films: page.films || [],
+        hidden: page.hidden || [],
+      };
       write(PAGES_KEY, all);
       if (typeof Store !== "undefined") Store.touch();
     },
@@ -274,7 +279,7 @@ const UserVault = (() => {
           if (!to.films.some((x) => x.key === f.key)) to.films.push(f);
         });
         const all = this.pages();
-        all[hostId] = { units: to.units, films: to.films };
+        all[hostId] = { units: to.units, films: to.films, hidden: to.hidden };
         delete all[childId];
         write(PAGES_KEY, all);
       }
