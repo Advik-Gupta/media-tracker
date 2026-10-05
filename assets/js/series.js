@@ -27,7 +27,8 @@
   const aired = (ep) => ep.d && new Date(ep.d) <= new Date();
 
   const fillerKey = (showId, s, e) => `e${showId}-${s}x${e}`;
-  const isFiller = (showId, s, e) => Store.has(fillerBucket(showId), fillerKey(showId, s, e));
+  const isFiller = (showId, s, e) =>
+    canMarkFiller && Store.has(fillerBucket(showId), fillerKey(showId, s, e));
   const canMarkFiller = (document.body.dataset.mode || "") === "anime";
 
   const BANDS = [
@@ -129,14 +130,10 @@
     const best = rated.length
       ? rated.reduce((a, b) => (b.r > a.r ? b : a))
       : null;
-    const skipped =
-      season.episodes.length > 0 &&
-      season.episodes.every((ep) => isFiller(show.id, season.n, ep.n));
-
     const boxState = done === 0 ? "" : done === total ? " all" : " some";
 
     return `
-      <section class="season${collapsed ? " collapsed" : ""}${skipped ? " skipped" : ""}" data-key="${key}">
+      <section class="season${collapsed ? " collapsed" : ""}" data-key="${key}">
         <header class="season-head">
           <button class="season-box${boxState}" data-season-toggle="${key}"
                   aria-label="Mark season ${season.n} watched">✓</button>
@@ -152,10 +149,6 @@
           </span>
           <span class="season-count">${done} / ${total}</span>
           <span class="season-bar"><i style="width:${total ? (done / total) * 100 : 0}%"></i></span>
-          <button class="season-skip-toggle${skipped ? " on" : ""}" data-season-skip="${show.id}-${season.n}"
-                  title="${skipped ? "Not counted toward completion - click to include it again" : "Mark this season not worth watching - excludes it from completion %"}">
-            ${skipped ? "Not counted" : "Skip season"}
-          </button>
         </header>
         <div class="ep-grid">
           ${season.episodes.map((ep) => episodeTile(show, season, ep)).join("")}
@@ -687,21 +680,6 @@
       const refs = seasonRefs(show, season);
       const allDone = refs.every((r) => Store.has(...r));
       Store.setRefs(refs, !allDone);
-      render();
-      return;
-    }
-
-    const seasonSkip = e.target.closest("[data-season-skip]");
-    if (seasonSkip) {
-      const [showId, n] = seasonSkip.dataset.seasonSkip.split("-").map(Number);
-      const show = DATA.shows.find((s) => s.id === showId);
-      const season = show.seasons.find((s) => s.n === n);
-      const refs = season.episodes.map((ep) => [
-        fillerBucket(show.id),
-        fillerKey(show.id, n, ep.n),
-      ]);
-      const allOn = refs.every((r) => Store.has(...r));
-      Store.setRefs(refs, !allOn);
       render();
       return;
     }

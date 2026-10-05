@@ -77,6 +77,17 @@
   }
 
   function statsFor(uni) {
+    if (uni.userAdded && uni.tmdbId != null && typeof UserVault !== "undefined") {
+      const ps = UserVault.pageStats(uni.tmdbId);
+      if (ps && ps.total > 0)
+        return {
+          total: ps.total,
+          done: ps.done,
+          pct: (ps.done / ps.total) * 100,
+          mins: 0,
+          parts: ps.parts,
+        };
+    }
     if ((window.SERIES_COUNTS || {})[uni.id]) {
       const s = seriesStats(uni);
       if (s) return s;
@@ -114,7 +125,14 @@
     const flag = Store.exportAll().__flags || {};
     if (flag[`ongoing:${uni.id}`]) return true;
     if (flag[`ended:${uni.id}`]) return false;
-    const meta = (window.SERIES_COUNTS || {})[uni.id];
+    const counts = window.SERIES_COUNTS || {};
+    if (uni.userAdded && uni.tmdbId != null && typeof UserVault !== "undefined") {
+      return UserVault.members(uni.tmdbId).some((m) => {
+        const meta = counts[UserVault.uniOf(m.id)];
+        return !!(meta && meta.ongoing);
+      });
+    }
+    const meta = counts[uni.id];
     return !!(meta && meta.ongoing);
   };
 
@@ -139,7 +157,8 @@
     const btn = document.getElementById("ongoingBtn");
     if (!btn) return;
     const n = ongoingList(kind).length;
-    btn.hidden = n === 0 && !showingOngoing;
+    btn.hidden = true;
+    void n;
     btn.classList.toggle("active", showingOngoing);
     btn.setAttribute("aria-pressed", String(showingOngoing));
     btn.textContent = showingOngoing
@@ -251,6 +270,7 @@
     const flags = Store.exportAll().__flags || {};
     if (flags[`archived:${uni.id}`]) return true;
     if (flags[`unarchived:${uni.id}`]) return false;
+    if (isOngoing(uni)) return false;
     const s = statsFor(uni);
     return s.total > 0 && s.done >= s.total;
   };
@@ -370,8 +390,18 @@
         <p class="uni-tagline">${uni.tagline}</p>
         <div class="uni-meter"><i data-pct="${s.pct}"></i></div>
         <div class="uni-foot-row">
-          <span><b>${s.done}</b> / ${s.total}</span>
+          ${
+            s.parts && s.parts.length > 1
+              ? `<span class="uni-parts" title="${s.done} of ${s.total} in total">${s.parts
+                  .map(
+                    (p) =>
+                      `<span title="${String(p.title).replace(/"/g, "&quot;")}"><b>${p.done}</b>/${p.unknown ? "?" : p.total}</span>`,
+                  )
+                  .join('<i aria-hidden="true">|</i>')}</span>`
+              : `<span><b>${s.done}</b> / ${s.total}</span>`
+          }
           ${(() => {
+            if (s.parts) return "";
             const meta = (window.SERIES_COUNTS || {})[uni.id];
             if (!meta || meta.shows <= 1) return "";
             const others = (meta.perShow || []).slice(1).map((s) => s.title);
@@ -554,10 +584,49 @@
     if (!ARCHIVE_KINDS.has(kind)) list = applyOrder(kind, list);
 
     syncOngoingButton(kind);
-    return paint(kind, grid, [
-      ...leading,
-      ...list.map((u) => (j) => card(u, j)),
-    ]);
+
+    let ongoing = [];
+    if (ARCHIVE_KINDS.has(kind) && !showingArchive) {
+      ongoing = list.filter(isOngoing);
+      list = list.filter((u) => !ongoing.includes(u));
+    }
+
+    paint(kind, grid, [...leading, ...list.map((u) => (j) => card(u, j))]);
+    if (ARCHIVE_KINDS.has(kind)) paintOngoing(kind, grid, ongoing);
+  }
+
+  function paintOngoing(kind, grid, list) {
+    const track = grid.closest(".carousel") || grid;
+    let block = track.parentElement.querySelector(`[data-ongoing="${kind}"]`);
+    if (!list.length) {
+      if (block) block.remove();
+      return;
+    }
+    if (!block) {
+      block = document.createElement("div");
+      block.className = "sub-block";
+      block.dataset.ongoing = kind;
+      block.innerHTML = `
+        <div class="sub-head">
+          <h3>Ongoing</h3>
+          <span class="sub-note"></span>
+        </div>
+        <div class="uni-grid"></div>`;
+      track.insertAdjacentElement("afterend", block);
+    }
+    block.querySelector(".sub-note").textContent =
+      `${list.length} still releasing · kept out of the archive`;
+    const sub = block.querySelector(".uni-grid");
+    sub.innerHTML = "";
+    list.forEach((u, j) => sub.appendChild(safeCard((k) => card(u, k), j, u)));
+    initReveal(sub);
+    requestAnimationFrame(() => {
+      sub.querySelectorAll(".uni-meter i[data-pct]").forEach((bar) => {
+        bar.style.width = bar.dataset.pct + "%";
+      });
+    });
+    const empty = document.querySelector(`[data-empty="${kind}"]`);
+    if (empty) empty.hidden = true;
   }
 
   const ORDER_KEY = (kind) => `mediavault.order.${kind}`;

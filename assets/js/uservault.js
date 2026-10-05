@@ -239,6 +239,54 @@ const UserVault = (() => {
       if (typeof Store !== "undefined") Store.touch();
     },
 
+    pageStats(hostId) {
+      const host = this.entry(hostId);
+      if (!host || typeof Store === "undefined") return null;
+      const page = this.page(hostId);
+      const gone = new Set(page.hidden);
+      const progress = Store.exportAll();
+      const now = Date.now();
+      const parts = [];
+
+      for (const m of this.members(hostId)) {
+        const uni = uniOf(m.id);
+        const d = this.data(uni);
+        const show = d && d.shows && d.shows[0];
+        if (!show) {
+          parts.push({ title: m.name, done: 0, total: 0, unknown: true });
+          continue;
+        }
+        const bucket = progress[uni] || {};
+        const filler = host.kind === "anime" ? progress[`__filler_${uni}`] || {} : {};
+        let done = 0;
+        let total = 0;
+        (show.seasons || []).forEach((se) => {
+          if (gone.has(`s:${show.id}:${se.n}`)) return;
+          se.episodes.forEach((ep) => {
+            if (!(ep.d && new Date(ep.d).getTime() <= now)) return;
+            const key = `e${show.id}-${se.n}x${ep.n}`;
+            if (filler[key]) return;
+            total += 1;
+            if (bucket[key]) done += 1;
+          });
+        });
+        parts.push({ title: show.title || m.name, done, total });
+      }
+
+      if (page.films.length) {
+        const shared = progress.__shared || {};
+        const own = progress[uniOf(hostId)] || {};
+        const done = page.films.filter((f) =>
+          f.src && f.src !== "registry" ? own[`m:${f.key}`] : shared[f.key],
+        ).length;
+        parts.push({ title: "Films", done, total: page.films.length, films: true });
+      }
+
+      const total = parts.reduce((n, p) => n + p.total, 0);
+      const done = parts.reduce((n, p) => n + p.done, 0);
+      return { total, done, parts, complete: parts.every((p) => !p.unknown) };
+    },
+
     hostOf(tmdbId) {
       const e = this.entry(tmdbId);
       return e && e.mergedInto != null && this.entry(e.mergedInto)
@@ -486,6 +534,7 @@ const UserVault = (() => {
         .filter((x) => x.mergedInto == null || !this.entry(x.mergedInto))
         .map((x) => ({
           id: x.uni,
+          tmdbId: x.id,
           kind: x.kind,
           name: x.name,
           tagline: x.year ? `Added · from ${x.year}` : "Added by you",

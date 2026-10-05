@@ -1405,3 +1405,12 @@
   .add-modal .wl-sugg-row { flex-wrap: wrap; }
   .add-modal .wl-sugg-row .wl-sugg { flex-basis: 100%; }
 }
+
+.uni-parts { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 7px; min-width: 0; font-variant-numeric: tabular-nums; }
+.uni-parts i { font-style: normal; opacity: .45; }
+
+.sub-block { margin-top: var(--s4); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.sub-head { display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap; margin-bottom: var(--s2); }
+.sub-head h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+.sub-note { font-size: 13px; color: var(--muted); }
+.sub-block .uni-card h3 { font-size: 17px; }
