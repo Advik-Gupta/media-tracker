@@ -48,7 +48,7 @@
     <link rel="stylesheet" href="assets/css/base.css?v=e64651e1" />
     <link rel="stylesheet" href="assets/css/universes.css?v=51372fb5" />
     <link rel="stylesheet" href="assets/css/tracker.css?v=ae928430" />
-    <link rel="stylesheet" href="assets/css/series.css?v=741566c3" />
+    <link rel="stylesheet" href="assets/css/series.css?v=7b4ac3be" />
     <link rel="icon" href="assets/img/brand/logo.svg" type="image/svg+xml" />
   </head>
   <body data-mode="show" data-universe="" class="u-view">
@@ -114,19 +114,16 @@
             <button class="btn btn-ghost" id="markOngoing" aria-pressed="false">
               Mark ongoing
             </button>
-            <button class="btn btn-ghost" id="hideWatched" aria-pressed="false">
-              Hide watched
-            </button>
-            <button
-              class="btn btn-ghost"
-              id="denseView"
-              aria-pressed="false"
-              title="Ratings only"
-            >
-              Compact
-            </button>
-            <button class="btn btn-ghost" id="collapseAll">Collapse all</button>
-            <button type="button" class="switch on" id="arcsView" role="switch" aria-checked="true" hidden title="Show arc lines in the episode list"><span class="switch-track"><span class="switch-knob"></span></span><span>Arcs</span></button>
+            <div class="ctrl-menu">
+              <button class="btn btn-ghost" id="viewMenuBtn" aria-haspopup="true" aria-expanded="false">View <span aria-hidden="true">▾</span></button>
+              <div class="ctrl-menu-panel" id="viewMenuPanel" hidden>
+                <button type="button" class="switch" id="absNum" role="switch" aria-checked="false" hidden title="Number episodes 1 to the end and show them as one list, ignoring seasons"><span class="switch-track"><span class="switch-knob"></span></span><span>Continuous episodes</span></button>
+                <button type="button" class="switch on" id="arcsView" role="switch" aria-checked="true" hidden title="Show arc lines in the episode list"><span class="switch-track"><span class="switch-knob"></span></span><span>Arc lines</span></button>
+                <button class="btn btn-ghost" id="hideWatched" aria-pressed="false">Hide watched</button>
+                <button class="btn btn-ghost" id="denseView" aria-pressed="false" title="Ratings only">Compact tiles</button>
+                <button class="btn btn-ghost" id="collapseAll">Collapse all</button>
+              </div>
+            </div>
             <button class="btn btn-ghost" id="editPage" hidden>Edit page</button>
             <button class="btn btn-ghost danger" id="resetShow">Reset</button>
           </div>
@@ -166,13 +163,13 @@
     <script src="assets/js/data/_films.js?v=f0504df5"></script>
     <script src="assets/js/modes.js?v=cf73c97d"></script>
     <script src="assets/js/data/series/_counts.js?v=82fe4d27"></script>
-    <script src="assets/js/uservault.js?v=53c379f3"></script>
+    <script src="assets/js/uservault.js?v=b0e1b08c"></script>
     <script src="assets/js/arcs.js?v=95dac1e6"></script>
-    <link rel="preload" as="script" id="seriesSrc" href="assets/js/series.js?v=31c3266b" />
-    <link rel="preload" as="script" id="pageEditSrc" href="assets/js/pageedit.js?v=7134c859" />
+    <link rel="preload" as="script" id="seriesSrc" href="assets/js/series.js?v=60415744" />
+    <link rel="preload" as="script" id="pageEditSrc" href="assets/js/pageedit.js?v=7b76f612" />
     <script src="assets/js/ratingraph.js?v=5378304f"></script>
     <script src="assets/js/omdb.js?v=3461ca33"></script>
-    <script src="assets/js/seriesview.js?v=da559971"></script>
+    <script src="assets/js/seriesview.js?v=8def3e63"></script>
     <script src="assets/js/account.js?v=8a75cf76"></script>
   </body>
 </html>

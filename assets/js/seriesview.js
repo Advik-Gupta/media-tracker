@@ -167,7 +167,7 @@
     });
     const buckets = {};
     shows.forEach((sh) => (buckets[sh.id] = UserVault.uniOf(sh.id)));
-    return { shows, films, units, buckets, hiddenSeasons, splits: page.splits, hostId: Number(id) };
+    return { shows, films, units, buckets, hiddenSeasons, splits: page.splits, breaks: page.breaks, hostId: Number(id) };
   }
 
   async function load({ force } = {}) {

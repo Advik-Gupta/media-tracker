@@ -58,10 +58,16 @@
           <span class="topbar-spacer"></span>
           <div class="ctrl-buttons">
             <button class="btn btn-ghost" id="markOngoing" aria-pressed="false">Mark ongoing</button>
-            <button class="btn btn-ghost" id="hideWatched" aria-pressed="false">Hide watched</button>
-            <button class="btn btn-ghost" id="denseView" aria-pressed="false" title="Ratings only">Compact</button>
-            <button type="button" class="switch on" id="arcsView" role="switch" aria-checked="true" hidden title="Show arc lines in the episode list"><span class="switch-track"><span class="switch-knob"></span></span><span>Arcs</span></button>
-            <button class="btn btn-ghost" id="collapseAll">Collapse all</button>
+            <div class="ctrl-menu">
+              <button class="btn btn-ghost" id="viewMenuBtn" aria-haspopup="true" aria-expanded="false">View <span aria-hidden="true">▾</span></button>
+              <div class="ctrl-menu-panel" id="viewMenuPanel" hidden>
+                <button type="button" class="switch" id="absNum" role="switch" aria-checked="false" hidden title="Number episodes 1 to the end and show them as one list, ignoring seasons"><span class="switch-track"><span class="switch-knob"></span></span><span>Continuous episodes</span></button>
+                <button type="button" class="switch on" id="arcsView" role="switch" aria-checked="true" hidden title="Show arc lines in the episode list"><span class="switch-track"><span class="switch-knob"></span></span><span>Arc lines</span></button>
+                <button class="btn btn-ghost" id="hideWatched" aria-pressed="false">Hide watched</button>
+                <button class="btn btn-ghost" id="denseView" aria-pressed="false" title="Ratings only">Compact tiles</button>
+                <button class="btn btn-ghost" id="collapseAll">Collapse all</button>
+              </div>
+            </div>
             <button class="btn btn-ghost danger" id="resetShow">Reset</button>
           </div>
         </div>

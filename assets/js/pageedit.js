@@ -23,6 +23,7 @@
     films: DATA.films.map(({ film, ...rest }) => rest),
     hidden: (DATA.hiddenSeasons || []).map((h) => h.key),
     splits: DATA.splits || {},
+    breaks: DATA.breaks || [],
     ...extra,
   });
 
@@ -68,38 +69,135 @@
 
   /* ---------- order ---------- */
 
+  const absMode = () => {
+    try {
+      return !!JSON.parse(localStorage.getItem("mediavault.absnum") || "{}")[page.uni];
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const absMaps = new Map();
+  function absOf(show, n, e) {
+    if (!absMaps.has(show.id)) {
+      const map = new Map();
+      let i = 0;
+      (show.allSeasons || show.seasons).forEach((se) =>
+        se.episodes.forEach((ep) => map.set(`${se.n}x${ep.n}`, ++i)),
+      );
+      absMaps.set(show.id, map);
+    }
+    return absMaps.get(show.id).get(`${n}x${e}`) || e;
+  }
+
+  function seasonOf(unit) {
+    const [type, a, b] = unit.split(":");
+    if (type !== "s") return null;
+    const show = DATA.shows.find((x) => String(x.id) === a);
+    const season = show && show.seasons.find((x) => String(sk(x)) === b);
+    return season ? { show, season } : null;
+  }
+
+  const breaksFor = (showId) =>
+    (DATA.breaks || [])
+      .filter((x) => String(x).startsWith(`${showId}:`))
+      .map((x) => Number(String(x).split(":")[1]));
+
+  /* Rows of the list. Normally one per season or film; in continuous mode a
+     show's neighbouring seasons are one row, unless a break sits between them. */
+  function groups() {
+    if (!absMode()) return DATA.units.map((u) => [u]);
+    const out = [];
+    for (const u of DATA.units) {
+      const cur = seasonOf(u);
+      const last = out[out.length - 1];
+      const prev = last ? seasonOf(last[last.length - 1]) : null;
+      if (cur && prev && prev.show.id === cur.show.id && prev.season.n !== cur.season.n) {
+        const eps = prev.season.episodes;
+        const end = absOf(prev.show, prev.season.n, eps[eps.length - 1].n);
+        if (!breaksFor(cur.show.id).includes(end)) {
+          last.push(u);
+          continue;
+        }
+      }
+      out.push([u]);
+    }
+    return out;
+  }
+
+  function groupLabel(group) {
+    const first = seasonOf(group[0]);
+    if (!first || !absMode()) return unitLabel(group[0]);
+    const last = seasonOf(group[group.length - 1]);
+    const from = absOf(first.show, first.season.n, first.season.episodes[0].n);
+    const lastEps = last.season.episodes;
+    const to = absOf(last.show, last.season.n, lastEps[lastEps.length - 1].n);
+    const count = group.reduce((n, u) => n + seasonOf(u).season.episodes.length, 0);
+    return {
+      title: `${first.show.title} · Episodes ${from}–${to}`,
+      sub: `${count} episodes`,
+      film: false,
+      showId: first.show.id,
+      n: first.season.n,
+      part: false,
+      abs: true,
+    };
+  }
+
+  function absCutsText(showId) {
+    const show = DATA.shows.find((x) => String(x.id) === String(showId));
+    if (!show) return "";
+    const cuts = new Set(breaksFor(showId));
+    Object.entries(DATA.splits || {}).forEach(([key, list]) => {
+      const [, sid, n] = key.split(":");
+      if (sid === String(showId)) list.forEach((c) => cuts.add(absOf(show, Number(n), Number(c))));
+    });
+    return [...cuts].sort((a, b) => a - b).join(", ");
+  }
+
   function orderTab() {
-    const seasonCount = DATA.units.filter((u) => u.startsWith("s:")).length;
+    const list = groups();
+    const abs = absMode();
+    const seasonRows = list.filter((g) => g[0].startsWith("s:")).length;
     const hidden = DATA.hiddenSeasons || [];
-    const firstOf = (unit, l) =>
-      DATA.units.find((u) => {
-        const [t, sid, k] = u.split(":");
-        return t === "s" && sid === String(l.showId) && String(k).split("p")[0] === String(l.n);
-      }) === unit;
-    const rows = DATA.units
-      .map((unit, i) => {
-        const l = unitLabel(unit);
+    const formShown = new Set();
+
+    const rows = list
+      .map((group, i) => {
+        const l = groupLabel(group);
         if (!l) return "";
+        const splitKey = l.film ? "" : abs ? `abs:${l.showId}` : `${l.showId}:${l.n}`;
+        const showForm = !l.film && splitting === splitKey && !formShown.has(splitKey);
+        if (showForm) formShown.add(splitKey);
+        const hasCuts = abs ? !!absCutsText(l.showId) : l.part;
         return `
           <li class="pe-row" draggable="true" data-i="${i}">
             <span class="pe-grip" aria-hidden="true">⋮⋮</span>
             <span class="pe-main"><b>${esc(l.title)}</b><small>${esc(l.sub)}</small></span>
             <button class="btn btn-ghost sm" data-move="-1" data-i="${i}" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
-            <button class="btn btn-ghost sm" data-move="1" data-i="${i}" aria-label="Move down" ${i === DATA.units.length - 1 ? "disabled" : ""}>↓</button>
+            <button class="btn btn-ghost sm" data-move="1" data-i="${i}" aria-label="Move down" ${i === list.length - 1 ? "disabled" : ""}>↓</button>
             ${
               l.film
-                ? `<button class="btn btn-ghost sm danger" data-drop-film="${esc(unit.slice(2))}">Remove</button>`
-                : `<button class="btn btn-ghost sm" data-split="${l.showId}:${l.n}">${l.part ? "Edit split" : "Split"}</button>${
-                    seasonCount > 1
-                      ? `<button class="btn btn-ghost sm danger" data-hide-season="${esc(unit)}">Remove</button>`
+                ? `<button class="btn btn-ghost sm danger" data-drop-film="${esc(group[0].slice(2))}">Remove</button>`
+                : `<button class="btn btn-ghost sm" data-split="${splitKey}">${hasCuts ? "Edit split" : "Split"}</button>${
+                    seasonRows > 1
+                      ? `<button class="btn btn-ghost sm danger" data-hide-group="${i}">Remove</button>`
                       : ""
                   }`
             }
             ${
-              !l.film && splitting === `${l.showId}:${l.n}` && firstOf(unit, l)
-                ? `<form class="pe-split" data-split-form="${l.showId}:${l.n}">
-                     <label class="pe-field"><span>End a part after episode… (several allowed, e.g. 30, 60). Leave empty to join the season back together.</span>
-                       <input name="cuts" inputmode="numeric" autocomplete="off" value="${esc(((DATA.splits || {})[`s:${l.showId}:${l.n}`] || []).join(", "))}" placeholder="30, 60" /></label>
+              showForm
+                ? `<form class="pe-split" data-split-form="${splitKey}">
+                     <label class="pe-field"><span>${
+                       abs
+                         ? "End a part after episode… using the overall episode number (several allowed, e.g. 30, 60). Leave empty to join everything back together."
+                         : "End a part after episode… (several allowed, e.g. 30, 60). Leave empty to join the season back together."
+                     }</span>
+                       <input name="cuts" inputmode="numeric" autocomplete="off" value="${esc(
+                         abs
+                           ? absCutsText(l.showId)
+                           : ((DATA.splits || {})[`s:${l.showId}:${l.n}`] || []).join(", "),
+                       )}" placeholder="30, 60" /></label>
                      <div class="pe-actions"><button type="button" class="btn btn-ghost sm" data-split-cancel>Cancel</button><button class="btn btn-accent sm" type="submit">Apply</button></div>
                    </form>`
                 : ""
@@ -108,7 +206,7 @@
       })
       .join("");
     return `
-      <p class="pe-hint">Drag a row, or use the arrows. Seasons and films can go in any order.</p>
+      <p class="pe-hint">Drag a row, or use the arrows. ${abs ? "Episodes are shown as one run because Continuous episodes is on; split a run to place a film inside it." : "Seasons and films can go in any order."}</p>
       <ol class="pe-list">${rows}</ol>
       ${
         hidden.length
@@ -132,47 +230,93 @@
 
   let splitting = null;
 
-  function applySplit(showId, n, text) {
-    const show = DATA.shows.find((x) => String(x.id) === String(showId));
-    if (!show) return;
+  const seasonUnit = (showId, n) => (u) => {
+    const [t, sid, k] = u.split(":");
+    return t === "s" && sid === String(showId) && String(k).split("p")[0] === String(n);
+  };
+
+  /* Replace one season's rows with the parts that `cuts` produce, in place. */
+  function rewriteSeason(units, show, n, cuts) {
     const eps = show.seasons
       .filter((se) => String(se.n) === String(n))
       .flatMap((se) => se.episodes.map((ep) => ep.n));
     const max = Math.max(...eps);
-    const cuts = [...new Set(String(text).split(/[^0-9]+/).map(Number))]
-      .filter((c) => c > 0 && c < max)
-      .sort((a, b) => a - b);
-
-    const edges = [0, ...cuts, Infinity];
+    const clean = [...new Set(cuts)].filter((c) => c > 0 && c < max).sort((a, b) => a - b);
+    const edges = [0, ...clean, Infinity];
     let keys = [];
     for (let i = 0; i < edges.length - 1; i++) {
-      if (eps.some((e) => e > edges[i] && e <= edges[i + 1])) keys.push(`s:${showId}:${n}p${i + 1}`);
+      if (eps.some((e) => e > edges[i] && e <= edges[i + 1])) keys.push(`s:${show.id}:${n}p${i + 1}`);
     }
-    if (keys.length < 2) keys = [`s:${showId}:${n}`];
+    if (keys.length < 2) keys = [`s:${show.id}:${n}`];
 
-    const mine = (u) => {
-      const [t, sid, k] = u.split(":");
-      return t === "s" && sid === String(showId) && String(k).split("p")[0] === String(n);
-    };
-    const at = DATA.units.findIndex(mine);
-    const rest = DATA.units.filter((u) => !mine(u));
-    const before = at < 0 ? rest.length : DATA.units.slice(0, at).filter((u) => !mine(u)).length;
+    const mine = seasonUnit(show.id, n);
+    const at = units.findIndex(mine);
+    const rest = units.filter((u) => !mine(u));
+    const before = at < 0 ? rest.length : units.slice(0, at).filter((u) => !mine(u)).length;
     rest.splice(before, 0, ...keys);
-    DATA.units = rest;
+    return { units: rest, cuts: keys.length > 1 ? clean : [] };
+  }
 
+  const numbers = (text) =>
+    [...new Set(String(text).split(/[^0-9]+/).map(Number))].filter((c) => c > 0);
+
+  function applySplit(showId, n, text) {
+    const show = DATA.shows.find((x) => String(x.id) === String(showId));
+    if (!show) return;
+    const out = rewriteSeason(DATA.units, show, n, numbers(text));
     const splits = { ...(DATA.splits || {}) };
-    if (cuts.length && keys.length > 1) splits[`s:${showId}:${n}`] = cuts;
+    if (out.cuts.length) splits[`s:${showId}:${n}`] = out.cuts;
     else delete splits[`s:${showId}:${n}`];
-    const hidden = (DATA.hiddenSeasons || [])
-      .map((h) => h.key)
-      .filter((k) => !new RegExp(`^s:${showId}:${n}p\\d+$`).test(k));
-    saveAndReload({ units: rest, splits, hidden });
+    const stale = new RegExp(`^s:${showId}:${n}p[0-9]+$`);
+    const hidden = (DATA.hiddenSeasons || []).map((h) => h.key).filter((k) => !stale.test(k));
+    saveAndReload({ units: out.units, splits, hidden });
+  }
+
+  /* Continuous mode: cut points are overall episode numbers. A cut inside a
+     season splits that season; a cut on a season boundary is kept as a break. */
+  function applyAbsSplit(showId, text) {
+    const show = DATA.shows.find((x) => String(x.id) === String(showId));
+    if (!show) return;
+    const wanted = numbers(text);
+    const seasons = [...new Set(show.seasons.map((se) => se.n))];
+    const bySeason = new Map(seasons.map((n) => [n, []]));
+    const breaks = [];
+
+    for (const n of seasons) {
+      const eps = show.seasons.filter((se) => se.n === n).flatMap((se) => se.episodes.map((ep) => ep.n));
+      const lastEp = Math.max(...eps);
+      for (const e of eps) {
+        const a = absOf(show, n, e);
+        if (!wanted.includes(a)) continue;
+        if (e === lastEp) breaks.push(`${showId}:${a}`);
+        else bySeason.get(n).push(e);
+      }
+    }
+
+    let units = DATA.units;
+    const splits = { ...(DATA.splits || {}) };
+    let hidden = (DATA.hiddenSeasons || []).map((h) => h.key);
+    for (const n of seasons) {
+      const before = JSON.stringify(splits[`s:${showId}:${n}`] || []);
+      const out = rewriteSeason(units, show, n, bySeason.get(n));
+      units = out.units;
+      if (out.cuts.length) splits[`s:${showId}:${n}`] = out.cuts;
+      else delete splits[`s:${showId}:${n}`];
+      if (before !== JSON.stringify(out.cuts)) {
+        const stale = new RegExp(`^s:${showId}:${n}p[0-9]+$`);
+        hidden = hidden.filter((k) => !stale.test(k));
+      }
+    }
+    const keep = (DATA.breaks || []).filter((x) => !String(x).startsWith(`${showId}:`));
+    saveAndReload({ units, splits, hidden, breaks: [...keep, ...breaks] });
   }
 
   function move(from, to) {
-    if (to < 0 || to >= DATA.units.length || from === to) return;
-    const [unit] = DATA.units.splice(from, 1);
-    DATA.units.splice(to, 0, unit);
+    const list = groups();
+    if (to < 0 || to >= list.length || from === to) return;
+    const [group] = list.splice(from, 1);
+    list.splice(to, 0, group);
+    DATA.units = list.flat();
     save();
     draw();
   }
@@ -191,9 +335,12 @@
         draw();
       }),
     );
-    body.querySelectorAll("[data-hide-season]").forEach((b) =>
+    body.querySelectorAll("[data-hide-group]").forEach((b) =>
       b.addEventListener("click", () =>
-        setHidden([...(DATA.hiddenSeasons || []).map((h) => h.key), b.dataset.hideSeason]),
+        setHidden([
+          ...(DATA.hiddenSeasons || []).map((h) => h.key),
+          ...groups()[+b.dataset.hideGroup],
+        ]),
       ),
     );
     body.querySelectorAll("[data-restore-season]").forEach((b) =>
@@ -218,15 +365,16 @@
     body.querySelectorAll("[data-split-form]").forEach((f) => {
       f.addEventListener("submit", (e) => {
         e.preventDefault();
-        const [showId, n] = f.dataset.splitForm.split(":");
-        applySplit(showId, n, new FormData(f).get("cuts"));
+        const [a, b] = f.dataset.splitForm.split(":");
+        const text = new FormData(f).get("cuts");
+        if (a === "abs") applyAbsSplit(b, text);
+        else applySplit(a, b, text);
       });
-      const input = f.querySelector("input");
-      input.focus();
+      f.querySelector("input").focus();
       ["dragstart", "mousedown"].forEach((ev) => f.addEventListener(ev, (e) => e.stopPropagation()));
     });
     let dragging = null;
-    body.querySelectorAll(".pe-row").forEach((row) => {
+    body.querySelectorAll(".pe-row[draggable]").forEach((row) => {
       row.addEventListener("dragstart", (e) => {
         dragging = +row.dataset.i;
         row.classList.add("dragging");

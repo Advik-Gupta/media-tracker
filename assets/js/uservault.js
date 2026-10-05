@@ -226,6 +226,7 @@ const UserVault = (() => {
         films: Array.isArray(p.films) ? p.films : [],
         hidden: Array.isArray(p.hidden) ? p.hidden : [],
         splits: p.splits && typeof p.splits === "object" ? p.splits : {},
+        breaks: Array.isArray(p.breaks) ? p.breaks : [],
       };
     },
 
@@ -236,6 +237,7 @@ const UserVault = (() => {
         films: page.films || [],
         hidden: page.hidden || [],
         splits: page.splits || {},
+        breaks: page.breaks || [],
       };
       write(PAGES_KEY, all);
       if (typeof Store !== "undefined") Store.touch();
@@ -336,7 +338,7 @@ const UserVault = (() => {
           if (!to.films.some((x) => x.key === f.key)) to.films.push(f);
         });
         const all = this.pages();
-        all[hostId] = { units: to.units, films: to.films, hidden: to.hidden, splits: to.splits };
+        all[hostId] = { units: to.units, films: to.films, hidden: to.hidden, splits: to.splits, breaks: to.breaks };
         delete all[childId];
         write(PAGES_KEY, all);
       }

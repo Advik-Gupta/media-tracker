@@ -808,3 +808,28 @@ article.show,
 
 .pe-row { flex-wrap: wrap; }
 .pe-split { flex-basis: 100%; display: grid; gap: 10px; padding-top: 10px; border-top: 1px solid var(--line); cursor: default; }
+
+.filler-tools .switch { font-size: 13px; }
+
+.ctrl-menu { position: relative; }
+.ctrl-menu-panel {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 70;
+  display: grid; gap: 2px; min-width: 230px; padding: 6px;
+  border: 1px solid var(--line-strong); border-radius: var(--radius);
+  background: var(--surface-2); box-shadow: var(--shadow-float);
+}
+.ctrl-menu-panel .switch,
+.ctrl-menu-panel .btn {
+  width: 100%; height: 36px; padding: 0 10px;
+  justify-content: flex-start; border-radius: var(--radius-sm);
+  font-size: 13.5px;
+}
+.ctrl-menu-panel .switch { flex-direction: row-reverse; justify-content: space-between; }
+.ctrl-menu-panel .switch:hover, .ctrl-menu-panel .btn:hover { background: var(--hover); }
+.ctrl-menu-panel .btn.active { background: transparent; border-color: transparent; }
+.ctrl-menu-panel .btn.active::after { content: "✓"; margin-left: auto; color: var(--accent); }
+.ctrl-menu-panel .switch + .btn { margin-top: 4px; }
+.season.chain .season-name b { letter-spacing: 0; }
+@media (max-width: 640px) {
+  .ctrl-menu-panel { right: auto; left: 0; }
+}
