@@ -697,3 +697,21 @@
   .arc-row { grid-template-columns: minmax(0, 1fr) auto; }
   .arc-row .arc-count { grid-column: 1 / -1; }
 }
+
+/* On/off switch used for the arcs view. */
+.switch {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: 0; padding: 4px 0; cursor: pointer;
+  color: inherit; font: inherit; font-size: 0.9375rem;
+}
+.switch-track {
+  position: relative; width: 34px; height: 20px; border-radius: 999px;
+  background: var(--line); transition: background .15s ease;
+}
+.switch-knob {
+  position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--text, #e8eaed); transition: transform .15s ease;
+}
+.switch.on .switch-track { background: var(--accent, #3d8c79); }
+.switch.on .switch-knob { transform: translateX(14px); }
+.switch:focus-visible { outline: 2px solid var(--accent, #3d8c79); outline-offset: 3px; border-radius: 4px; }

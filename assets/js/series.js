@@ -246,6 +246,16 @@
       </article>`;
   }
 
+  // Draws arc lines for the anime show. Safe to call often; a failure is logged, never thrown.
+  function redrawArcs() {
+    if (!canMarkFiller || typeof Arcs === "undefined" || !DATA.shows[0]) return;
+    try {
+      Arcs.decorate(root, DATA.shows[0]);
+    } catch (err) {
+      console.error("Arcs could not draw", err);
+    }
+  }
+
   function render() {
     if (firstRender) {
       DATA.shows.forEach((sh) =>
@@ -265,13 +275,13 @@
     root.classList.toggle("dense", state.dense);
     if (canMarkFiller && typeof Arcs !== "undefined" && DATA.shows[0]) {
       Arcs.setHost({ uni: UNI, show: DATA.shows[0], rerender: render });
-      Arcs.decorate(root, DATA.shows[0]);
+      redrawArcs();
     }
-    const arcsBtn = document.getElementById("arcsView");
-    if (arcsBtn) {
-      arcsBtn.hidden = !canMarkFiller;
-      arcsBtn.classList.toggle("active", Arcs.enabled());
-      arcsBtn.setAttribute("aria-pressed", String(Arcs.enabled()));
+    const arcsSwitch = document.getElementById("arcsView");
+    if (arcsSwitch) {
+      arcsSwitch.hidden = !canMarkFiller;
+      arcsSwitch.classList.toggle("on", Arcs.enabled());
+      arcsSwitch.setAttribute("aria-checked", String(Arcs.enabled()));
     }
     updateSummary();
     if (typeof initReveal === "function") initReveal();
@@ -544,6 +554,7 @@
       block.classList.toggle("collapsed", nowCollapsed);
       collapse.setAttribute("aria-expanded", String(!nowCollapsed));
       rememberCollapsed();
+      redrawArcs();
       return;
     }
 

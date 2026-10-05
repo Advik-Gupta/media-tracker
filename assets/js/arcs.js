@@ -118,10 +118,10 @@ const Arcs = (() => {
   function decorate(root, show) {
     if (!root || !show) return;
     decorated = { root, show };
-    root.querySelectorAll(".arc-edge").forEach((n) => n.remove());
-    root.querySelectorAll(".ep.arc-m").forEach((t) => {
-      t.classList.remove("arc-m");
-      t.title = t.dataset.baseTitle || t.title;
+    root.querySelectorAll('.arc-edge').forEach((n) => n.remove());
+    root.querySelectorAll('.ep.arc-m').forEach((t) => {
+      t.classList.remove('arc-m');
+      if (t.dataset.baseTitle) t.title = t.dataset.baseTitle;
     });
     if (!enabled()) return;
 
@@ -129,66 +129,74 @@ const Arcs = (() => {
     if (!map.size) return;
     const arcOf = (t) => map.get(`${t.dataset.season}x${t.dataset.ep}`) || null;
 
-    root.querySelectorAll(".ep-grid").forEach((grid) => {
+    // Pass 1: read every layout value up front, so no writes interleave with reads.
+    const grids = [];
+    root.querySelectorAll('.ep-grid').forEach((grid) => {
       const tiles = Array.from(grid.children).filter(
-        (t) => t.classList.contains("ep") && t.offsetParent !== null,
+        (t) => t.classList.contains('ep') && t.offsetParent !== null,
       );
       if (!tiles.length) return;
-
-      // Group tiles into visual rows by their top offset.
-      const rows = [];
-      tiles
-        .slice()
-        .sort((a, b) => a.offsetTop - b.offsetTop || a.offsetLeft - b.offsetLeft)
-        .forEach((t) => {
-          const row = rows[rows.length - 1];
-          if (row && Math.abs(row[0].offsetTop - t.offsetTop) < 4) row.push(t);
-          else rows.push([t]);
-        });
-      rows.forEach((r) => r.sort((a, b) => a.offsetLeft - b.offsetLeft));
-
+      const items = tiles.map((el) => ({ el, arc: arcOf(el), top: el.offsetTop, left: el.offsetLeft }));
       const width = tiles[0].offsetWidth || 1;
-      const nearest = (row, x) => {
-        let best = null;
-        let bestD = Infinity;
-        for (const t of row) {
-          const d = Math.abs(t.offsetLeft - x);
-          if (d < bestD && d < width / 2) {
-            best = t;
-            bestD = d;
-          }
-        }
-        return best;
-      };
+      items.sort((a, b) => a.top - b.top || a.left - b.left);
+      const rows = [];
+      items.forEach((it) => {
+        const row = rows[rows.length - 1];
+        if (row && Math.abs(row[0].top - it.top) < 4) row.push(it);
+        else rows.push([it]);
+      });
+      rows.forEach((r) => r.sort((a, b) => a.left - b.left));
+      grids.push({ rows, width });
+    });
 
+    // Pass 2: work out which sides of each arc tile border another arc.
+    const nearest = (row, x, width) => {
+      let best = null;
+      let bestD = Infinity;
+      for (const it of row) {
+        const d = Math.abs(it.left - x);
+        if (d < bestD && d < width / 2) {
+          best = it;
+          bestD = d;
+        }
+      }
+      return best;
+    };
+    const writes = [];
+    for (const { rows, width } of grids) {
       rows.forEach((row, ri) => {
-        row.forEach((t, ci) => {
-          const arc = arcOf(t);
-          if (!arc) return;
-          const hue = hueOf(arc.id);
-          const sides = [];
+        row.forEach((it, ci) => {
+          if (!it.arc) return;
           const left = row[ci - 1];
           const right = row[ci + 1];
-          const up = ri > 0 ? nearest(rows[ri - 1], t.offsetLeft) : null;
-          const down = ri < rows.length - 1 ? nearest(rows[ri + 1], t.offsetLeft) : null;
-          if (!left || arcOf(left) !== arc) sides.push("l");
-          if (!right || arcOf(right) !== arc) sides.push("r");
-          if (!up || arcOf(up) !== arc) sides.push("t");
-          if (!down || arcOf(down) !== arc) sides.push("b");
-          if (!sides.length) return;
-
-          t.classList.add("arc-m");
-          if (!t.dataset.baseTitle) t.dataset.baseTitle = t.title;
-          t.title = `${arc.name} · Ep ${arc.from}–${arc.to}\n${t.dataset.baseTitle}`;
-          t.style.setProperty("--arc-h", hue);
-          sides.forEach((s) => {
-            const i = document.createElement("i");
-            i.className = `arc-edge ${s}`;
-            i.setAttribute("aria-hidden", "true");
-            t.append(i);
-          });
+          const up = ri > 0 ? nearest(rows[ri - 1], it.left, width) : null;
+          const down = ri < rows.length - 1 ? nearest(rows[ri + 1], it.left, width) : null;
+          const sides = [];
+          if (!left || left.arc !== it.arc) sides.push('l');
+          if (!right || right.arc !== it.arc) sides.push('r');
+          if (!up || up.arc !== it.arc) sides.push('t');
+          if (!down || down.arc !== it.arc) sides.push('b');
+          if (sides.length) writes.push({ it, sides });
         });
       });
+    }
+
+    // Pass 3: write the classes, tooltips and lines.
+    writes.forEach(({ it, sides }) => {
+      const t = it.el;
+      const hue = hueOf(it.arc.id);
+      t.classList.add('arc-m');
+      if (!t.dataset.baseTitle) t.dataset.baseTitle = t.title;
+      t.title = `${it.arc.name} · Ep ${it.arc.from}–${it.arc.to}\n${t.dataset.baseTitle}`;
+      t.style.setProperty('--arc-h', hue);
+      const frag = document.createDocumentFragment();
+      sides.forEach((s) => {
+        const i = document.createElement('i');
+        i.className = `arc-edge ${s}`;
+        i.setAttribute('aria-hidden', 'true');
+        frag.append(i);
+      });
+      t.append(frag);
     });
   }
 
