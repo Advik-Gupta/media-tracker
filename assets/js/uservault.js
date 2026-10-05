@@ -264,7 +264,14 @@ const UserVault = (() => {
         let total = 0;
         (show.seasons || []).forEach((se) => {
           if (gone.has(`s:${show.id}:${se.n}`)) return;
+          const cuts = (page.splits[`s:${show.id}:${se.n}`] || [])
+            .map(Number)
+            .filter((c) => c > 0)
+            .sort((a, b) => a - b);
+          const edges = [0, ...cuts, Infinity];
+          const partOf = (epN) => edges.findIndex((e, i) => i > 0 && epN > edges[i - 1] && epN <= e);
           se.episodes.forEach((ep) => {
+            if (cuts.length && gone.has(`s:${show.id}:${se.n}p${partOf(ep.n)}`)) return;
             if (!(ep.d && new Date(ep.d).getTime() <= now)) return;
             const key = `e${show.id}-${se.n}x${ep.n}`;
             if (filler[key]) return;

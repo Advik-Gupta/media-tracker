@@ -69,9 +69,7 @@
   /* ---------- order ---------- */
 
   function orderTab() {
-    const seasonCount = new Set(
-      DATA.units.filter((u) => u.startsWith("s:")).map((u) => u.split(":").slice(0, 3).join(":").replace(/p\d+$/, "")),
-    ).size;
+    const seasonCount = DATA.units.filter((u) => u.startsWith("s:")).length;
     const hidden = DATA.hiddenSeasons || [];
     const firstOf = (unit, l) =>
       DATA.units.find((u) => {
@@ -92,7 +90,7 @@
               l.film
                 ? `<button class="btn btn-ghost sm danger" data-drop-film="${esc(unit.slice(2))}">Remove</button>`
                 : `<button class="btn btn-ghost sm" data-split="${l.showId}:${l.n}">${l.part ? "Edit split" : "Split"}</button>${
-                    seasonCount > 1 && !l.part
+                    seasonCount > 1
                       ? `<button class="btn btn-ghost sm danger" data-hide-season="${esc(unit)}">Remove</button>`
                       : ""
                   }`
@@ -114,12 +112,12 @@
       <ol class="pe-list">${rows}</ol>
       ${
         hidden.length
-          ? `<h4 class="pe-sub">Removed seasons</h4>
+          ? `<h4 class="pe-sub">Removed from this page</h4>
              <ol class="pe-list">${hidden
                .map(
                  (h) => `
                <li class="pe-row">
-                 <span class="pe-main"><b>${esc(h.title)} · Season ${h.n}</b><small>${h.episodes} episodes · not shown or counted</small></span>
+                 <span class="pe-main"><b>${esc(h.title)} · Season ${h.n}${h.label ? ` · ${esc(h.label)}` : ""}</b><small>${h.episodes} episodes · not shown or counted</small></span>
                  <button class="btn sm" data-restore-season="${esc(h.key)}">Restore</button>
                </li>`,
                )
@@ -165,7 +163,10 @@
     const splits = { ...(DATA.splits || {}) };
     if (cuts.length && keys.length > 1) splits[`s:${showId}:${n}`] = cuts;
     else delete splits[`s:${showId}:${n}`];
-    saveAndReload({ units: rest, splits });
+    const hidden = (DATA.hiddenSeasons || [])
+      .map((h) => h.key)
+      .filter((k) => !new RegExp(`^s:${showId}:${n}p\\d+$`).test(k));
+    saveAndReload({ units: rest, splits, hidden });
   }
 
   function move(from, to) {

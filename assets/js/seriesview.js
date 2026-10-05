@@ -99,6 +99,7 @@
     const hiddenSeasons = [];
     shows = shows.map((sh) => ({
       ...sh,
+      allSeasons: sh.seasons,
       seasons: sh.seasons.filter((se) => {
         const key = `s:${sh.id}:${se.n}`;
         if (!gone.has(key)) return true;
@@ -126,7 +127,19 @@
             episodes: eps,
           });
         }
-        return parts.length > 1 ? parts : [se];
+        if (parts.length < 2) return [se];
+        return parts.filter((part) => {
+          const key = `s:${sh.id}:${part.k}`;
+          if (!gone.has(key)) return true;
+          hiddenSeasons.push({
+            key,
+            title: sh.title,
+            n: se.n,
+            label: part.label,
+            episodes: part.episodes.length,
+          });
+          return false;
+        });
       }),
     }));
     const films = page.films.map((f) => ({ ...f, film: f.key }));

@@ -54,7 +54,7 @@ const Arcs = (() => {
 
   function flatten(show) {
     const out = [];
-    (show.seasons || []).forEach((se) =>
+    (show.allSeasons || show.seasons || []).forEach((se) =>
       se.episodes.forEach((ep) => out.push({ season: se.n, episode: ep.n, title: ep.t, overview: ep.o })),
     );
     return out;
