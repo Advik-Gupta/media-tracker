@@ -455,10 +455,6 @@
         ? UserVault.asUniverses(kind)
         : [];
 
-    /* A built-in show you've already started ticking episodes for (through
-       a list, say) counts as yours too, even though nobody explicitly
-       "added" it - being merely listed somewhere never does that on its
-       own. */
     const mineIds = new Set(mine.map((u) => u.id));
     let trackedBuiltIn = [];
     if (SELF_SERVE) {
@@ -686,9 +682,6 @@
     }
   }
 
-  /* A card that throws while building must never take the rest of the
-     grid down with it - `unshift`-ed new entries land at index 0, so one
-     bad card here used to blank everything after it too. */
   function safeCard(make, j, uni) {
     try {
       return make(j);

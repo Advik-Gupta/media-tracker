@@ -1,16 +1,3 @@
-/* Media Vault service worker.
-
-   Strategy: network-first, cache-as-you-go. Every same-origin GET (pages,
-   CSS, JS, data files) is tried on the network first, and the response is
-   cached for next time; if the network fails - offline, or a flaky
-   connection on a phone - whatever was last cached is served instead.
-   That keeps content fresh on every successful load without needing a
-   build-time list of what to precache, while still making the app usable
-   offline for anything you've already opened.
-
-   /api/* calls are always network-only - search results and episode data
-   should never be served stale from a cache. */
-
 const CACHE = "media-vault-v1";
 
 self.addEventListener("install", (e) => {

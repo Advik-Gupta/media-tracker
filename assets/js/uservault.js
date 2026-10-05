@@ -226,11 +226,6 @@ const UserVault = (() => {
       return out;
     },
 
-    /* ---------- wishlist ----------
-       A reference, not a tracked show: a name and a poster you jotted down
-       to decide on later. It never touches `list()` or the shows/anime
-       grid - only Add show does that. */
-
     wishlist(kind) {
       return read(WISH_KEY, [])
         .filter((x) => !kind || x.kind === kind)
@@ -241,10 +236,6 @@ const UserVault = (() => {
       return this.wishlist().some((x) => String(x.id) === String(tmdbId));
     },
 
-    /** `hit` is the shape a search result already comes in - kept as-is
-     *  (raw `poster_path`, not a resolved URL) so it can be handed straight
-     *  to `transform()` later, without a second search, if this gets
-     *  promoted into an actual tracked show. */
     addWish(hit, kind) {
       const list = read(WISH_KEY, []);
       if (list.some((x) => String(x.id) === String(hit.id))) return false;

@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const ROOT = path.join(__dirname, "..");
+const ROOT = path.join(__dirname, "..", "..");
 const DATA = path.join(ROOT, "assets/js/data");
 const ALL = process.argv.includes("--all");
 

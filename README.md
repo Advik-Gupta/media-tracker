@@ -20,7 +20,6 @@
 - [TMDB](https://www.themoviedb.org/) episode data via [seriesgraph.com](https://seriesgraph.com), proxied through Vercel functions since it sends no CORS header
 - [OMDb](https://www.omdbapi.com/) for movie ratings, cast and plot - called directly from the browser
 - [ratingraph.com](https://www.ratingraph.com/) for the movie/show search used when adding to My List
-- [Open Library](https://openlibrary.org/developers/api) for the books vault - search is proxied (no CORS header either), covers and work details are called directly
 
 **Accounts (optional)**
 
@@ -41,7 +40,6 @@
 - **Hold Tab to switch libraries** - hold it for about three seconds anywhere to cycle Movies → Shows → Anime; a quick tap still behaves as normal keyboard navigation
 - **Analytics** - completion by universe, total runtime logged, best- and worst-rated episodes with the show and episode name attached
 - **Films by country** - an interactive world map linking into per-country lists
-- **Books vault** - search Open Library, shelve a title (want to read / reading / read), rate it, and browse what you've added by author or by category
 - **Share a list** - build a named list of films and hand it out with a short code or a link; no account needed on either end, and a received list can be saved for later
 - **Installable (PWA)** - add it to your phone's home screen for an app-like, full-screen experience with basic offline support for pages you've already opened
 - **Optional accounts** - sign in to sync watch state across devices; everything works fully signed out, saved to that browser only
@@ -57,6 +55,10 @@ npm run serve   # http://localhost:8000
 
 Copy `.env.example` to `.env` and fill in the two Supabase values if you want accounts - see [Accounts](#accounts-optional) below. Everything else works with no environment at all.
 
+## Design
+
+Dark is the default; the toggle in the top bar switches to light and the choice is remembered. Each library has its own look, defined in `assets/css/libraries.css`: Movies is a cinema marquee (amber, condensed poster type, a ticket), Shows is a broadcast screen (cool tones, channel readout, colour bars), and Anime is Japanese-inspired (indigo and vermilion, Mincho type, a wave crest, drifting petals that can be turned off in the footer). Moving between libraries plays a matching transition. `Cmd/Ctrl+K` or `/` opens search across every library and page. On phones the library switcher is a bottom tab bar and dialogs open as bottom sheets.
+
 ## Layout
 
 ```
@@ -67,13 +69,18 @@ api/
   show/[id]/seasons.js        season-by-season detail
 build/
   build.js                   renders every page + generated CSS/JS indexes
-  *.ejs                       page templates
-  seriesgraph.js              CLI: add/remove/merge curated show & anime entries
-  *.js                        one-off and maintenance scripts (posters, imports, links)
+  templates/                  page templates (EJS); partials/ holds the shared head and logo
+  tools/                      maintenance CLIs: seriesgraph, list import, posters, links
 assets/
-  css/                        base tokens + one stylesheet per page family
+  css/
+    base.css                  design tokens, shared components, light and dark themes
+    libraries.css             the Movies, Shows and Anime looks (palette, type, motifs, transitions)
+    home/tracker/series/analytics.css   one stylesheet per page family
+  img/brand/                  logo and the anime crest
   js/
     store.js                  durable progress, shared across every page
+    modes.js                  library switcher, phone tab bar, theme toggle, search palette, petals
+    arcs.js                   story arcs on anime pages and the episode tooltip
     home.js, tracker.js       vault grids and per-universe tracking UI
     uservault.js              the per-visitor shows/anime vault (local storage)
     seriesview.js, movieview.js   dynamic detail pages, fetched on arrival
@@ -117,7 +124,7 @@ No HTML or CSS to touch - movie universes and lists are added the same way as be
 
 The build refuses to run if a dataset is inconsistent - an unknown type, relevance tier, or a watch block with no matching phase.
 
-Curated shows and anime (the ones behind **Best Mini Series**, **Top Rated Shows**, etc.) go through `npm run series` instead - see `build/seriesgraph.js` for its subcommands. Anything a visitor adds through **+ Add show** never touches these files; it stays in their own browser or account.
+Curated shows and anime (the ones behind **Best Mini Series**, **Top Rated Shows**, etc.) go through `npm run series` instead - see `build/tools/seriesgraph.js` for its subcommands. Anything a visitor adds through **+ Add show** never touches these files; it stays in their own browser or account.
 
 #### AI Disclosure
 

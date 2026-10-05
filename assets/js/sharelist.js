@@ -38,8 +38,6 @@
     saveSavedLists(savedLists().filter((x) => x.code !== code));
   }
 
-  /* ---------- tabs ---------- */
-
   const tabs = document.querySelectorAll(".sl-tabs [data-tab]");
   const panels = { create: document.getElementById("slCreate"), open: document.getElementById("slOpen") };
   function showTab(name) {
@@ -47,8 +45,6 @@
     Object.entries(panels).forEach(([k, el]) => (el.hidden = k !== name));
   }
   tabs.forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
-
-  /* ---------- create ---------- */
 
   const createBody = document.getElementById("slCreateBody");
   let draft = [];
@@ -244,8 +240,6 @@
     });
   }
 
-  /* ---------- open ---------- */
-
   const openBody = document.getElementById("slOpenBody");
 
   function renderOpenForm(message) {
@@ -326,8 +320,6 @@
     }
   }
 
-  /* ---------- saved lists ---------- */
-
   function renderSaved() {
     const wrap = document.getElementById("slSaved");
     const lists = savedLists();
@@ -365,8 +357,6 @@
       }),
     );
   }
-
-  /* ---------- boot ---------- */
 
   renderCreate();
   renderOpenForm();

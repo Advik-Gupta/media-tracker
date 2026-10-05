@@ -1,12 +1,12 @@
 .hero {
-  padding-top: var(--s6);
-  padding-bottom: var(--s4);
+  padding-top: var(--s5);
+  padding-bottom: var(--s3);
 }
 .hero-accent {
-  color: var(--gold);
+  color: var(--muted);
 }
 .hero .lede {
-  margin-top: var(--s3);
+  margin-top: var(--s2);
 }
 
 .countdown {
@@ -43,7 +43,7 @@
 
 .controls {
   position: sticky;
-  top: 56px;
+  top: 60px;
   z-index: 60;
   background: var(--bg);
   border-top: 1px solid var(--line);
@@ -66,7 +66,7 @@
   display: flex;
   align-items: center;
   gap: var(--s3);
-  padding: 12px 0;
+  padding-block: 12px;
   flex-wrap: wrap;
 }
 
@@ -192,8 +192,8 @@
     color 0.12s var(--ease-out);
 }
 .viewswitch button.active {
-  background: var(--gold);
-  color: var(--ink);
+  background: var(--hover-strong);
+  color: var(--text);
 }
 .viewswitch button:not(.active):hover {
   color: var(--bone);
@@ -372,15 +372,11 @@
   width: 50%;
   padding: 0 40px 14px 0;
   opacity: 0;
-  transform: translateX(-34px);
-  transition:
-    opacity 0.3s var(--ease-out),
-    transform 0.3s var(--ease-out);
+  transition: opacity var(--dur-2) var(--ease-out);
 }
 .tl-item.right {
   margin-left: 50%;
   padding: 0 0 14px 40px;
-  transform: translateX(34px);
 }
 .tl-item.in {
   opacity: 1;
@@ -428,7 +424,7 @@
   padding: var(--s2);
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--field);
   transition:
     border-color 0.15s var(--ease-out),
     background 0.15s var(--ease-out),
@@ -440,8 +436,7 @@
 }
 .tl-card:hover {
   border-color: color-mix(in srgb, var(--rc) 45%, transparent);
-  background: rgba(255, 255, 255, 0.04);
-  transform: translateY(-2px);
+  background: var(--hover);
 }
 
 .tl-item.done .tl-card {
@@ -747,7 +742,7 @@
   position: fixed;
   inset: 0;
   z-index: 150;
-  background: rgba(20, 22, 28, 0.82);
+  background: var(--scrim);
   opacity: 0;
   transition: opacity 0.12s var(--ease-out);
 }
@@ -922,7 +917,6 @@
     width: 100%;
     margin-left: 0;
     padding: 0 0 22px 46px;
-    transform: translateX(24px);
   }
   .tl-item.in {
     transform: none;
@@ -1213,3 +1207,18 @@
   opacity: 1;
 }
 .pcard:hover .pcard-info { background: rgba(10, 11, 14, 0.9); }
+
+@media (max-width: 640px) {
+  .controls { top: 52px; }
+}
+
+body[data-mode="anime"] .stamp {
+  font-size: 0;
+  border-radius: 3px;
+}
+body[data-mode="anime"] .stamp::after {
+  content: "済";
+  font-family: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-size: 22px;
+  font-weight: 700;
+}

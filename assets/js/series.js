@@ -246,7 +246,6 @@
       </article>`;
   }
 
-  // Draws arc lines for the anime show. Safe to call often; a failure is logged, never thrown.
   function redrawArcs() {
     if (!canMarkFiller || typeof Arcs === "undefined" || !DATA.shows[0]) return;
     try {
@@ -286,8 +285,8 @@
       arcsSwitch.setAttribute("aria-checked", String(Arcs.enabled()));
     }
     updateSummary();
-    // Re-renders show at once: a long episode list is too tall for the scroll-in reveal to ever trigger.
-    if (painted) root.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
+    if (painted)
+      root.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
     painted = true;
     if (typeof initReveal === "function") initReveal();
   }

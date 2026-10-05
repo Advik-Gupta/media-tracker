@@ -4,40 +4,61 @@
     <meta charset="UTF-8" />
     <base href="../../" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mission: Impossible - Media Vault</title>
-    <meta name="description" content="Every Mission: Impossible film and series, sorted four ways, with progress tracking." />
+    <meta name="color-scheme" content="dark light" />
+    <style>@view-transition { navigation: auto; }</style>
+    <meta name="theme-color" content="#121110" />
+    <script>
+      (function () {
+        var t = "system";
+        try { t = localStorage.getItem("mediavault.theme") || "system"; } catch (e) {}
+        var light = t === "light" || (t === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.documentElement.dataset.theme = light ? "light" : "dark";
+        document.documentElement.dataset.themePref = t;
+      })();
+      (function () {
+        var p = location.pathname;
+        var here = /\/pages\/shows(\/|\.html)/.test(p) ? 1 : /\/pages\/anime(\/|\.html)/.test(p) ? 2 : 0;
+        if (/\/pages\/(account|analytics|sharelist)\.html/.test(p)) return;
+        var was = null;
+        try {
+          was = sessionStorage.getItem("mv.lib");
+          sessionStorage.setItem("mv.lib", String(here));
+        } catch (e) {}
+        if (was !== null && Number(was) !== here)
+          document.documentElement.dataset.nav = here > Number(was) ? "forward" : "back";
+        document.documentElement.dataset.lib = ["movie", "show", "anime"][here];
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Inter:wght@400;450;500;600;650;700&family=Agdasima:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="assets/css/base.css?v=11ed68de" />
-    <link rel="stylesheet" href="assets/css/universes.css?v=46e45a19" />
-    <link rel="stylesheet" href="assets/css/tracker.css?v=eca78714" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23e0672b'/%3E%3C/svg%3E"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Inter:wght@400;450;500;600;650;700&family=Agdasima:wght@400;700&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#0c0e11" />
     <link rel="apple-touch-icon" href="assets/img/pwa/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Media Vault" />
+    <link rel="stylesheet" href="assets/css/libraries.css?v=1723bbfb" />
+
+    <title>Mission: Impossible - Media Vault</title>
+    <meta name="description" content="Every Mission: Impossible film and series, sorted four ways, with progress tracking." />
+    <link rel="stylesheet" href="assets/css/base.css?v=e64651e1" />
+    <link rel="stylesheet" href="assets/css/universes.css?v=51372fb5" />
+    <link rel="stylesheet" href="assets/css/tracker.css?v=ae928430" />
+    <link rel="icon" href="assets/img/brand/logo.svg" type="image/svg+xml" />
   </head>
   <body data-mode="movie" data-kind="movie" data-universe="mi" class="u-mi">
     <div class="page">
       <header class="topbar">
         <div class="wrap topbar-inner">
           <a class="brand" href="index.html">
-            <span class="brand-mark">MV</span>
+            <svg class="brand-mark" viewBox="0 0 32 32" fill="none" stroke-width="3.4" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M6 25V7l10 12.5L26 7v18" stroke="currentColor"/><path d="M6 7l10 12.5L26 7" stroke="var(--accent)"/></svg>
             <span>Media Vault</span>
           </a>
           <span class="crumb">/ Mission: Impossible</span>
           <span class="topbar-spacer"></span>
           <span id="acctChip"></span>
-          <a class="nav-link" href="pages/watchlist.html">★ My List</a>
+          <a class="nav-link" href="pages/watchlist.html">My List</a>
           <button
             class="btn btn-ghost"
             id="jumpNext"
@@ -195,7 +216,7 @@
 
       <footer class="footer">
         <div class="wrap footer-inner">
-          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <a class="foot-link" href="pages/analytics.html">Analytics</a>
           <span>8 entries · progress stored locally</span>
           <span><a href="index.html">← All universes</a></span>
         </div>
@@ -209,14 +230,14 @@
     </aside>
 
     <script src="assets/js/config.js?v=76725673"></script>
-    <script src="assets/js/store.js?v=aa41165b"></script>
-    <script src="assets/js/cloud.js?v=b5e50792"></script>
+    <script src="assets/js/store.js?v=017c8229"></script>
+    <script src="assets/js/cloud.js?v=cda691bf"></script>
     <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
     <script src="assets/js/lightbox.js?v=d5f48017"></script>
     <script src="assets/js/data/_films.js?v=f0504df5"></script>
     <script src="assets/js/data/series/_counts.js?v=82fe4d27"></script>
     <script src="assets/js/data/universes.js?v=a539ba72"></script>
-    <script src="assets/js/modes.js?v=4f1ea5a4"></script>
+    <script src="assets/js/modes.js?v=cf73c97d"></script>
     <script src="assets/js/data/mi.js?v=179cc4fe"></script>
     <script src="assets/js/tracker.js?v=89965151"></script>
     <script src="assets/js/account.js?v=8a75cf76"></script>

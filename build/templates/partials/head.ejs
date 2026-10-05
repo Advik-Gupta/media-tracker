@@ -1,0 +1,35 @@
+<meta name="color-scheme" content="dark light" />
+    <style>@view-transition { navigation: auto; }</style>
+    <meta name="theme-color" content="#121110" />
+    <script>
+      (function () {
+        var t = "system";
+        try { t = localStorage.getItem("mediavault.theme") || "system"; } catch (e) {}
+        var light = t === "light" || (t === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.documentElement.dataset.theme = light ? "light" : "dark";
+        document.documentElement.dataset.themePref = t;
+      })();
+      (function () {
+        var p = location.pathname;
+        var here = /\/pages\/shows(\/|\.html)/.test(p) ? 1 : /\/pages\/anime(\/|\.html)/.test(p) ? 2 : 0;
+        if (/\/pages\/(account|analytics|sharelist)\.html/.test(p)) return;
+        var was = null;
+        try {
+          was = sessionStorage.getItem("mv.lib");
+          sessionStorage.setItem("mv.lib", String(here));
+        } catch (e) {}
+        if (was !== null && Number(was) !== here)
+          document.documentElement.dataset.nav = here > Number(was) ? "forward" : "back";
+        document.documentElement.dataset.lib = ["movie", "show", "anime"][here];
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Inter:wght@400;450;500;600;650;700&family=Agdasima:wght@400;700&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="assets/img/pwa/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Media Vault" />
+    <link rel="stylesheet" href="assets/css/libraries.css" />

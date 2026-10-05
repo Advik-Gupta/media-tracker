@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const DATA = path.join(__dirname, "..", "assets/js/data");
+const DATA = path.join(__dirname, "..", "..", "assets/js/data");
 const WRITE = process.argv.includes("--write");
 
 const ctx = { window: {}, console };

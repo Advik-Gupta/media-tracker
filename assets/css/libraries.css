@@ -1,0 +1,430 @@
+body[data-mode="movie"] {
+  --ink: #130f0e;
+  --slate: #1b1513;
+  --surface-2: #241c19;
+  --surface-3: #2e2420;
+  --bg: var(--ink);
+  --surface: var(--slate);
+  --accent: #e9ae45;
+  --accent-2: #6b4a12;
+  --line: rgba(255, 226, 190, 0.09);
+  --line-strong: rgba(255, 226, 190, 0.17);
+}
+body[data-mode="show"] {
+  --ink: #0c1114;
+  --slate: #12191d;
+  --surface-2: #182227;
+  --surface-3: #202c32;
+  --bg: var(--ink);
+  --surface: var(--slate);
+  --bone: #e6eef0;
+  --text: var(--bone);
+  --fog: #94a5ab;
+  --muted: var(--fog);
+  --accent: #5ed3c6;
+  --accent-2: #1d4f4a;
+  --line: rgba(200, 240, 245, 0.09);
+  --line-strong: rgba(200, 240, 245, 0.17);
+  --primary: var(--bone);
+}
+body[data-mode="anime"] {
+  --ink: #101018;
+  --slate: #171722;
+  --surface-2: #1e1e2b;
+  --surface-3: #272736;
+  --bg: var(--ink);
+  --surface: var(--slate);
+  --bone: #f1e9dc;
+  --text: var(--bone);
+  --fog: #a59fa8;
+  --muted: var(--fog);
+  --accent: #e8573f;
+  --accent-2: #6e2116;
+  --line: rgba(241, 225, 215, 0.09);
+  --line-strong: rgba(241, 225, 215, 0.17);
+  --primary: var(--accent);
+  --on-primary: #fff6ee;
+  --petal: #f2b5c4;
+  --radius-sm: 3px;
+  --radius: 4px;
+  --radius-lg: 6px;
+}
+
+[data-theme="light"] body[data-mode="movie"] {
+  --ink: #f6efe4;
+  --slate: #fdf8f0;
+  --surface-2: #efe5d5;
+  --surface-3: #e5d9c6;
+  --accent: #a2670d;
+  --line: rgba(60, 35, 10, 0.11);
+  --line-strong: rgba(60, 35, 10, 0.2);
+}
+[data-theme="light"] body[data-mode="show"] {
+  --ink: #eef3f4;
+  --slate: #f9fbfb;
+  --surface-2: #e2eaec;
+  --surface-3: #d5dfe2;
+  --bone: #101a1e;
+  --fog: #52646a;
+  --accent: #117a70;
+  --line: rgba(10, 40, 50, 0.1);
+  --line-strong: rgba(10, 40, 50, 0.19);
+}
+[data-theme="light"] body[data-mode="anime"] {
+  --ink: #f4ede1;
+  --slate: #fbf6ec;
+  --surface-2: #ebe2d2;
+  --surface-3: #e0d5c2;
+  --bone: #1d1a22;
+  --fog: #635c66;
+  --accent: #c8361f;
+  --line: rgba(40, 25, 35, 0.11);
+  --line-strong: rgba(40, 25, 35, 0.2);
+  --on-primary: #fff;
+  --petal: #e58aa3;
+}
+html:has(body[data-mode="movie"]) { background: #130f0e; }
+html:has(body[data-mode="show"]) { background: #0c1114; }
+html:has(body[data-mode="anime"]) { background: #101018; }
+html[data-theme="light"]:has(body[data-mode="movie"]) { background: #f6efe4; }
+html[data-theme="light"]:has(body[data-mode="show"]) { background: #eef3f4; }
+html[data-theme="light"]:has(body[data-mode="anime"]) { background: #f4ede1; }
+
+body[data-mode="show"] h1 {
+  font-family: var(--sans);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+body[data-mode="show"] .eyebrow {
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: 0.12em;
+}
+body[data-mode="anime"] h1,
+body[data-mode="anime"] h2,
+body[data-mode="anime"] .uni-card h3 {
+  font-family: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+body[data-mode="anime"] h1 { line-height: 1.15; }
+body[data-mode="anime"] .section-bar h2::after {
+  content: attr(data-kana);
+  margin-left: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.hero { position: relative; }
+.hero-art {
+  position: absolute;
+  right: 48px;
+  top: var(--s4);
+  pointer-events: none;
+}
+
+.ticket {
+  display: flex;
+  width: 330px;
+  height: 148px;
+  color: var(--accent);
+  font-family: var(--display);
+  text-transform: uppercase;
+  transform: rotate(-4deg);
+  top: calc(var(--s4) + 12px);
+}
+.ticket-main,
+.ticket-stub {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1.5px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--bg));
+}
+.ticket-main {
+  flex: 1;
+  border-right: 0;
+  border-radius: 10px 0 0 10px;
+  -webkit-mask: radial-gradient(circle 9px at 100% 0, transparent 98%, #000) top / 100% 51% no-repeat, radial-gradient(circle 9px at 100% 100%, transparent 98%, #000) bottom / 100% 51% no-repeat;
+  mask: radial-gradient(circle 9px at 100% 0, transparent 98%, #000) top / 100% 51% no-repeat, radial-gradient(circle 9px at 100% 100%, transparent 98%, #000) bottom / 100% 51% no-repeat;
+}
+.ticket-stub {
+  width: 84px;
+  border-left: 1.5px dashed var(--accent);
+  border-radius: 0 10px 10px 0;
+  -webkit-mask: radial-gradient(circle 9px at 0 0, transparent 98%, #000) top / 100% 51% no-repeat, radial-gradient(circle 9px at 0 100%, transparent 98%, #000) bottom / 100% 51% no-repeat;
+  mask: radial-gradient(circle 9px at 0 0, transparent 98%, #000) top / 100% 51% no-repeat, radial-gradient(circle 9px at 0 100%, transparent 98%, #000) bottom / 100% 51% no-repeat;
+}
+.ticket-main::before,
+.ticket-main::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 22px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+.ticket-main::before { top: 12px; }
+.ticket-main::after { bottom: 12px; }
+.ticket small {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  opacity: 0.85;
+}
+.ticket b {
+  font-size: 44px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.ticket-stub b {
+  font-family: var(--mono);
+  font-size: 24px;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.1em;
+}
+.ticket-stub small { writing-mode: vertical-rl; }
+.ticket-stub { flex-direction: row; gap: 6px; }
+
+.osd {
+  width: 300px;
+  height: 196px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid var(--line-strong);
+  border-radius: 22px / 26px;
+  background: #060b0d;
+  color: #5ed3c6;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(94, 211, 198, 0.08);
+}
+.osd::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+.osd::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -30%;
+  height: 30%;
+  background: linear-gradient(to bottom, transparent, rgba(94, 211, 198, 0.1), transparent);
+  animation: osd-sweep 5s linear infinite;
+}
+@keyframes osd-sweep { to { top: 110%; } }
+.osd-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.osd-ch {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  text-shadow: 0 0 12px rgba(94, 211, 198, 0.55);
+}
+.osd-ch small { font-size: 18px; letter-spacing: 0.1em; }
+.osd-ch b { font-size: 68px; font-weight: 700; line-height: 0.9; }
+.osd-live {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  color: #ff6a5c;
+}
+.osd-live::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: osd-blink 1.4s steps(2, jump-none) infinite;
+}
+@keyframes osd-blink { 50% { opacity: 0.15; } }
+.osd-line { font-size: 15px; letter-spacing: 0.14em; opacity: 0.8; }
+.osd-bars { display: flex; height: 22px; }
+.osd-bars i { flex: 1; }
+.osd-bars i:nth-child(1) { background: #c9c9c4; }
+.osd-bars i:nth-child(2) { background: #cfc64f; }
+.osd-bars i:nth-child(3) { background: #55c8c8; }
+.osd-bars i:nth-child(4) { background: #58c267; }
+.osd-bars i:nth-child(5) { background: #c05fc0; }
+.osd-bars i:nth-child(6) { background: #cf5346; }
+.osd-bars i:nth-child(7) { background: #4a62c8; }
+
+.hero-emblem {
+  width: 200px;
+  height: 200px;
+  background: color-mix(in srgb, var(--text) 30%, transparent);
+  -webkit-mask: url("../img/brand/emblem-anime.svg") center / contain no-repeat;
+  mask: url("../img/brand/emblem-anime.svg") center / contain no-repeat;
+}
+body[data-mode="anime"] .hero:has(.hero-emblem)::before {
+  content: "";
+  position: absolute;
+  right: calc(48px + 100px - 26px);
+  top: calc(var(--s4) + 38px);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: sun-rise 1.2s var(--ease) both;
+}
+@keyframes sun-rise {
+  from { transform: translateY(46px); opacity: 0; }
+}
+body[data-mode="anime"] .hero:has(.hero-emblem)::after {
+  content: "アニメ鑑賞録";
+  position: absolute;
+  right: calc(48px + 200px + 24px);
+  top: var(--s4);
+  height: 200px;
+  text-align: center;
+  writing-mode: vertical-rl;
+  font-family: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-size: 15px;
+  letter-spacing: 0.5em;
+  color: var(--dim);
+}
+
+.hero:has(.hero-art) .hero-stats {
+  position: relative;
+  border-top: 0;
+}
+.hero:has(.hero-art) .hero-stats::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -5px;
+}
+body[data-mode="movie"] .hero:has(.hero-art) .hero-stats::before,
+body[data-mode="movie"] .hero:has(.hero-art) .hero-stats::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -5px;
+  height: 8px;
+  background: radial-gradient(circle 3px at 4px 4px, var(--accent) 96%, transparent) 0 0 / 32px 8px repeat-x;
+  animation: bulbs 1.6s steps(2, jump-none) infinite;
+}
+body[data-mode="movie"] .hero:has(.hero-art) .hero-stats::after {
+  background-position: 16px 0;
+  animation-delay: -0.8s;
+}
+@keyframes bulbs { 50% { opacity: 0.22; } }
+body[data-mode="show"] .hero:has(.hero-art) .hero-stats::before {
+  height: 4px;
+  top: -2px;
+  background: linear-gradient(to right, #c9c9c4 0 14.28%, #cfc64f 0 28.57%, #55c8c8 0 42.85%, #58c267 0 57.14%, #c05fc0 0 71.42%, #cf5346 0 85.71%, #4a62c8 0);
+  opacity: 0.8;
+}
+body[data-mode="anime"] .hero:has(.hero-art) .hero-stats::before {
+  height: 14px;
+  top: -8px;
+  background: var(--line-strong);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' fill='none' stroke='%23000' stroke-width='1.2'%3E%3Cpath d='M0 14a14 14 0 0 1 28 0M5 14a9 9 0 0 1 18 0M10 14a4 4 0 0 1 8 0'/%3E%3C/svg%3E") 0 0 / 28px 14px repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' fill='none' stroke='%23000' stroke-width='1.2'%3E%3Cpath d='M0 14a14 14 0 0 1 28 0M5 14a9 9 0 0 1 18 0M10 14a4 4 0 0 1 8 0'/%3E%3C/svg%3E") 0 0 / 28px 14px repeat-x;
+}
+
+body[data-mode="anime"] .uni-card { border-radius: 4px; }
+body[data-mode="anime"] .uni-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 3px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--dur-3) var(--ease);
+}
+body[data-mode="anime"] .uni-card:hover::after { transform: scaleY(1); }
+body[data-mode="show"] .uni-card { border-radius: 14px / 16px; }
+body[data-mode="movie"] .uni-card { border-radius: 3px; }
+
+.petals {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.petal {
+  position: absolute;
+  top: -24px;
+  left: var(--x);
+  width: var(--s);
+  height: calc(var(--s) * 0.82);
+  background: var(--petal);
+  border-radius: 80% 0 80% 0;
+  opacity: var(--o);
+  animation:
+    petal-fall var(--t) linear var(--d) infinite,
+    petal-sway calc(var(--t) / 3.3) ease-in-out var(--d) infinite alternate;
+}
+@keyframes petal-fall {
+  to { top: 104vh; rotate: 540deg; }
+}
+@keyframes petal-sway {
+  from { translate: -30px 0; }
+  to { translate: 46px 0; }
+}
+
+:root[data-nav]::view-transition-old(root) {
+  animation: vt-fade-out 0.2s var(--ease-out) both;
+}
+:root[data-nav][data-lib="movie"]::view-transition-new(root) {
+  animation: vt-iris 0.7s var(--ease) both;
+}
+:root[data-nav][data-lib="show"]::view-transition-new(root) {
+  animation: vt-crt 0.55s var(--ease) both;
+}
+:root[data-nav][data-lib="anime"]::view-transition-new(root) {
+  animation: vt-shoji 0.7s var(--ease) both;
+}
+@keyframes vt-iris {
+  from { clip-path: circle(0% at 50% 45%); }
+  to { clip-path: circle(120% at 50% 45%); }
+}
+@keyframes vt-crt {
+  0% { transform: scale(1, 0.004); filter: brightness(3); }
+  35% { transform: scale(1, 0.004); filter: brightness(3); }
+  100% { transform: none; filter: none; }
+}
+@keyframes vt-shoji {
+  from { clip-path: inset(0 50% 0 50%); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@media (max-width: 1100px) {
+  .hero-art,
+  body[data-mode="anime"] .hero:has(.hero-emblem)::before,
+  body[data-mode="anime"] .hero:has(.hero-emblem)::after {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .petals { display: none; }
+}

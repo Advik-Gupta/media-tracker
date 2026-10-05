@@ -195,8 +195,6 @@
 
   paint();
 
-  /* Repaint on any store change - a cloud sync landing, or an accounts
-     pull on load, should never need a manual reload to show up. */
   if (typeof Store !== "undefined" && Store.onChange) {
     Store.onChange(() => paint());
   }

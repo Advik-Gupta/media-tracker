@@ -11,11 +11,20 @@ assets/js/config.js
 
 # Local scratch from the enrichment and poster scripts. The results are
 # committed inside assets/js/data; these are just the working files.
-build/.rg-cache.json
-build/*.tsv
+build/tools/.rg-cache.json
+build/tools/*.tsv
 sweep_out.tsv
 *.log
 CLAUDE.MD
 AGENTS.MD
-# Local test screenshots
-arcs-screenshots/
+
+# AI assistant files and local test output
+CLAUDE.md
+CLAUDE.MD
+AGENTS.md
+AGENTS.MD
+CLAUDE_DESIGN_GUIDELINES.md
+.claude/
+.cursor/
+.agents/
+ui-screenshots/

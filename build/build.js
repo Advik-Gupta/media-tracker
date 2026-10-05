@@ -33,6 +33,8 @@ function writeHtml(file, html) {
 }
 
 const ROOT = path.join(__dirname, "..");
+const TPL = path.join(__dirname, "templates");
+const render = (tpl, data) => ejs.render(tpl, data, { views: [TPL] });
 const DATA = path.join(ROOT, "assets/js/data");
 
 function loadRegistry() {
@@ -55,8 +57,7 @@ function loadCatalogues() {
       f === "universes.js" ||
       f === "countries.js" ||
       f.startsWith("_") ||
-      f === "series" ||
-      f === "books"
+      f === "series"
     )
       continue;
     try {
@@ -396,7 +397,6 @@ function sweepPages() {
   for (const v of Object.values(VAULTS)) if (v.list) wanted.add(v.list);
   wanted.add("pages/account.html");
   wanted.add("pages/sharelist.html");
-  wanted.add("pages/books.html");
   wanted.add("pages/movies/view.html");
   wanted.add("pages/shows/view.html");
   wanted.add("pages/anime/view.html");
@@ -450,9 +450,9 @@ window.MV_CONFIG = {
 }
 const cloudConfigured = writeConfig();
 
-const uniTpl = fs.readFileSync(path.join(__dirname, "universe.ejs"), "utf8");
-const seriesTpl = fs.readFileSync(path.join(__dirname, "series.ejs"), "utf8");
-const idxTpl = fs.readFileSync(path.join(__dirname, "index.ejs"), "utf8");
+const uniTpl = fs.readFileSync(path.join(TPL, "universe.ejs"), "utf8");
+const seriesTpl = fs.readFileSync(path.join(TPL, "series.ejs"), "utf8");
+const idxTpl = fs.readFileSync(path.join(TPL, "index.ejs"), "utf8");
 
 const EPISODIC = new Set(["show", "anime"]);
 const isDynamic = (u) =>
@@ -468,50 +468,37 @@ for (const u of universes) {
   }
   writeHtml(
     pagePath(u.kind, u.id),
-    ejs.render(uniTpl, { u, vault: vaultOf(u), base: PAGE_BASE }),
+    render(uniTpl, { u, vault: vaultOf(u), base: PAGE_BASE }),
   );
   pages++;
 }
 
 writeHtml(
   "pages/account.html",
-  ejs.render(fs.readFileSync(path.join(__dirname, "account.ejs"), "utf8"), {
+  render(fs.readFileSync(path.join(TPL, "account.ejs"), "utf8"), {
     base: "../",
   }),
 );
 
 writeHtml(
   "pages/sharelist.html",
-  ejs.render(fs.readFileSync(path.join(__dirname, "sharelist.ejs"), "utf8"), {
+  render(fs.readFileSync(path.join(TPL, "sharelist.ejs"), "utf8"), {
     base: "../",
-  }),
-);
-
-const bookCollectionsDir = path.join(DATA, "books");
-const bookCollections = fs.existsSync(bookCollectionsDir)
-  ? fs.readdirSync(bookCollectionsDir).filter((f) => f.endsWith(".js"))
-  : [];
-
-writeHtml(
-  "pages/books.html",
-  ejs.render(fs.readFileSync(path.join(__dirname, "books.ejs"), "utf8"), {
-    base: "../",
-    bookCollections,
   }),
 );
 
 writeHtml(
   "pages/movies/view.html",
-  ejs.render(fs.readFileSync(path.join(__dirname, "movie.ejs"), "utf8"), {
+  render(fs.readFileSync(path.join(TPL, "movie.ejs"), "utf8"), {
     base: PAGE_BASE,
   }),
 );
 
-const viewTpl = fs.readFileSync(path.join(__dirname, "view.ejs"), "utf8");
+const viewTpl = fs.readFileSync(path.join(TPL, "view.ejs"), "utf8");
 for (const mode of ["show", "anime"]) {
   writeHtml(
     `pages/${mode === "anime" ? "anime" : "shows"}/view.html`,
-    ejs.render(viewTpl, { vault: VAULTS[mode], base: PAGE_BASE }),
+    render(viewTpl, { vault: VAULTS[mode], base: PAGE_BASE }),
   );
 }
 void seriesTpl;
@@ -525,31 +512,31 @@ const collections = (() => {
   return ctx.window.COLLECTIONS || {};
 })();
 
-const colTpl = fs.readFileSync(path.join(__dirname, "collection.ejs"), "utf8");
+const colTpl = fs.readFileSync(path.join(TPL, "collection.ejs"), "utf8");
 for (const c of Object.values(collections)) {
   const vault = VAULTS[c.kind] || VAULTS.movie;
   const members = universes.filter((u) => c.members.includes(u.id));
   writeHtml(
     pagePath(c.kind, c.id),
-    ejs.render(colTpl, { c, vault, universes: members, base: PAGE_BASE }),
+    render(colTpl, { c, vault, universes: members, base: PAGE_BASE }),
   );
 }
 
-const wlTpl = fs.readFileSync(path.join(__dirname, "watchlist.ejs"), "utf8");
+const wlTpl = fs.readFileSync(path.join(TPL, "watchlist.ejs"), "utf8");
 {
   const vault = VAULTS.movie;
   const mine = universes.filter((u) => vaultOf(u) === vault);
   writeHtml(
     vault.list,
-    ejs.render(wlTpl, { universes: mine, vault, base: "../" }),
+    render(wlTpl, { universes: mine, vault, base: "../" }),
   );
 }
 
-const wishTpl = fs.readFileSync(path.join(__dirname, "wishlist.ejs"), "utf8");
+const wishTpl = fs.readFileSync(path.join(TPL, "wishlist.ejs"), "utf8");
 for (const mode of ["show", "anime"]) {
   writeHtml(
     VAULTS[mode].list,
-    ejs.render(wishTpl, { vault: VAULTS[mode], base: "../../" }),
+    render(wishTpl, { vault: VAULTS[mode], base: "../../" }),
   );
 }
 
@@ -571,7 +558,7 @@ const totalEntries = new Set(
 
 writeHtml(
   "pages/analytics.html",
-  ejs.render(fs.readFileSync(path.join(__dirname, "analytics.ejs"), "utf8"), {
+  render(fs.readFileSync(path.join(TPL, "analytics.ejs"), "utf8"), {
     universes,
     base: "../",
   }),
@@ -579,7 +566,7 @@ writeHtml(
 
 writeHtml(
   "index.html",
-  ejs.render(idxTpl, {
+  render(idxTpl, {
     base: "",
     universes,
     sections: SECTIONS,
@@ -588,8 +575,8 @@ writeHtml(
   }),
 );
 
-const showsTpl = fs.readFileSync(path.join(__dirname, "shows.ejs"), "utf8");
-const animeTpl = fs.readFileSync(path.join(__dirname, "anime.ejs"), "utf8");
+const showsTpl = fs.readFileSync(path.join(TPL, "shows.ejs"), "utf8");
+const animeTpl = fs.readFileSync(path.join(TPL, "anime.ejs"), "utf8");
 
 function entriesFor(vaultUniverses) {
   return new Set(
@@ -611,7 +598,7 @@ for (const [mode, tpl, sectionTitle] of [
   const vaultUniverses = universes.filter((u) => vaultOf(u) === VAULTS[mode]);
   writeHtml(
     VAULTS[mode].home,
-    ejs.render(tpl, {
+    render(tpl, {
       base: "../",
       universes: vaultUniverses,
       sections: [
@@ -624,7 +611,7 @@ for (const [mode, tpl, sectionTitle] of [
   );
 }
 
-const countriesTpl = fs.readFileSync(path.join(__dirname, "countries.ejs"), "utf8");
+const countriesTpl = fs.readFileSync(path.join(TPL, "countries.ejs"), "utf8");
 const countryLists = (() => {
   const ctx = { window: {}, console };
   vm.createContext(ctx);
@@ -638,24 +625,25 @@ const countryLists = (() => {
 })();
 writeHtml(
   "pages/countries.html",
-  ejs.render(countriesTpl, {
+  render(countriesTpl, {
     base: "../",
     countryLists,
     vault: VAULTS.movie,
   }),
 );
 
+function onAccent(hex) {
+  const n = parseInt(hex.replace("#", ""), 16);
+  const lin = (c) => ((c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+  return L > 0.22 ? "#1a1512" : "#fff";
+}
+
 const css = [
-  "/* ============================================================",
-  "   UNIVERSE ACCENTS - generated by build/build.js.",
-  "   Do not edit; change the accent in assets/js/data/universes.js",
-  "   and run `npm run build`.",
-  "   ============================================================ */",
-  "",
   ...universes.map(
     (u) =>
-      `body.u-${u.id} { --accent: ${u.accent}; --accent-2: ${u.accent2}; ` +
-      `--accent-soft: color-mix(in srgb, ${u.accent} 14%, transparent); }`,
+      `body.u-${u.id} { --accent: ${u.accent}; --accent-2: ${u.accent2}; --on-accent: ${onAccent(u.accent)}; }\n` +
+      `[data-theme="light"] body.u-${u.id} { --accent: color-mix(in srgb, ${u.accent} 68%, #000); --on-accent: #fff; }`,
   ),
   "",
 ].join("\n");

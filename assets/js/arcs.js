@@ -1,10 +1,3 @@
-/* Arcs - named story runs inside a long anime that has no real seasons.
-   Ranges are absolute episode numbers across the whole series, so
-   "Wano 892-1085" means the 892nd to 1085th episode in order. Stored per
-   show in this browser (and synced like everything else with mediavault.*).
-   Arcs show as faint lines in the gaps of the episode grid, with a tooltip
-   on each tile; the editor opens in a popup from the show header. */
-
 const Arcs = (() => {
   const KEY = "mediavault.arcs";
   const VIEW_KEY = "mediavault.arcsview";
@@ -18,7 +11,6 @@ const Arcs = (() => {
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
     );
 
-  /* An open arc (still airing) has no end yet: it runs to the latest episode. */
   const endOf = (arc, count) => (arc.open ? count : Math.min(arc.to, count));
   const rangeLabel = (arc) => `Ep ${arc.from}–${arc.open ? "ongoing" : arc.to}`;
   const OPEN_WORD = /^(ongoing|airing|now|present|current|\?)$/i;
@@ -60,7 +52,6 @@ const Arcs = (() => {
     return enabled();
   }
 
-  /* Absolute episode order across every season, as [{season, episode, title}]. */
   function flatten(show) {
     const out = [];
     (show.seasons || []).forEach((se) =>
@@ -69,7 +60,6 @@ const Arcs = (() => {
     return out;
   }
 
-  /* Map "season x episode" -> the arc that covers it. Cached until arcs change. */
   function arcMap(show) {
     if (mapCache.has(show)) return mapCache.get(show);
     const flat = flatten(show);
@@ -110,7 +100,6 @@ const Arcs = (() => {
     Store.setRefs(refs, value);
   }
 
-  /* Stable colour per arc so neighbouring arcs look different. */
   function hueOf(id) {
     let h = 0;
     for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) % 360;
@@ -126,11 +115,6 @@ const Arcs = (() => {
     });
   }
 
-  /* Draws arc boundaries into the episode grids. Each show on the page gets
-     its own arcs, drawn only inside its own block. A tile whose neighbour
-     (left, right, above, below) belongs to a different arc gets a faint line
-     on that side, sitting in the gap between tiles. Works from the real
-     layout, so it follows the grid wrapping at any width. */
   function decorate(root, shows) {
     if (!root || !shows) return;
     shows = Array.isArray(shows) ? shows : [shows];
@@ -138,7 +122,6 @@ const Arcs = (() => {
     clearMarks(root);
     if (!enabled()) return;
 
-    // Pass 1: read every layout value up front, so no writes interleave with reads.
     const jobs = [];
     for (const show of shows) {
       const map = arcMap(show);
@@ -179,7 +162,6 @@ const Arcs = (() => {
       });
     }
 
-    // Pass 2: work out which sides of each arc tile border another arc.
     const nearest = (row, x, width) => {
       let best = null;
       let bestD = Infinity;
@@ -201,7 +183,6 @@ const Arcs = (() => {
           const right = row[ci + 1];
           const up = ri > 0 ? nearest(rows[ri - 1], it.left, width) : null;
           const down = ri < rows.length - 1 ? nearest(rows[ri + 1], it.left, width) : null;
-          // An open arc is left unclosed after its latest episode.
           const isLast =
             it.arc.open &&
             it.el.dataset.season === String(last.season) &&
@@ -216,7 +197,6 @@ const Arcs = (() => {
       });
     }
 
-    // Pass 3: write the classes, tooltip data and lines.
     writes.forEach(({ it, sides }) => {
       const t = it.el;
       t.classList.add("arc-m");
@@ -233,9 +213,6 @@ const Arcs = (() => {
       t.append(frag);
     });
   }
-
-  /* ---- Episode tooltip: follows the cursor. Arc first (when the tile is in
-     one and arcs are on), a gap, then the episode. Replaces the browser's. ---- */
 
   let tipEl = null;
   let tipTimer = null;
@@ -323,8 +300,6 @@ const Arcs = (() => {
     }, 150);
   });
 
-  /* JSON: an array of { name, from, to, desc } (also accepts start/end,
-     description, or "episodes": "892-1085"). Returns null if any entry is bad. */
   function parseJson(text) {
     let data;
     try {
@@ -366,7 +341,6 @@ const Arcs = (() => {
     return out;
   }
 
-  /* Accepts "Name 1-24", "Name: 1 - 24 | description", "Name (25–61)". */
   function parseLine(line) {
     const parts = line.split("|").map((s) => s.trim());
     const head = parts[0];
@@ -374,7 +348,6 @@ const Arcs = (() => {
     let m = head.match(/(\d+)\s*(?:-|–|—|to)\s*(\d+)/i);
     let open = false;
     if (!m) {
-      // "Egghead 1086-", "Egghead 1086+", "Egghead 1086-ongoing": no end yet.
       m = head.match(/(\d+)\s*(?:(?:-|–|—|to)\s*(?:ongoing|airing|now|present|current|\?)?|\+)\s*[)\]]?\s*$/i);
       open = !!m;
     }
@@ -389,8 +362,6 @@ const Arcs = (() => {
     if (from < 1 || to < from) return null;
     return { id: newId(), name, from, to, desc };
   }
-
-  /* ---- Popup, opened from the show header next to "Mark fillers" ---- */
 
   function drawModal(show) {
     const el = document.getElementById("arcsModal");
@@ -579,7 +550,6 @@ const Arcs = (() => {
     }, 200);
   }
 
-  /* series.js sets the progress bucket, the show, and how to redraw after a change. */
   function setHost(next) {
     host = { ...host, ...next };
   }

@@ -68,9 +68,6 @@
     if (e.key === "Escape" && !modal.hidden) close();
   });
 
-  /* Being tracked somewhere - a curated list, a built-in universe - is not
-     the same as being added. Only what this browser actually added counts
-     as "already here". */
   const have = new Set(
     typeof UserVault !== "undefined"
       ? UserVault.list()

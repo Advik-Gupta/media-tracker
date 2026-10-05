@@ -4,39 +4,32 @@
     <meta charset="UTF-8" />
     <% if (base) { %><base href="<%= base %>" /><% } %>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <%- include("partials/head") %>
     <title>Anime - Media Vault</title>
     <meta name="description" content="Track your progress through every film and television universe you care about." />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Inter:wght@400;450;500;600;650;700&family=Agdasima:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/base.css" />
     <link rel="stylesheet" href="assets/css/universes.css" />
     <link rel="stylesheet" href="assets/css/home.css" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23c2453f'/%3E%3C/svg%3E" />
-    <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#0c0e11" />
-    <link rel="apple-touch-icon" href="assets/img/pwa/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Media Vault" />
+    <link rel="icon" href="assets/img/brand/logo.svg" type="image/svg+xml" />
   </head>
   <body data-mode="<%= vault.mode %>">
     <div class="page">
       <header class="topbar">
         <div class="wrap topbar-inner">
           <a class="brand" href="<%= vault.home %>">
-            <span class="brand-mark">MV</span>
+            <%- include("partials/logo") %>
             <span>Media Vault</span>
           </a>
           <span class="topbar-spacer"></span>
           <span id="acctChip"></span>
-          <a class="nav-link" href="<%= vault.list %>">★ <%= vault.listLabel %></a>
+          <a class="nav-link" href="<%= vault.list %>"><%= vault.listLabel %></a>
           <button class="nav-link" id="ongoingBtn" aria-pressed="false" hidden>◉ Ongoing</button>
           <button class="btn btn-accent" id="addShow">+ Add anime</button>
         </div>
       </header>
 
       <section class="hero wrap">
+        <div class="hero-art hero-emblem" aria-hidden="true"></div>
         <p class="eyebrow reveal">Anime vault</p>
         <h1 class="reveal" style="--d:60ms">
           Anime,<br /><span class="hero-accent">episode by episode.</span>
@@ -57,7 +50,7 @@
 <% sections.forEach(function (s) { %>
       <section class="wrap section" id="<%= s.id %>">
         <div class="section-bar reveal">
-          <h2><%= s.title %></h2>
+          <h2 data-kana="<%= ({ Lists: "一覧", "My Anime": "私の棚", Anime: "作品" })[s.title] || "" %>"><%= s.title %></h2>
           <input class="section-search" type="search" data-search="<%= s.kind %>"
                  placeholder="Search <%= s.title.toLowerCase() %>…" aria-label="Search <%= s.title.toLowerCase() %>" />
           <div class="carousel-nav">
@@ -72,7 +65,7 @@
 <% }); %>
       <footer class="footer">
         <div class="wrap footer-inner">
-          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <a class="foot-link" href="pages/analytics.html">Analytics</a>
           <span>Media Vault · <%= totalEntries %> titles across <%= universes.length %> universes</span>
           <span><a href="pages/anime.html#anime">Back to top ↑</a></span>
         </div>

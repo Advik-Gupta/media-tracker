@@ -246,7 +246,7 @@
 .season-box.all {
   background: var(--gold);
   border-color: var(--gold);
-  color: var(--ink);
+  color: var(--on-accent);
 }
 .season-box.some {
   border-color: var(--gold);
@@ -442,7 +442,7 @@
 .ep.done .ep-tick {
   background: var(--gold);
   border-color: var(--gold);
-  color: var(--ink);
+  color: var(--on-accent);
 }
 .ep.done:hover {
   opacity: 0.85;
@@ -532,7 +532,7 @@
 
 .filler-backdrop {
   position: fixed; inset: 0; z-index: 170;
-  background: rgba(20, 22, 28, .82);
+  background: var(--scrim);
   opacity: 0;
   transition: opacity .12s var(--ease-out);
 }
@@ -611,7 +611,7 @@
 .fsq.on {
   background: var(--gold);
   border-color: var(--gold);
-  color: var(--ink);
+  color: var(--on-accent);
   font-weight: 700;
 }
 
@@ -651,8 +651,6 @@
   padding: 10px var(--s2); color: var(--fog); font-size: 13px;
 }
 
-/* ---------- Arcs (anime only) ---------- */
-/* Faint boundary lines drawn in the gaps between episode tiles. */
 .ep.arc-m { position: relative; }
 .arc-edge {
   position: absolute;
@@ -670,27 +668,27 @@
 
 .arcs-modal { width: min(640px, calc(100vw - 32px)); }
 .arcs-modal-body { padding: var(--s3); overflow-y: auto; display: grid; gap: 12px; }
-.arcs-modal .arcs-sub { margin: 4px 0 0; color: var(--muted, #8a929c); font-size: 0.8125rem; }
+.arcs-modal .arcs-sub { margin: 4px 0 0; color: var(--muted); font-size: 0.8125rem; }
 .arcs-modal-tools, .arcs-form-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .arcs-modal-tools { justify-content: flex-end; }
 .arcs-form, .arcs-paste { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px 12px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); }
 .arcs-form label { display: grid; gap: 4px; font-size: 0.8125rem; }
-.arcs-form label > span { color: var(--muted, #8a929c); }
+.arcs-form label > span { color: var(--muted); }
 .arcs-form .arcs-wide { grid-column: 1 / -1; }
 .arcs-form input, .arcs-form textarea, .arcs-paste textarea { width: 100%; box-sizing: border-box; background: transparent; color: inherit; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 8px 10px; font: inherit; }
 .arcs-paste { grid-template-columns: 1fr; }
-.arcs-paste textarea { font-family: var(--mono, monospace); font-size: 0.8125rem; resize: vertical; }
+.arcs-paste textarea { font-family: var(--mono); font-size: 0.8125rem; resize: vertical; }
 .arcs-form-actions { grid-column: 1 / -1; justify-content: flex-end; }
-.arcs-hint { margin: 0; color: var(--muted, #8a929c); font-size: 0.8125rem; }
-.arcs-hint code { font-family: var(--mono, monospace); }
+.arcs-hint { margin: 0; color: var(--muted); font-size: 0.8125rem; }
+.arcs-hint code { font-family: var(--mono); }
 .arcs-error { margin: 0; color: #e0806a; font-size: 0.8125rem; }
-.arcs-empty { color: var(--muted, #8a929c); font-size: 0.875rem; margin: 0; }
+.arcs-empty { color: var(--muted); font-size: 0.875rem; margin: 0; }
 .arcs-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .arc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm, 8px); font-size: 0.875rem; }
 .arc-row-main { min-width: 0; display: grid; gap: 2px; }
 .arc-row b { overflow-wrap: anywhere; font-weight: 600; }
-.arc-range { font-family: var(--mono, monospace); font-size: 0.72rem; color: var(--muted, #8a929c); }
-.arc-count { font-size: 0.8125rem; color: var(--muted, #8a929c); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.arc-range { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.arc-count { font-size: 0.8125rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 @media (max-width: 640px) {
   .arcs-form, .arcs-paste { grid-template-columns: 1fr 1fr; }
   .arcs-form label:first-child { grid-column: 1 / -1; }
@@ -698,7 +696,6 @@
   .arc-row .arc-count { grid-column: 1 / -1; }
 }
 
-/* On/off switch used for the arcs view. */
 .switch {
   display: inline-flex; align-items: center; gap: 8px;
   background: none; border: 0; padding: 4px 0; cursor: pointer;
@@ -710,19 +707,18 @@
 }
 .switch-knob {
   position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%;
-  background: var(--text, #e8eaed); transition: transform .15s ease;
+  background: var(--text); transition: transform .15s ease;
 }
-.switch.on .switch-track { background: var(--accent, #3d8c79); }
+.switch.on .switch-track { background: var(--accent); }
 .switch.on .switch-knob { transform: translateX(14px); }
-.switch:focus-visible { outline: 2px solid var(--accent, #3d8c79); outline-offset: 3px; border-radius: 4px; }
+.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 .arcs-form .arcs-check { display: flex; align-items: center; gap: 8px; }
 .arcs-form .arcs-check input { width: auto; }
 
-/* Tooltip on tiles inside an arc: arc on top, a gap, then the episode. */
 .arc-tip {
   position: fixed; z-index: 160; max-width: min(360px, calc(100vw - 16px));
   padding: 12px 14px; pointer-events: none;
-  background: var(--slate, #1a1d22); color: var(--text, #e8eaed);
+  background: var(--slate, #1a1d22); color: var(--text);
   border: 1px solid var(--line); border-radius: var(--radius-sm, 8px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   font-size: 0.8125rem; line-height: 1.45;
@@ -730,7 +726,29 @@
 .arc-tip[hidden] { display: none; }
 .arc-tip-arc { padding-left: 10px; border-left: 2px solid hsl(var(--arc-h, 200) 55% 65%); }
 .arc-tip-name { font-weight: 650; font-size: 0.875rem; }
-.arc-tip-range { font-size: 0.78rem; color: var(--muted, #8a929c); }
-.arc-tip-desc { margin-top: 4px; color: var(--text-2, #c2c8d0); }
+.arc-tip-range { font-size: 0.78rem; color: var(--muted); }
+.arc-tip-desc { margin-top: 4px; color: var(--text-2); }
 .arc-tip-ep.after-arc { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
 .arc-tip-title { font-weight: 600; }
+
+.filler-backdrop { transition: opacity var(--dur-2) var(--ease-out); }
+.filler-modal {
+  transform: translate(-50%, calc(-50% + 10px));
+  border-color: var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-modal);
+  transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-3) var(--ease);
+}
+.filler-modal.show { transform: translate(-50%, -50%); }
+@media (max-width: 640px) {
+  .filler-modal {
+    left: 0; right: 0; top: auto; bottom: 0;
+    width: 100%; max-height: 88dvh;
+    border-width: 1px 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transform: translateY(100%);
+  }
+  .filler-modal.show { transform: none; }
+}

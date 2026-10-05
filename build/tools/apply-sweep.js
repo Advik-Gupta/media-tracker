@@ -4,7 +4,7 @@ const path = require("path");
 
 const tsv = process.argv[2];
 if (!tsv || !fs.existsSync(tsv)) {
-  console.error("usage: node build/apply-sweep.js <file.tsv>");
+  console.error("usage: node build/tools/apply-sweep.js <file.tsv>");
   process.exit(1);
 }
 
@@ -14,7 +14,7 @@ for (const line of fs.readFileSync(tsv, "utf8").split("\n")) {
   if (key && url && url.trim().startsWith("http")) posters.set(key.trim(), url.trim());
 }
 
-const P = path.join(__dirname, "..", "assets/js/data/_films.js");
+const P = path.join(__dirname, "..", "..", "assets/js/data/_films.js");
 const lines = fs.readFileSync(P, "utf8").split("\n");
 
 const out = [];

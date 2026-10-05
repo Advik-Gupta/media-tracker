@@ -11,7 +11,7 @@ if (!KEY) {
 const DRY = process.argv.includes('--dry');
 const LIMIT = Number((process.argv.find((a) => a.startsWith('--limit=')) || '').split('=')[1]) || Infinity;
 
-const DATA = path.join(__dirname, '..', 'assets/js/data');
+const DATA = path.join(__dirname, '..', '..', 'assets/js/data');
 const ctx = { window: {}, console };
 vm.createContext(ctx);
 for (const f of fs.readdirSync(DATA)) {

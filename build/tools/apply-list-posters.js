@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const DATA = path.join(__dirname, "..", "assets/js/data");
+const DATA = path.join(__dirname, "..", "..", "assets/js/data");
 const src = process.argv[2] || path.join(__dirname, "list-posters.tsv");
 if (!fs.existsSync(src)) {
   console.error("no TSV at " + src);

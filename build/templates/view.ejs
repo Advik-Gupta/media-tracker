@@ -4,38 +4,24 @@
     <meta charset="UTF-8" />
     <base href="<%= base %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <%- include("partials/head") %>
     <title>Loading - Media Vault</title>
     <meta
       name="description"
       content="Every season and episode, with ratings."
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Inter:wght@400;450;500;600;650;700&family=Agdasima:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
     <link rel="stylesheet" href="assets/css/base.css" />
     <link rel="stylesheet" href="assets/css/universes.css" />
     <link rel="stylesheet" href="assets/css/tracker.css" />
     <link rel="stylesheet" href="assets/css/series.css" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236a9ee8'/%3E%3C/svg%3E"
-    />
-    <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#0c0e11" />
-    <link rel="apple-touch-icon" href="assets/img/pwa/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Media Vault" />
+    <link rel="icon" href="assets/img/brand/logo.svg" type="image/svg+xml" />
   </head>
   <body data-mode="<%= vault.mode %>" data-universe="" class="u-view">
     <div class="page">
       <header class="topbar">
         <div class="wrap topbar-inner">
           <a class="brand" href="<%= vault.home %>">
-            <span class="brand-mark">MV</span>
+            <%- include("partials/logo") %>
             <span>Media Vault</span>
           </a>
           <span class="crumb" id="viewCrumb">/ Loading…</span>
@@ -129,7 +115,7 @@
 
       <footer class="footer">
         <div class="wrap footer-inner">
-          <a class="foot-link" href="pages/analytics.html">📊 Analytics</a>
+          <a class="foot-link" href="pages/analytics.html">Analytics</a>
           <span>Fetched live · progress stored in this browser</span>
           <span><a href="<%= vault.home %>">← <%= vault.back %></a></span>
         </div>
@@ -146,7 +132,6 @@
     <script src="assets/js/data/series/_counts.js"></script>
     <script src="assets/js/uservault.js"></script>
     <script src="assets/js/arcs.js"></script>
-    <!-- Fetches the show, then loads series.js once the data is in place. -->
     <link rel="preload" as="script" id="seriesSrc" href="assets/js/series.js" />
     <script src="assets/js/seriesview.js"></script>
     <script src="assets/js/account.js"></script>

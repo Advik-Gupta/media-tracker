@@ -4,7 +4,7 @@ const path = require("path");
 const vm = require("vm");
 const crypto = require("crypto");
 
-const ROOT = path.join(__dirname, "..");
+const ROOT = path.join(__dirname, "..", "..");
 const REG = path.join(ROOT, "assets/js/data/_films.js");
 const API = "https://en.wikipedia.org/w/api.php";
 
