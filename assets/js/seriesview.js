@@ -87,7 +87,7 @@
 
   function defaultUnits(shows, films) {
     return [
-      ...shows.flatMap((sh) => sh.seasons.map((se) => `s:${sh.id}:${se.n}`)),
+      ...shows.flatMap((sh) => sh.seasons.map((se) => `s:${sh.id}:${se.k != null ? se.k : se.n}`)),
       ...films.map((f) => `f:${f.key}`),
     ];
   }
@@ -106,6 +106,29 @@
         return false;
       }),
     }));
+    shows = shows.map((sh) => ({
+      ...sh,
+      seasons: sh.seasons.flatMap((se) => {
+        const cuts = (page.splits[`s:${sh.id}:${se.n}`] || [])
+          .map(Number)
+          .filter((c) => c > 0)
+          .sort((a, b) => a - b);
+        if (!cuts.length) return [se];
+        const edges = [0, ...cuts, Infinity];
+        const parts = [];
+        for (let i = 0; i < edges.length - 1; i++) {
+          const eps = se.episodes.filter((ep) => ep.n > edges[i] && ep.n <= edges[i + 1]);
+          if (!eps.length) continue;
+          parts.push({
+            ...se,
+            k: `${se.n}p${i + 1}`,
+            label: `Ep ${eps[0].n}–${eps[eps.length - 1].n}`,
+            episodes: eps,
+          });
+        }
+        return parts.length > 1 ? parts : [se];
+      }),
+    }));
     const films = page.films.map((f) => ({ ...f, film: f.key }));
     const valid = new Set(defaultUnits(shows, films));
     const units = page.units.filter((x) => valid.has(x));
@@ -113,13 +136,17 @@
       if (units.includes(x)) return;
       const [type, showId, n] = x.split(":");
       if (type !== "s") return units.push(x);
+      const rank = (k) => {
+        const [season, part] = String(k).split("p");
+        return Number(season) * 10000 + (Number(part) || 0);
+      };
       let after = -1;
       let first = -1;
       units.forEach((u, i) => {
         const [t, sid, sn] = u.split(":");
         if (t !== "s" || sid !== showId) return;
         if (first < 0) first = i;
-        if (Number(sn) < Number(n)) after = i;
+        if (rank(sn) < rank(n)) after = i;
       });
       if (after >= 0) units.splice(after + 1, 0, x);
       else if (first >= 0) units.splice(first, 0, x);
@@ -127,7 +154,7 @@
     });
     const buckets = {};
     shows.forEach((sh) => (buckets[sh.id] = UserVault.uniOf(sh.id)));
-    return { shows, films, units, buckets, hiddenSeasons, hostId: Number(id) };
+    return { shows, films, units, buckets, hiddenSeasons, splits: page.splits, hostId: Number(id) };
   }
 
   async function load({ force } = {}) {
@@ -208,7 +235,7 @@
 
     document.body.dataset.universe = uni;
 
-    const seasonCount = (show.seasons || []).length;
+    const seasonCount = new Set((show.seasons || []).map((se) => se.n)).size;
     const epCount = (show.seasons || []).reduce(
       (n, s) => n + s.episodes.length,
       0,

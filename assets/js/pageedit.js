@@ -17,25 +17,44 @@
 
   trigger.hidden = false;
 
+  const sk = (se) => (se.k != null ? se.k : se.n);
+  const snapshot = (extra = {}) => ({
+    units: DATA.units,
+    films: DATA.films.map(({ film, ...rest }) => rest),
+    hidden: (DATA.hiddenSeasons || []).map((h) => h.key),
+    splits: DATA.splits || {},
+    ...extra,
+  });
+
   function save() {
-    UserVault.savePage(HOST, {
-      units: DATA.units,
-      films: DATA.films.map(({ film, ...rest }) => rest),
-      hidden: (DATA.hiddenSeasons || []).map((h) => h.key),
-    });
+    UserVault.savePage(HOST, snapshot());
     page.render();
+  }
+
+  function saveAndReload(extra) {
+    UserVault.savePage(HOST, snapshot(extra));
+    try {
+      sessionStorage.setItem("mv.editPage", "order");
+    } catch (e) {}
+    location.reload();
   }
 
   function unitLabel(unit) {
     const [type, a, b] = unit.split(":");
     if (type === "s") {
       const show = DATA.shows.find((x) => String(x.id) === a);
-      const season = show && show.seasons.find((x) => String(x.n) === b);
+      const season = show && show.seasons.find((x) => String(sk(x)) === b);
       if (!season) return null;
+      const many = new Set(show.seasons.map((x) => x.n)).size > 1;
       return {
-        title: show.seasons.length > 1 ? `${show.title} · Season ${season.n}` : show.title,
+        title:
+          (many ? `${show.title} · Season ${season.n}` : show.title) +
+          (season.label ? ` · ${season.label}` : ""),
         sub: `${season.episodes.length} episodes`,
         film: false,
+        showId: show.id,
+        n: season.n,
+        part: season.k != null,
       };
     }
     const film = DATA.films.find((x) => x.film === unit.slice(2));
@@ -50,8 +69,15 @@
   /* ---------- order ---------- */
 
   function orderTab() {
-    const seasonCount = DATA.units.filter((u) => u.startsWith("s:")).length;
+    const seasonCount = new Set(
+      DATA.units.filter((u) => u.startsWith("s:")).map((u) => u.split(":").slice(0, 3).join(":").replace(/p\d+$/, "")),
+    ).size;
     const hidden = DATA.hiddenSeasons || [];
+    const firstOf = (unit, l) =>
+      DATA.units.find((u) => {
+        const [t, sid, k] = u.split(":");
+        return t === "s" && sid === String(l.showId) && String(k).split("p")[0] === String(l.n);
+      }) === unit;
     const rows = DATA.units
       .map((unit, i) => {
         const l = unitLabel(unit);
@@ -65,9 +91,20 @@
             ${
               l.film
                 ? `<button class="btn btn-ghost sm danger" data-drop-film="${esc(unit.slice(2))}">Remove</button>`
-                : seasonCount > 1
-                  ? `<button class="btn btn-ghost sm danger" data-hide-season="${esc(unit)}">Remove</button>`
-                  : ""
+                : `<button class="btn btn-ghost sm" data-split="${l.showId}:${l.n}">${l.part ? "Edit split" : "Split"}</button>${
+                    seasonCount > 1 && !l.part
+                      ? `<button class="btn btn-ghost sm danger" data-hide-season="${esc(unit)}">Remove</button>`
+                      : ""
+                  }`
+            }
+            ${
+              !l.film && splitting === `${l.showId}:${l.n}` && firstOf(unit, l)
+                ? `<form class="pe-split" data-split-form="${l.showId}:${l.n}">
+                     <label class="pe-field"><span>End a part after episode… (several allowed, e.g. 30, 60). Leave empty to join the season back together.</span>
+                       <input name="cuts" inputmode="numeric" autocomplete="off" value="${esc(((DATA.splits || {})[`s:${l.showId}:${l.n}`] || []).join(", "))}" placeholder="30, 60" /></label>
+                     <div class="pe-actions"><button type="button" class="btn btn-ghost sm" data-split-cancel>Cancel</button><button class="btn btn-accent sm" type="submit">Apply</button></div>
+                   </form>`
+                : ""
             }
           </li>`;
       })
@@ -92,15 +129,43 @@
   }
 
   function setHidden(keys) {
-    UserVault.savePage(HOST, {
-      units: DATA.units,
-      films: DATA.films.map(({ film, ...rest }) => rest),
-      hidden: keys,
-    });
-    try {
-      sessionStorage.setItem("mv.editPage", "order");
-    } catch (e) {}
-    location.reload();
+    saveAndReload({ hidden: keys });
+  }
+
+  let splitting = null;
+
+  function applySplit(showId, n, text) {
+    const show = DATA.shows.find((x) => String(x.id) === String(showId));
+    if (!show) return;
+    const eps = show.seasons
+      .filter((se) => String(se.n) === String(n))
+      .flatMap((se) => se.episodes.map((ep) => ep.n));
+    const max = Math.max(...eps);
+    const cuts = [...new Set(String(text).split(/[^0-9]+/).map(Number))]
+      .filter((c) => c > 0 && c < max)
+      .sort((a, b) => a - b);
+
+    const edges = [0, ...cuts, Infinity];
+    let keys = [];
+    for (let i = 0; i < edges.length - 1; i++) {
+      if (eps.some((e) => e > edges[i] && e <= edges[i + 1])) keys.push(`s:${showId}:${n}p${i + 1}`);
+    }
+    if (keys.length < 2) keys = [`s:${showId}:${n}`];
+
+    const mine = (u) => {
+      const [t, sid, k] = u.split(":");
+      return t === "s" && sid === String(showId) && String(k).split("p")[0] === String(n);
+    };
+    const at = DATA.units.findIndex(mine);
+    const rest = DATA.units.filter((u) => !mine(u));
+    const before = at < 0 ? rest.length : DATA.units.slice(0, at).filter((u) => !mine(u)).length;
+    rest.splice(before, 0, ...keys);
+    DATA.units = rest;
+
+    const splits = { ...(DATA.splits || {}) };
+    if (cuts.length && keys.length > 1) splits[`s:${showId}:${n}`] = cuts;
+    else delete splits[`s:${showId}:${n}`];
+    saveAndReload({ units: rest, splits });
   }
 
   function move(from, to) {
@@ -137,6 +202,28 @@
         ),
       ),
     );
+    body.querySelectorAll("[data-split]").forEach((b) =>
+      b.addEventListener("click", () => {
+        splitting = splitting === b.dataset.split ? null : b.dataset.split;
+        draw();
+      }),
+    );
+    body.querySelectorAll("[data-split-cancel]").forEach((b) =>
+      b.addEventListener("click", () => {
+        splitting = null;
+        draw();
+      }),
+    );
+    body.querySelectorAll("[data-split-form]").forEach((f) => {
+      f.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const [showId, n] = f.dataset.splitForm.split(":");
+        applySplit(showId, n, new FormData(f).get("cuts"));
+      });
+      const input = f.querySelector("input");
+      input.focus();
+      ["dragstart", "mousedown"].forEach((ev) => f.addEventListener(ev, (e) => e.stopPropagation()));
+    });
     let dragging = null;
     body.querySelectorAll(".pe-row").forEach((row) => {
       row.addEventListener("dragstart", (e) => {

@@ -805,3 +805,6 @@ article.show,
   .film-block .show-poster { width: 96px; height: 144px; }
   .film-block .film-plot { display: -webkit-box; }
 }
+
+.pe-row { flex-wrap: wrap; }
+.pe-split { flex-basis: 100%; display: grid; gap: 10px; padding-top: 10px; border-top: 1px solid var(--line); cursor: default; }

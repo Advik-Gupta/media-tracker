@@ -65,6 +65,16 @@
     } catch (e) {}
   }
 
+  const sk = (se) => (se.k != null ? se.k : se.n);
+  const whole = (show) => {
+    const byN = new Map();
+    show.seasons.forEach((se) => {
+      if (!byN.has(se.n)) byN.set(se.n, { n: se.n, episodes: [] });
+      byN.get(se.n).episodes.push(...se.episodes);
+    });
+    return [...byN.values()];
+  };
+
   const BIG_SEASON = 60;
   let firstRender = true;
 
@@ -120,7 +130,7 @@
   }
 
   function seasonBlock(show, season) {
-    const key = `${show.id}-${season.n}`;
+    const key = `${show.id}-${sk(season)}`;
     const { done, total } = tally(seasonRefs(show, season));
     const collapsed = state.collapsed.has(key);
     const rated = season.episodes.filter((e) => e.r != null);
@@ -140,7 +150,7 @@
           <button class="season-name" data-collapse="${key}"
                   aria-expanded="${!collapsed}">
             <span class="chev">▾</span>
-            <b>Season ${season.n}</b>
+            <b>Season ${season.n}${season.label ? ` · ${esc(season.label)}` : ""}</b>
           </button>
           <span class="season-meta">
             ${total} ep
@@ -174,7 +184,7 @@
             <h2>${esc(show.title)}</h2>
             <p class="show-meta">
               ${show.year ? `<span>${show.year}</span>` : ""}
-              <span>${show.seasons.length} season${show.seasons.length === 1 ? "" : "s"}</span>
+              <span>${whole(show).length} season${whole(show).length === 1 ? "" : "s"}</span>
               <span>${eps} episodes</span>
               ${show.score != null ? `<span class="r-${band(show.score)}">${show.score.toFixed(1)}</span>` : ""}
             </p>
@@ -230,7 +240,7 @@
       const [type, a, b] = unit.split(":");
       if (type === "s") {
         const show = DATA.shows.find((x) => String(x.id) === a);
-        const season = show && show.seasons.find((x) => String(x.n) === b);
+        const season = show && show.seasons.find((x) => String(sk(x)) === b);
         if (!season) continue;
         if (open !== a) {
           close();
@@ -373,7 +383,7 @@
       DATA.shows.forEach((sh) =>
         sh.seasons.forEach((se) => {
           if (se.episodes.length > BIG_SEASON)
-            state.collapsed.add(`${sh.id}-${se.n}`);
+            state.collapsed.add(`${sh.id}-${sk(se)}`);
         }),
       );
       firstRender = false;
@@ -502,7 +512,7 @@
     const el = document.getElementById("fillerModal");
     const show = fillerShow;
     const marked = fillerCount(show);
-    const total = show.seasons.reduce((n, se) => n + se.episodes.length, 0);
+    const total = whole(show).reduce((n, se) => n + se.episodes.length, 0);
 
     el.innerHTML = `
       <div class="filler-head">
@@ -521,7 +531,7 @@
       </div>
 
       <div class="filler-body">
-        ${show.seasons
+        ${whole(show)
           .map(
             (se) => `
           <section class="filler-season">
@@ -556,7 +566,7 @@
 
     el.querySelector("#fillerClear").addEventListener("click", () => {
       const refs = [];
-      show.seasons.forEach((se) =>
+      whole(show).forEach((se) =>
         se.episodes.forEach((ep) =>
           refs.push([fillerBucket(show.id), fillerKey(show.id, se.n, ep.n)]),
         ),
@@ -573,7 +583,7 @@
     el.querySelectorAll("[data-filler-season]").forEach((btn) =>
       btn.addEventListener("click", () => {
         const n = Number(btn.dataset.fillerSeason);
-        const se = show.seasons.find((x) => x.n === n);
+        const se = whole(show).find((x) => x.n === n);
         const refs = se.episodes.map((ep) => [
           fillerBucket(show.id),
           fillerKey(show.id, n, ep.n),
@@ -591,7 +601,7 @@
 
         if (e.shiftKey && lastPicked && lastPicked.s === s) {
           const [from, to] = [lastPicked.e, n].sort((a, b) => a - b);
-          const se = show.seasons.find((x) => x.n === s);
+          const se = whole(show).find((x) => x.n === s);
           const refs = se.episodes
             .filter((ep) => ep.n >= from && ep.n <= to)
             .map((ep) => [fillerBucket(show.id), fillerKey(show.id, s, ep.n)]);
@@ -625,7 +635,7 @@
         const s = Number(scoped[1]);
         const from = Number(scoped[2]);
         const to = Number(scoped[3] ?? scoped[2]);
-        const se = show.seasons.find((x) => x.n === s);
+        const se = whole(show).find((x) => x.n === s);
         if (!se) return;
         se.episodes
           .filter((ep) => ep.n >= from && ep.n <= to)
@@ -633,7 +643,7 @@
       } else if (plain) {
         const from = Number(plain[1]);
         const to = Number(plain[2] ?? plain[1]);
-        show.seasons.forEach((se) =>
+        whole(show).forEach((se) =>
           se.episodes
             .filter((ep) => ep.n >= from && ep.n <= to)
             .forEach((ep) =>
@@ -674,9 +684,10 @@
 
     const seasonBox = e.target.closest("[data-season-toggle]");
     if (seasonBox) {
-      const [showId, n] = seasonBox.dataset.seasonToggle.split("-").map(Number);
+      const [showIdRaw, n] = seasonBox.dataset.seasonToggle.split("-");
+      const showId = Number(showIdRaw);
       const show = DATA.shows.find((s) => s.id === showId);
-      const season = show.seasons.find((s) => s.n === n);
+      const season = show.seasons.find((s) => String(sk(s)) === n);
       const refs = seasonRefs(show, season);
       const allDone = refs.every((r) => Store.has(...r));
       Store.setRefs(refs, !allDone);
@@ -720,7 +731,7 @@
       if (!showEl) return;
 
       show.seasons.forEach((season) => {
-        const key = `${show.id}-${season.n}`;
+        const key = `${show.id}-${sk(season)}`;
         const el = root.querySelector(`.season[data-key="${key}"]`);
         if (!el) return;
         const { done, total } = tally(seasonRefs(show, season));
@@ -790,11 +801,11 @@
 
   on("collapseAll", (e) => {
     const anyOpen = DATA.shows.some((sh) =>
-      sh.seasons.some((se) => !state.collapsed.has(`${sh.id}-${se.n}`)),
+      sh.seasons.some((se) => !state.collapsed.has(`${sh.id}-${sk(se)}`)),
     );
     DATA.shows.forEach((sh) =>
       sh.seasons.forEach((se) => {
-        const k = `${sh.id}-${se.n}`;
+        const k = `${sh.id}-${sk(se)}`;
         state.collapsed[anyOpen ? "add" : "delete"](k);
       }),
     );
@@ -832,7 +843,7 @@
             !Store.has(...epRef(show.id, season.n, ep.n)),
         );
         if (!next) continue;
-        const key = `${show.id}-${season.n}`;
+        const key = `${show.id}-${sk(season)}`;
         if (state.collapsed.has(key)) {
           state.collapsed.delete(key);
           rememberCollapsed();
