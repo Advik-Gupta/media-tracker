@@ -155,7 +155,7 @@
           </button>
         </header>
         <div class="ep-grid">
-          ${season.episodes.map((ep) => (typeof Arcs !== "undefined" && canMarkFiller ? Arcs.before(show, season.n, ep.n) : "") + episodeTile(show, season, ep)).join("")}
+          ${season.episodes.map((ep) => episodeTile(show, season, ep)).join("")}
         </div>
       </section>`;
   }
@@ -194,6 +194,13 @@
                 canMarkFiller
                   ? `<button class="btn btn-ghost sm" data-filler-open="${show.id}">
                      Mark fillers${fillerCount(show) ? ` (${fillerCount(show)})` : ""}
+                   </button>`
+                  : ""
+              }
+              ${
+                canMarkFiller
+                  ? `<button class="btn btn-ghost sm" data-arcs-open="${show.id}">
+                     Arcs${Arcs.count(show) ? ` (${Arcs.count(show)})` : ""}
                    </button>`
                   : ""
               }
@@ -258,7 +265,7 @@
     root.classList.toggle("dense", state.dense);
     if (canMarkFiller && typeof Arcs !== "undefined" && DATA.shows[0]) {
       Arcs.setHost({ uni: UNI, show: DATA.shows[0], rerender: render });
-      Arcs.renderManager(DATA.shows[0]);
+      Arcs.decorate(root, DATA.shows[0]);
     }
     const arcsBtn = document.getElementById("arcsView");
     if (arcsBtn) {
@@ -567,6 +574,11 @@
       return;
     }
 
+    const arcsBtn = e.target.closest("[data-arcs-open]");
+    if (arcsBtn) {
+      Arcs.open(DATA.shows.find((sh) => String(sh.id) === arcsBtn.dataset.arcsOpen));
+      return;
+    }
     const fillerBtn = e.target.closest("[data-filler-open]");
     if (fillerBtn) {
       openFiller(Number(fillerBtn.dataset.fillerOpen));
