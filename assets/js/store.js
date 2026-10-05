@@ -417,7 +417,7 @@ function initReveal(root = document) {
         }
       });
     },
-    { rootMargin: "0px 0px -8% 0px", threshold: 0.04 },
+    { rootMargin: "0px 0px -8% 0px", threshold: 0 },
   );
   els.forEach((el) => io.observe(el));
 }

@@ -715,3 +715,22 @@
 .switch.on .switch-track { background: var(--accent, #3d8c79); }
 .switch.on .switch-knob { transform: translateX(14px); }
 .switch:focus-visible { outline: 2px solid var(--accent, #3d8c79); outline-offset: 3px; border-radius: 4px; }
+.arcs-form .arcs-check { display: flex; align-items: center; gap: 8px; }
+.arcs-form .arcs-check input { width: auto; }
+
+/* Tooltip on tiles inside an arc: arc on top, a gap, then the episode. */
+.arc-tip {
+  position: fixed; z-index: 160; max-width: min(360px, calc(100vw - 16px));
+  padding: 12px 14px; pointer-events: none;
+  background: var(--slate, #1a1d22); color: var(--text, #e8eaed);
+  border: 1px solid var(--line); border-radius: var(--radius-sm, 8px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  font-size: 0.8125rem; line-height: 1.45;
+}
+.arc-tip[hidden] { display: none; }
+.arc-tip-arc { padding-left: 10px; border-left: 2px solid hsl(var(--arc-h, 200) 55% 65%); }
+.arc-tip-name { font-weight: 650; font-size: 0.875rem; }
+.arc-tip-range { font-size: 0.78rem; color: var(--muted, #8a929c); }
+.arc-tip-desc { margin-top: 4px; color: var(--text-2, #c2c8d0); }
+.arc-tip-ep.after-arc { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.arc-tip-title { font-weight: 600; }

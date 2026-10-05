@@ -165,7 +165,9 @@
     }
     seriesLoaded = true;
     const s = document.createElement("script");
-    s.src = "assets/js/series.js";
+    // Use the fingerprinted URL from the page so a new build is never served from cache.
+    const stamped = document.getElementById("seriesSrc");
+    s.src = (stamped && stamped.getAttribute("href")) || "assets/js/series.js";
     document.body.appendChild(s);
   }
 

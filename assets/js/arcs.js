@@ -18,6 +18,11 @@ const Arcs = (() => {
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
     );
 
+  /* An open arc (still airing) has no end yet: it runs to the latest episode. */
+  const endOf = (arc, count) => (arc.open ? count : Math.min(arc.to, count));
+  const rangeLabel = (arc) => `Ep ${arc.from}–${arc.open ? "ongoing" : arc.to}`;
+  const OPEN_WORD = /^(ongoing|airing|now|present|current|\?)$/i;
+
   const newId = () => `${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
 
   function readAll() {
@@ -51,6 +56,7 @@ const Arcs = (() => {
     try {
       localStorage.setItem(VIEW_KEY, enabled() ? "off" : "on");
     } catch {}
+    if (typeof Store !== "undefined") Store.touch();
     return enabled();
   }
 
@@ -58,7 +64,7 @@ const Arcs = (() => {
   function flatten(show) {
     const out = [];
     (show.seasons || []).forEach((se) =>
-      se.episodes.forEach((ep) => out.push({ season: se.n, episode: ep.n, title: ep.t })),
+      se.episodes.forEach((ep) => out.push({ season: se.n, episode: ep.n, title: ep.t, overview: ep.o })),
     );
     return out;
   }
@@ -69,7 +75,7 @@ const Arcs = (() => {
     const flat = flatten(show);
     const map = new Map();
     for (const arc of forShow(show.id)) {
-      for (let i = arc.from; i <= Math.min(arc.to, flat.length); i++) {
+      for (let i = arc.from; i <= endOf(arc, flat.length); i++) {
         const ep = flat[i - 1];
         const k = `${ep.season}x${ep.episode}`;
         if (!map.has(k)) map.set(k, arc);
@@ -85,7 +91,7 @@ const Arcs = (() => {
     const filler = all[`__filler_${host.uni}`] || {};
     let done = 0;
     let total = 0;
-    for (let i = arc.from; i <= Math.min(arc.to, flat.length); i++) {
+    for (let i = arc.from; i <= endOf(arc, flat.length); i++) {
       const ep = flat[i - 1];
       const key = `e${show.id}-${ep.season}x${ep.episode}`;
       if (filler[key]) continue;
@@ -97,7 +103,7 @@ const Arcs = (() => {
 
   function markRange(show, arc, flat, value) {
     const refs = [];
-    for (let i = arc.from; i <= Math.min(arc.to, flat.length); i++) {
+    for (let i = arc.from; i <= endOf(arc, flat.length); i++) {
       const ep = flat[i - 1];
       refs.push([host.uni, `e${show.id}-${ep.season}x${ep.episode}`]);
     }
@@ -111,43 +117,67 @@ const Arcs = (() => {
     return h;
   }
 
-  /* Draws arc boundaries into the episode grids under root. Each tile whose
-     neighbour (left, right, above, below) belongs to a different arc gets a
-     faint line on that side, sitting in the gap between tiles. Works from
-     the real layout, so it follows the grid wrapping at any width. */
-  function decorate(root, show) {
-    if (!root || !show) return;
-    decorated = { root, show };
-    root.querySelectorAll('.arc-edge').forEach((n) => n.remove());
-    root.querySelectorAll('.ep.arc-m').forEach((t) => {
-      t.classList.remove('arc-m');
-      if (t.dataset.baseTitle) t.title = t.dataset.baseTitle;
+  function clearMarks(root) {
+    hideTip();
+    root.querySelectorAll(".arc-edge").forEach((n) => n.remove());
+    root.querySelectorAll(".ep.arc-m").forEach((t) => {
+      t.classList.remove("arc-m");
+      delete t._arcTip;
     });
+  }
+
+  /* Draws arc boundaries into the episode grids. Each show on the page gets
+     its own arcs, drawn only inside its own block. A tile whose neighbour
+     (left, right, above, below) belongs to a different arc gets a faint line
+     on that side, sitting in the gap between tiles. Works from the real
+     layout, so it follows the grid wrapping at any width. */
+  function decorate(root, shows) {
+    if (!root || !shows) return;
+    shows = Array.isArray(shows) ? shows : [shows];
+    decorated = { root, shows };
+    clearMarks(root);
     if (!enabled()) return;
 
-    const map = arcMap(show);
-    if (!map.size) return;
-    const arcOf = (t) => map.get(`${t.dataset.season}x${t.dataset.ep}`) || null;
-
     // Pass 1: read every layout value up front, so no writes interleave with reads.
-    const grids = [];
-    root.querySelectorAll('.ep-grid').forEach((grid) => {
-      const tiles = Array.from(grid.children).filter(
-        (t) => t.classList.contains('ep') && t.offsetParent !== null,
-      );
-      if (!tiles.length) return;
-      const items = tiles.map((el) => ({ el, arc: arcOf(el), top: el.offsetTop, left: el.offsetLeft }));
-      const width = tiles[0].offsetWidth || 1;
-      items.sort((a, b) => a.top - b.top || a.left - b.left);
-      const rows = [];
-      items.forEach((it) => {
-        const row = rows[rows.length - 1];
-        if (row && Math.abs(row[0].top - it.top) < 4) row.push(it);
-        else rows.push([it]);
+    const jobs = [];
+    for (const show of shows) {
+      const map = arcMap(show);
+      if (!map.size) continue;
+      const scope =
+        shows.length > 1 ? root.querySelector(`.show[data-show="${show.id}"]`) : root;
+      if (!scope) continue;
+      const flat = flatten(show);
+      const info = new Map(flat.map((ep) => [`${ep.season}x${ep.episode}`, ep]));
+      const last = flat[flat.length - 1] || {};
+      const keyOf = (t) => `${t.dataset.season}x${t.dataset.ep}`;
+
+      scope.querySelectorAll(".ep-grid").forEach((grid) => {
+        const tiles = Array.from(grid.children).filter(
+          (t) =>
+            t.classList.contains("ep") &&
+            t.offsetParent !== null &&
+            (shows.length === 1 || String(t.dataset.show) === String(show.id)),
+        );
+        if (!tiles.length) return;
+        const items = tiles.map((el) => ({
+          el,
+          arc: map.get(keyOf(el)) || null,
+          ep: info.get(keyOf(el)) || null,
+          top: el.offsetTop,
+          left: el.offsetLeft,
+        }));
+        const width = tiles[0].offsetWidth || 1;
+        items.sort((a, b) => a.top - b.top || a.left - b.left);
+        const rows = [];
+        items.forEach((it) => {
+          const row = rows[rows.length - 1];
+          if (row && Math.abs(row[0].top - it.top) < 4) row.push(it);
+          else rows.push([it]);
+        });
+        rows.forEach((r) => r.sort((a, b) => a.left - b.left));
+        jobs.push({ rows, width, last });
       });
-      rows.forEach((r) => r.sort((a, b) => a.left - b.left));
-      grids.push({ rows, width });
-    });
+    }
 
     // Pass 2: work out which sides of each arc tile border another arc.
     const nearest = (row, x, width) => {
@@ -163,7 +193,7 @@ const Arcs = (() => {
       return best;
     };
     const writes = [];
-    for (const { rows, width } of grids) {
+    for (const { rows, width, last } of jobs) {
       rows.forEach((row, ri) => {
         row.forEach((it, ci) => {
           if (!it.arc) return;
@@ -171,40 +201,125 @@ const Arcs = (() => {
           const right = row[ci + 1];
           const up = ri > 0 ? nearest(rows[ri - 1], it.left, width) : null;
           const down = ri < rows.length - 1 ? nearest(rows[ri + 1], it.left, width) : null;
+          // An open arc is left unclosed after its latest episode.
+          const isLast =
+            it.arc.open &&
+            it.el.dataset.season === String(last.season) &&
+            it.el.dataset.ep === String(last.episode);
           const sides = [];
-          if (!left || left.arc !== it.arc) sides.push('l');
-          if (!right || right.arc !== it.arc) sides.push('r');
-          if (!up || up.arc !== it.arc) sides.push('t');
-          if (!down || down.arc !== it.arc) sides.push('b');
-          if (sides.length) writes.push({ it, sides });
+          if (!left || left.arc !== it.arc) sides.push("l");
+          if ((!right || right.arc !== it.arc) && !isLast) sides.push("r");
+          if (!up || up.arc !== it.arc) sides.push("t");
+          if (down ? down.arc !== it.arc : !it.arc.open) sides.push("b");
+          writes.push({ it, sides });
         });
       });
     }
 
-    // Pass 3: write the classes, tooltips and lines.
+    // Pass 3: write the classes, tooltip data and lines.
     writes.forEach(({ it, sides }) => {
       const t = it.el;
-      const hue = hueOf(it.arc.id);
-      t.classList.add('arc-m');
-      if (!t.dataset.baseTitle) t.dataset.baseTitle = t.title;
-      t.title = `${it.arc.name} · Ep ${it.arc.from}–${it.arc.to}\n${t.dataset.baseTitle}`;
-      t.style.setProperty('--arc-h', hue);
+      t.classList.add("arc-m");
+      t._arcTip = { arc: it.arc, ep: it.ep };
+      t.style.setProperty("--arc-h", hueOf(it.arc.id));
+      if (!sides.length) return;
       const frag = document.createDocumentFragment();
       sides.forEach((s) => {
-        const i = document.createElement('i');
+        const i = document.createElement("i");
         i.className = `arc-edge ${s}`;
-        i.setAttribute('aria-hidden', 'true');
+        i.setAttribute("aria-hidden", "true");
         frag.append(i);
       });
       t.append(frag);
     });
   }
 
+  /* ---- Episode tooltip: follows the cursor. Arc first (when the tile is in
+     one and arcs are on), a gap, then the episode. Replaces the browser's. ---- */
+
+  let tipEl = null;
+  let tipTimer = null;
+  let tipFor = null;
+  let tipX = 0;
+  let tipY = 0;
+
+  function hideTip() {
+    clearTimeout(tipTimer);
+    tipFor = null;
+    if (tipEl) tipEl.hidden = true;
+  }
+
+  function placeTip() {
+    if (!tipEl || tipEl.hidden) return;
+    const w = tipEl.offsetWidth;
+    const h = tipEl.offsetHeight;
+    let left = tipX + 16;
+    let top = tipY + 18;
+    if (left + w > window.innerWidth - 8) left = tipX - w - 12;
+    if (top + h > window.innerHeight - 8) top = tipY - h - 12;
+    tipEl.style.left = `${Math.max(8, left)}px`;
+    tipEl.style.top = `${Math.max(8, top)}px`;
+  }
+
+  function showTip(tile) {
+    const title = tile.dataset.tipTitle || "";
+    const overview = tile.dataset.tipDesc || "";
+    const arc = tile._arcTip ? tile._arcTip.arc : null;
+    if (!title && !arc) return;
+    if (!tipEl) {
+      tipEl = document.createElement("div");
+      tipEl.className = "arc-tip";
+      tipEl.setAttribute("role", "tooltip");
+      document.body.append(tipEl);
+    }
+    const line = (cls, text) => {
+      const el = document.createElement("div");
+      el.className = cls;
+      el.textContent = text;
+      return el;
+    };
+    tipEl.replaceChildren();
+    if (arc) {
+      const head = document.createElement("div");
+      head.className = "arc-tip-arc";
+      head.style.setProperty("--arc-h", hueOf(arc.id));
+      head.append(line("arc-tip-name", arc.name), line("arc-tip-range", rangeLabel(arc)));
+      if (arc.desc) head.append(line("arc-tip-desc", arc.desc));
+      tipEl.append(head);
+    }
+    if (title) {
+      const body = document.createElement("div");
+      body.className = `arc-tip-ep${arc ? " after-arc" : ""}`;
+      body.append(line("arc-tip-title", title));
+      if (overview) body.append(line("arc-tip-desc", overview));
+      tipEl.append(body);
+    }
+    tipEl.hidden = false;
+    placeTip();
+  }
+
+  document.addEventListener("mouseover", (e) => {
+    const tile = e.target.closest && e.target.closest(".ep[data-tip-title]");
+    if (tile === tipFor) return;
+    hideTip();
+    if (!tile) return;
+    tipFor = tile;
+    tipTimer = setTimeout(() => showTip(tile), 300);
+  });
+  document.addEventListener("mousemove", (e) => {
+    tipX = e.clientX;
+    tipY = e.clientY;
+    placeTip();
+  });
+  document.addEventListener("scroll", hideTip, { passive: true, capture: true });
+  document.addEventListener("mousedown", hideTip);
+  document.documentElement.addEventListener("mouseleave", hideTip);
+
   let resizeTimer = null;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      if (decorated) decorate(decorated.root, decorated.show);
+      if (decorated) decorate(decorated.root, decorated.shows);
     }, 150);
   });
 
@@ -222,18 +337,29 @@ const Arcs = (() => {
     for (const raw of data) {
       if (!raw || typeof raw !== "object") return null;
       let from = Number(raw.from ?? raw.start);
-      let to = Number(raw.to ?? raw.end);
+      const toRaw = raw.to ?? raw.end;
+      let to = Number(toRaw);
+      let open =
+        raw.open === true ||
+        raw.ongoing === true ||
+        ("to" in raw && raw.to === null) ||
+        (typeof toRaw === "string" && OPEN_WORD.test(toRaw.trim()));
       if ((!from || !to) && typeof raw.episodes === "string") {
         const m = raw.episodes.match(/(\d+)\s*(?:-|–|—|to)\s*(\d+)/i);
         if (m) [from, to] = [Number(m[1]), Number(m[2])];
+        else {
+          const o = raw.episodes.match(/^\s*(\d+)\s*(?:(?:-|–|—|to)\s*\D*|\+)\s*$/i);
+          if (o) [from, open] = [Number(o[1]), true];
+        }
       }
       const name = String(raw.name || "").trim();
-      if (!name || !(from >= 1 && to >= from)) return null;
+      if (!name || !(from >= 1) || (!open && !(to >= from))) return null;
       out.push({
         id: newId(),
         name,
         from,
-        to,
+        to: open ? null : to,
+        ...(open ? { open: true } : {}),
         desc: String(raw.desc ?? raw.description ?? "").trim(),
       });
     }
@@ -245,13 +371,20 @@ const Arcs = (() => {
     const parts = line.split("|").map((s) => s.trim());
     const head = parts[0];
     const desc = parts.slice(1).join(" | ");
-    const m = head.match(/(\d+)\s*(?:-|–|—|to)\s*(\d+)/i);
+    let m = head.match(/(\d+)\s*(?:-|–|—|to)\s*(\d+)/i);
+    let open = false;
+    if (!m) {
+      // "Egghead 1086-", "Egghead 1086+", "Egghead 1086-ongoing": no end yet.
+      m = head.match(/(\d+)\s*(?:(?:-|–|—|to)\s*(?:ongoing|airing|now|present|current|\?)?|\+)\s*[)\]]?\s*$/i);
+      open = !!m;
+    }
     if (!m) return null;
     const before = head.slice(0, m.index).replace(/[\s:(\[–—-]+$/, "").trim();
     const after = head.slice(m.index + m[0].length).replace(/^[\s)\]:–—-]+/, "").trim();
     const name = before || after;
     if (!name) return null;
     const from = Number(m[1]);
+    if (open) return from >= 1 ? { id: newId(), name, from, to: null, open: true, desc } : null;
     const to = Number(m[2]);
     if (from < 1 || to < from) return null;
     return { id: newId(), name, from, to, desc };
@@ -274,7 +407,8 @@ const Arcs = (() => {
       <form class="arcs-form" data-arc-form="add" hidden>
         <label><span>Name</span><input name="name" required maxlength="80" placeholder="Wano Country" /></label>
         <label><span>From ep</span><input name="from" type="number" min="1" required /></label>
-        <label><span>To ep</span><input name="to" type="number" min="1" required /></label>
+        <label><span>To ep</span><input name="to" type="number" min="1" /></label>
+        <label class="arcs-wide arcs-check"><input name="open" type="checkbox" /><span>Current arc, still airing (no end episode yet)</span></label>
         <label class="arcs-wide"><span>Description</span><textarea name="desc" rows="2" maxlength="400" placeholder="What happens in this arc"></textarea></label>
         <div class="arcs-form-actions">
           <button type="button" class="btn btn-ghost sm" data-arc-toggle="add">Cancel</button>
@@ -284,7 +418,7 @@ const Arcs = (() => {
 
       <div class="arcs-paste" data-arc-form="paste" hidden>
         <textarea rows="6" placeholder="One arc per line:&#10;Romance Dawn 1-3&#10;Orange Town 4-8 | Luffy's first real fight&#10;&#10;or JSON:&#10;[{&quot;name&quot;:&quot;Wano&quot;,&quot;from&quot;:892,&quot;to&quot;:1085,&quot;desc&quot;:&quot;&quot;}]"></textarea>
-        <p class="arcs-hint">Lines: <code>Name from-to</code>, optionally <code>| description</code>. Or paste a JSON array of <code>{name, from, to, desc}</code>.</p>
+        <p class="arcs-hint">Lines: <code>Name from-to</code>, optionally <code>| description</code>. For the arc still airing, leave the end off: <code>Egghead 1086-</code>. Or paste a JSON array of <code>{name, from, to, desc}</code>.</p>
         <div class="arcs-form-actions">
           <button type="button" class="btn btn-ghost sm" data-arc-toggle="paste">Cancel</button>
           <button type="button" class="btn btn-accent sm" data-arc-import>Import</button>
@@ -297,12 +431,12 @@ const Arcs = (() => {
           ? `<ul class="arcs-list">${arcs
               .map((arc) => {
                 const p = progress(show, arc, flat);
-                const span = arc.to - arc.from + 1;
+                const span = Math.max(0, endOf(arc, flat.length) - arc.from + 1);
                 return `
                 <li class="arc-row">
                   <div class="arc-row-main">
                     <b>${esc(arc.name)}</b>
-                    <span class="arc-range">Ep ${arc.from}–${arc.to} · ${span} ep${arc.desc ? ` · ${esc(arc.desc)}` : ""}</span>
+                    <span class="arc-range">${rangeLabel(arc)} · ${span} ep${arc.open ? " so far" : ""}${arc.desc ? ` · ${esc(arc.desc)}` : ""}</span>
                   </div>
                   <span class="arc-count">${p.done} / ${p.total}</span>
                   <button class="btn btn-ghost sm" data-arc-action="${p.total && p.done >= p.total ? "unmark" : "mark"}" data-arc-id="${esc(arc.id)}">${p.total && p.done >= p.total ? "Unmark" : "Mark all"}</button>
@@ -337,13 +471,18 @@ const Arcs = (() => {
       const form = e.currentTarget;
       const fd = new FormData(form);
       const from = Number(fd.get("from"));
-      const to = Number(fd.get("to"));
-      if (!(from >= 1 && to >= from)) return;
+      const open = fd.get("open") === "on";
+      const to = open ? null : Number(fd.get("to"));
+      if (!(from >= 1) || (!open && !(to >= from))) {
+        form.querySelector('[name="to"]').focus();
+        return;
+      }
       saveForShow(show.id, forShow(show.id).concat({
         id: newId(),
         name: String(fd.get("name")).trim(),
         from,
         to,
+        ...(open ? { open: true } : {}),
         desc: String(fd.get("desc") || "").trim(),
       }));
       refresh();

@@ -17,3 +17,5 @@ sweep_out.tsv
 *.log
 CLAUDE.MD
 AGENTS.MD
+# Local test screenshots
+arcs-screenshots/

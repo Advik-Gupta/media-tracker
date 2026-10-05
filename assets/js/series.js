@@ -104,7 +104,7 @@
       <button class="ep${done ? " done" : ""}${future ? " future" : ""}${filler ? " filler" : ""}"
               data-show="${show.id}" data-season="${season.n}" data-ep="${ep.n}"
               aria-pressed="${done}"
-              title="${esc(ep.t)}${ep.o ? " - " + esc(ep.o) : ""}">
+              data-tip-title="${esc(ep.t)}" data-tip-desc="${esc(ep.o || "")}">
         <span class="ep-rating r-${band(ep.r)}">${future ? "·" : fmtRating(ep.r)}</span>
         <span class="ep-main">
           <span class="ep-code">${code}</span>
@@ -250,11 +250,13 @@
   function redrawArcs() {
     if (!canMarkFiller || typeof Arcs === "undefined" || !DATA.shows[0]) return;
     try {
-      Arcs.decorate(root, DATA.shows[0]);
+      Arcs.decorate(root, DATA.shows);
     } catch (err) {
       console.error("Arcs could not draw", err);
     }
   }
+
+  let painted = false;
 
   function render() {
     if (firstRender) {
@@ -284,6 +286,9 @@
       arcsSwitch.setAttribute("aria-checked", String(Arcs.enabled()));
     }
     updateSummary();
+    // Re-renders show at once: a long episode list is too tall for the scroll-in reveal to ever trigger.
+    if (painted) root.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
+    painted = true;
     if (typeof initReveal === "function") initReveal();
   }
 
@@ -726,7 +731,10 @@
     for (const show of DATA.shows) {
       for (const season of show.seasons) {
         const next = season.episodes.find(
-          (ep) => aired(ep) && !Store.has(...epRef(show.id, season.n, ep.n)),
+          (ep) =>
+            aired(ep) &&
+            !isFiller(show.id, season.n, ep.n) &&
+            !Store.has(...epRef(show.id, season.n, ep.n)),
         );
         if (!next) continue;
         const key = `${show.id}-${season.n}`;
