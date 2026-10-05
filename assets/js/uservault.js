@@ -4,6 +4,7 @@ const UserVault = (() => {
   const META_KEY = "mediavault.showdata.meta";
   const WISH_KEY = "mediavault.mywishlist";
   const ARCS_KEY = "mediavault.arcs";
+  const PAGES_KEY = "mediavault.pages";
 
   const read = (key, fallback) => {
     try {
@@ -124,12 +125,182 @@ const UserVault = (() => {
     };
   }
 
-  return {
+  let migrated = false;
+
+  function migrateLegacy() {
+    if (typeof Store === "undefined") return 0;
+    const counts = window.SERIES_COUNTS;
+    if (!counts) return 0;
+    const raw = read(LIST_KEY, []);
+    if (!Array.isArray(raw)) return 0;
+    const legacy = raw.filter((x) => x && x.id != null && x.uni && x.uni !== uniOf(x.id));
+    if (!legacy.length) return 0;
+
+    const progress = Store.exportAll();
+    const cache = read(DATA_KEY, {});
+    const list = raw.slice();
+    let moved = 0;
+
+    for (const entry of legacy) {
+      const old = entry.uni;
+      const meta = counts[old];
+      const shows = meta && Array.isArray(meta.perShow) && meta.perShow.length
+        ? meta.perShow
+        : [{ id: entry.id, title: entry.name, poster: entry.poster }];
+      const hostId = Number(entry.id);
+
+      for (const sh of shows) {
+        const to = uniOf(sh.id);
+        const prefix = `e${sh.id}-`;
+        for (const [from, dest] of [[old, to], [`__filler_${old}`, `__filler_${to}`]]) {
+          const bucket = progress[from];
+          if (!bucket) continue;
+          for (const key of Object.keys(bucket)) {
+            if (!key.startsWith(prefix)) continue;
+            (progress[dest] || (progress[dest] = {}))[key] = bucket[key];
+            delete bucket[key];
+            moved += 1;
+          }
+          if (!Object.keys(bucket).length) delete progress[from];
+        }
+
+        const cached = cache[old] && (cache[old].shows || []).find((x) => String(x.id) === String(sh.id));
+        if (cached && !cache[to]) cache[to] = { shows: [cached], films: [] };
+
+        if (Number(sh.id) === hostId) continue;
+        if (!list.some((x) => String(x.id) === String(sh.id))) {
+          list.push({
+            id: Number(sh.id),
+            uni: to,
+            name: sh.title || `Show ${sh.id}`,
+            kind: entry.kind,
+            poster: sh.poster || "",
+            year: "",
+            addedAt: entry.addedAt || Date.now(),
+            mergedInto: hostId,
+          });
+        }
+      }
+
+      const flags = progress.__flags || {};
+      for (const key of Object.keys(flags)) {
+        const [name, ...rest] = key.split(":");
+        if (rest.join(":") !== old) continue;
+        flags[`${name}:${uniOf(hostId)}`] = flags[key];
+        delete flags[key];
+      }
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k || !k.startsWith("mediavault.order.")) continue;
+          const ids = read(k, []);
+          if (Array.isArray(ids) && ids.includes(old))
+            write(k, ids.map((x) => (x === old ? uniOf(hostId) : x)));
+        }
+      } catch (e) {}
+
+      delete cache[old];
+      entry.uni = uniOf(hostId);
+    }
+
+    write(LIST_KEY, list);
+    write(DATA_KEY, cache);
+    Store.touch();
+    return moved;
+  }
+
+  const api = {
     uniOf,
     transform,
     countsFor,
 
+    pages() {
+      const v = read(PAGES_KEY, {});
+      return v && typeof v === "object" ? v : {};
+    },
+
+    page(hostId) {
+      const p = this.pages()[hostId] || {};
+      return {
+        units: Array.isArray(p.units) ? p.units : [],
+        films: Array.isArray(p.films) ? p.films : [],
+      };
+    },
+
+    savePage(hostId, page) {
+      const all = this.pages();
+      all[hostId] = { units: page.units || [], films: page.films || [] };
+      write(PAGES_KEY, all);
+      if (typeof Store !== "undefined") Store.touch();
+    },
+
+    hostOf(tmdbId) {
+      const e = this.entry(tmdbId);
+      return e && e.mergedInto != null && this.entry(e.mergedInto)
+        ? Number(e.mergedInto)
+        : Number(tmdbId);
+    },
+
+    members(hostId) {
+      const host = this.entry(hostId);
+      if (!host) return [];
+      return [
+        host,
+        ...this.list().filter(
+          (x) => x.mergedInto != null && String(x.mergedInto) === String(hostId),
+        ),
+      ];
+    },
+
+    merge(childId, hostId) {
+      hostId = this.hostOf(hostId);
+      if (String(childId) === String(hostId)) return false;
+      const list = this.list();
+      const child = list.find((x) => String(x.id) === String(childId));
+      const host = list.find((x) => String(x.id) === String(hostId));
+      if (!child || !host) return false;
+
+      list.forEach((x) => {
+        if (x.mergedInto != null && String(x.mergedInto) === String(childId))
+          x.mergedInto = Number(hostId);
+      });
+      child.mergedInto = Number(hostId);
+      write(LIST_KEY, list);
+
+      const from = this.page(childId);
+      if (from.films.length) {
+        const to = this.page(hostId);
+        from.films.forEach((f) => {
+          if (!to.films.some((x) => x.key === f.key)) to.films.push(f);
+        });
+        const all = this.pages();
+        all[hostId] = { units: to.units, films: to.films };
+        delete all[childId];
+        write(PAGES_KEY, all);
+      }
+      if (typeof Store !== "undefined") Store.touch();
+      return true;
+    },
+
+    unmerge(childId) {
+      const list = this.list();
+      const child = list.find((x) => String(x.id) === String(childId));
+      if (!child || child.mergedInto == null) return false;
+      delete child.mergedInto;
+      write(LIST_KEY, list);
+      if (typeof Store !== "undefined") Store.touch();
+      return true;
+    },
+
     list() {
+      if (!migrated && window.SERIES_COUNTS && typeof Store !== "undefined") {
+        migrated = true;
+        try {
+          migrateLegacy();
+        } catch (e) {
+          console.error("Media Vault: could not migrate saved shows", e);
+        }
+      }
       const v = read(LIST_KEY, []);
       if (!Array.isArray(v)) return [];
       const seen = new Set();
@@ -200,9 +371,24 @@ const UserVault = (() => {
 
     remove(uni) {
       const entry = this.list().find((x) => x.uni === uni) || null;
-      const snapshot = { entry, data: this.data(uni), buckets: {}, flags: {}, arcs: null, orders: {} };
+      const snapshot = { entry, data: this.data(uni), buckets: {}, flags: {}, arcs: null, orders: {}, page: null, children: [] };
 
-      write(LIST_KEY, this.list().filter((x) => x.uni !== uni));
+      const kept = this.list().filter((x) => x.uni !== uni);
+      if (entry) {
+        kept.forEach((x) => {
+          if (x.mergedInto != null && String(x.mergedInto) === String(entry.id)) {
+            snapshot.children.push(x.id);
+            delete x.mergedInto;
+          }
+        });
+        const pages = this.pages();
+        if (pages[entry.id]) {
+          snapshot.page = pages[entry.id];
+          delete pages[entry.id];
+          write(PAGES_KEY, pages);
+        }
+      }
+      write(LIST_KEY, kept);
       const all = read(DATA_KEY, {});
       delete all[uni];
       write(DATA_KEY, all);
@@ -259,6 +445,19 @@ const UserVault = (() => {
         list.unshift(snapshot.entry);
         write(LIST_KEY, list);
       }
+      if (snapshot.children && snapshot.children.length) {
+        const now = this.list();
+        now.forEach((x) => {
+          if (snapshot.children.some((c) => String(c) === String(x.id)))
+            x.mergedInto = Number(snapshot.entry.id);
+        });
+        write(LIST_KEY, now);
+      }
+      if (snapshot.page) {
+        const pages = this.pages();
+        pages[snapshot.entry.id] = snapshot.page;
+        write(PAGES_KEY, pages);
+      }
       if (snapshot.data) this.setData(snapshot.entry.uni, snapshot.data);
       if (typeof Store !== "undefined") {
         const progress = Store.exportAll();
@@ -279,6 +478,7 @@ const UserVault = (() => {
     asUniverses(kind) {
       return this.list()
         .filter((x) => !kind || x.kind === kind)
+        .filter((x) => x.mergedInto == null || !this.entry(x.mergedInto))
         .map((x) => ({
           id: x.uni,
           kind: x.kind,
@@ -338,4 +538,6 @@ const UserVault = (() => {
       return ok;
     },
   };
+
+  return api;
 })();

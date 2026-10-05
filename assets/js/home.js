@@ -461,6 +461,10 @@
           .filter((u) => !mineIds.has(u.id))
           .filter((u) => (window.SERIES_COUNTS || {})[u.id])
           .filter((u) => {
+            const shows = ((window.SERIES_COUNTS || {})[u.id].perShow || []);
+            return !shows.some((sh) => UserVault.has(sh.id));
+          })
+          .filter((u) => {
             const s = statsFor(u);
             return s && s.done > 0;
           });

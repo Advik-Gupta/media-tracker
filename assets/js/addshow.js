@@ -126,6 +126,13 @@
   }
   let lastHits = new Map();
 
+  const hostName = (id) => {
+    const host = UserVault.hostOf(id);
+    if (String(host) === String(id)) return "";
+    const e = UserVault.entry(host);
+    return e ? e.name : "";
+  };
+
   const viewHrefFor = (id) => {
     const entry = UserVault.entry(id);
     const folder = (entry ? entry.kind : MODE) === "anime" ? "anime" : "shows";
@@ -183,7 +190,7 @@
           <b class="wl-sugg-title">${esc(d.name)}</b>
           <span class="wl-sugg-sub">${year}${d.vote_average ? ` · ${d.vote_average.toFixed(1)}` : ""}</span>
         </span>
-        <span class="wl-sugg-cta">${owned ? "In your list" : "Preview"}</span>
+        <span class="wl-sugg-cta">${owned ? (hostName(d.id) ? `On ${esc(hostName(d.id))}\u2019s page` : "In your list") : "Preview"}</span>
       </button>
       ${
         owned

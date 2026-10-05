@@ -41,68 +41,117 @@
   }
 
   const saved = UserVault.entry(id);
-  const own = saved && saved.uni === UserVault.uniOf(id);
-  const known = own ? null : builtIn(id);
+  const hostId = saved ? UserVault.hostOf(id) : null;
+  if (saved && String(hostId) !== String(id)) {
+    params.set("id", hostId);
+    location.replace(`${location.pathname}?${params}`);
+    return;
+  }
+
+  const known = saved ? null : builtIn(id);
   const uni = known ? known.uni : UserVault.uniOf(id);
-  const showIds = known ? known.meta.perShow.map((s) => String(s.id)) : [id];
+  const memberIds = () =>
+    saved
+      ? UserVault.members(id).map((m) => String(m.id))
+      : known
+        ? known.meta.perShow.map((s) => String(s.id))
+        : [id];
 
   const FRESH_MS = 15 * 60 * 1000;
 
+  async function fetchShow(sid) {
+    try {
+      const [dr, sr] = await Promise.all([
+        fetch(`${API}/show/${sid}`),
+        fetch(`${API}/show/${sid}/seasons`),
+      ]);
+      if (!dr.ok || !sr.ok) return null;
+      const detail = await dr.json();
+      const seasons = await sr.json();
+      if (!detail || !Array.isArray(seasons) || !seasons.length) return null;
+      const entry = UserVault.entry(sid) || {};
+      const hit = {
+        id: Number(sid),
+        name: detail.name || entry.name || "Untitled",
+        first_air_date: detail.first_air_date || "",
+        vote_average: detail.vote_average,
+        poster_path: detail.poster_path,
+        backdrop_path: detail.backdrop_path,
+        overview: entry.overview || "",
+      };
+      return UserVault.transform(hit, detail, seasons).shows[0];
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function defaultUnits(shows, films) {
+    return [
+      ...shows.flatMap((sh) => sh.seasons.map((se) => `s:${sh.id}:${se.n}`)),
+      ...films.map((f) => `f:${f.key}`),
+    ];
+  }
+
+  function compose(shows) {
+    if (!saved) return { shows, films: [] };
+    const page = UserVault.page(id);
+    const films = page.films.map((f) => ({ ...f, film: f.key }));
+    const valid = new Set(defaultUnits(shows, films));
+    const units = page.units.filter((x) => valid.has(x));
+    defaultUnits(shows, films).forEach((x) => {
+      if (!units.includes(x)) units.push(x);
+    });
+    const buckets = {};
+    shows.forEach((sh) => (buckets[sh.id] = UserVault.uniOf(sh.id)));
+    return { shows, films, units, buckets, hostId: Number(id) };
+  }
+
   async function load({ force } = {}) {
-    const cached = UserVault.data(uni);
+    const ids = memberIds();
+    const cacheKey = (sid) => (saved ? UserVault.uniOf(sid) : uni);
+
+    const fromCache = () => {
+      if (!saved) {
+        const whole = UserVault.data(uni);
+        return whole ? whole.shows || [] : null;
+      }
+      const out = ids.map((sid) => {
+        const d = UserVault.data(cacheKey(sid));
+        return d && d.shows && d.shows[0] ? d.shows[0] : null;
+      });
+      return out.every(Boolean) ? out : null;
+    };
+
+    const cached = fromCache();
+    const fresh = ids.every((sid) => UserVault.dataAge(cacheKey(sid)) < FRESH_MS);
 
     if (cached) {
-      render(cached, { stale: false });
-      if (!force && UserVault.dataAge(uni) < FRESH_MS) return;
+      render(compose(cached), { stale: false });
+      if (!force && fresh) return;
     } else {
       statusEl.hidden = false;
       statusEl.innerHTML = `<i class="spinner"></i>${force ? "Refreshing" : "Fetching episodes"}…`;
     }
 
-    let failed = false;
-
-    const fetched = await Promise.all(
-      showIds.map(async (sid) => {
-        try {
-          const [dr, sr] = await Promise.all([
-            fetch(`${API}/show/${sid}`),
-            fetch(`${API}/show/${sid}/seasons`),
-          ]);
-          if (!dr.ok || !sr.ok) {
-            failed = true;
-            return null;
-          }
-          return { sid, detail: await dr.json(), seasons: await sr.json() };
-        } catch (e) {
-          failed = true;
-          return null;
-        }
-      }),
-    );
-
-    const good = fetched.filter(
-      (x) => x && x.detail && Array.isArray(x.seasons) && x.seasons.length,
-    );
+    const fetched = await Promise.all(ids.map(fetchShow));
+    const failed = fetched.some((x) => !x);
+    const good = fetched.filter(Boolean);
 
     if (good.length) {
-      const saved = UserVault.list().find((x) => x.uni === uni) || {};
-      const shows = good.map((x) => {
-        const hit = {
-          id: Number(x.sid),
-          name: x.detail.name || saved.name || "Untitled",
-          first_air_date: x.detail.first_air_date || "",
-          vote_average: x.detail.vote_average,
-          poster_path: x.detail.poster_path,
-          backdrop_path: x.detail.backdrop_path,
-          overview: saved.overview || "",
-        };
-        return UserVault.transform(hit, x.detail, x.seasons).shows[0];
-      });
-
-      const data = { shows, films: [] };
-      const changed = JSON.stringify(data) !== JSON.stringify(cached);
-      UserVault.setData(uni, data);
-      if (!cached || changed) return render(data, { stale: false });
+      let shows = good;
+      if (saved) {
+        good.forEach((sh) => UserVault.setData(UserVault.uniOf(sh.id), { shows: [sh], films: [] }));
+        shows = ids
+          .map((sid) => {
+            const d = UserVault.data(UserVault.uniOf(sid));
+            return d && d.shows ? d.shows[0] : null;
+          })
+          .filter(Boolean);
+      } else {
+        UserVault.setData(uni, { shows, films: [] });
+      }
+      const changed = !cached || JSON.stringify(shows) !== JSON.stringify(cached);
+      if (changed) return render(compose(shows), { stale: false });
       return;
     }
 
@@ -114,9 +163,7 @@
     }
 
     fail(
-      failed
-        ? "Could not reach the episode API."
-        : "No episode data for this id.",
+      failed ? "Could not reach the episode API." : "No episode data for this id.",
       failed
         ? "The /api proxy is unavailable on this host, or the upstream is down. Nothing is cached for this show yet."
         : "The API returned no seasons for it.",
@@ -169,6 +216,13 @@
     const s = document.createElement("script");
     const stamped = document.getElementById("seriesSrc");
     s.src = (stamped && stamped.getAttribute("href")) || "assets/js/series.js";
+    s.onload = () => {
+      if (!data.hostId) return;
+      const edit = document.createElement("script");
+      const editSrc = document.getElementById("pageEditSrc");
+      edit.src = (editSrc && editSrc.getAttribute("href")) || "assets/js/pageedit.js";
+      document.body.appendChild(edit);
+    };
     document.body.appendChild(s);
   }
 

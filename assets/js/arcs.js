@@ -77,8 +77,9 @@ const Arcs = (() => {
 
   function progress(show, arc, flat) {
     const all = (typeof Store !== "undefined" && Store.exportAll()) || {};
-    const bucket = all[host.uni] || {};
-    const filler = all[`__filler_${host.uni}`] || {};
+    const uni = host.bucketOf ? host.bucketOf(show.id) : host.uni;
+    const bucket = all[uni] || {};
+    const filler = all[`__filler_${uni}`] || {};
     let done = 0;
     let total = 0;
     for (let i = arc.from; i <= endOf(arc, flat.length); i++) {
@@ -95,7 +96,7 @@ const Arcs = (() => {
     const refs = [];
     for (let i = arc.from; i <= endOf(arc, flat.length); i++) {
       const ep = flat[i - 1];
-      refs.push([host.uni, `e${show.id}-${ep.season}x${ep.episode}`]);
+      refs.push([host.bucketOf ? host.bucketOf(show.id) : host.uni, `e${show.id}-${ep.season}x${ep.episode}`]);
     }
     Store.setRefs(refs, value);
   }
@@ -126,9 +127,7 @@ const Arcs = (() => {
     for (const show of shows) {
       const map = arcMap(show);
       if (!map.size) continue;
-      const scope =
-        shows.length > 1 ? root.querySelector(`.show[data-show="${show.id}"]`) : root;
-      if (!scope) continue;
+      const scope = root;
       const flat = flatten(show);
       const info = new Map(flat.map((ep) => [`${ep.season}x${ep.episode}`, ep]));
       const last = flat[flat.length - 1] || {};
@@ -139,7 +138,7 @@ const Arcs = (() => {
           (t) =>
             t.classList.contains("ep") &&
             t.offsetParent !== null &&
-            (shows.length === 1 || String(t.dataset.show) === String(show.id)),
+            String(t.dataset.show) === String(show.id),
         );
         if (!tiles.length) return;
         const items = tiles.map((el) => ({

@@ -8,11 +8,15 @@
 
   if (Store.migrateMerges) Store.migrateMerges();
 
-  const epRef = (showId, s, e) => [UNI, `e${showId}-${s}x${e}`];
+  const bucketOf = (showId) => (DATA.buckets && DATA.buckets[showId]) || UNI;
+  const fillerBucket = (showId) => `__filler_${bucketOf(showId)}`;
+  const epRef = (showId, s, e) => [bucketOf(showId), `e${showId}-${s}x${e}`];
   const filmRef = (f) =>
-    typeof progressRef === "function"
-      ? progressRef(UNI, { film: f.film })
-      : [UNI, f.film];
+    f.src && f.src !== "registry"
+      ? [UNI, `m:${f.film}`]
+      : typeof progressRef === "function"
+        ? progressRef(UNI, { film: f.film })
+        : [UNI, f.film];
 
   const esc = (s) =>
     String(s == null ? "" : s).replace(
@@ -22,9 +26,8 @@
 
   const aired = (ep) => ep.d && new Date(ep.d) <= new Date();
 
-  const FILLER = `__filler_${UNI}`;
   const fillerKey = (showId, s, e) => `e${showId}-${s}x${e}`;
-  const isFiller = (showId, s, e) => Store.has(FILLER, fillerKey(showId, s, e));
+  const isFiller = (showId, s, e) => Store.has(fillerBucket(showId), fillerKey(showId, s, e));
   const canMarkFiller = (document.body.dataset.mode || "") === "anime";
 
   const BANDS = [
@@ -160,12 +163,11 @@
       </section>`;
   }
 
-  function showBlock(show) {
+  function showHead(show) {
     const { done, total } = tally(showRefs(show));
     const eps = show.seasons.reduce((n, s) => n + s.episodes.length, 0);
 
     return `
-      <article class="show reveal" data-show="${show.id}">
         <header class="show-head">
           <div class="show-poster">
             ${
@@ -206,36 +208,132 @@
               }
             </div>
           </div>
-        </header>
+        </header>`;
+  }
+
+  function showBlock(show) {
+    return `
+      <article class="show reveal" data-show="${show.id}">
+        ${showHead(show)}
         ${show.seasons.map((se) => seasonBlock(show, se)).join("")}
       </article>`;
+  }
+
+  function pageHtml() {
+    if (!Array.isArray(DATA.units)) {
+      return (
+        DATA.shows.map(showBlock).join("") +
+        (DATA.films || []).map(filmBlock).join("")
+      );
+    }
+    const seen = new Set();
+    let html = "";
+    let open = null;
+    const close = () => {
+      if (open != null) html += "</article>";
+      open = null;
+    };
+    for (const unit of DATA.units) {
+      const [type, a, b] = unit.split(":");
+      if (type === "s") {
+        const show = DATA.shows.find((x) => String(x.id) === a);
+        const season = show && show.seasons.find((x) => String(x.n) === b);
+        if (!season) continue;
+        if (open !== a) {
+          close();
+          html += `<article class="show reveal${seen.has(a) ? " continued" : ""}" data-show="${show.id}">`;
+          html += seen.has(a)
+            ? `<p class="show-continued">${esc(show.title)}, continued</p>`
+            : showHead(show);
+          seen.add(a);
+          open = a;
+        }
+        html += seasonBlock(show, season);
+      } else {
+        const key = unit.slice(2);
+        const film = (DATA.films || []).find((x) => x.film === key);
+        if (!film) continue;
+        close();
+        html += filmBlock(film);
+      }
+    }
+    close();
+    return html;
+  }
+
+  const runtime = (mins) => {
+    const m = Number(mins) || 0;
+    if (!m) return "";
+    return m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`;
+  };
+
+  const filmInfo = new Map();
+
+  function filmDetails(f) {
+    const base =
+      f.src && f.src !== "registry"
+        ? f
+        : typeof FILMS !== "undefined" && FILMS[f.film]
+          ? FILMS[f.film]
+          : f;
+    const more = filmInfo.get(f.film) || {};
+    return {
+      poster: base.poster || more.poster || "",
+      mins: base.mins || more.mins || 0,
+      score: base.score || more.rating || null,
+      plot: f.note || more.plot || "",
+      genres: more.genres || [],
+      director: more.director || "",
+      cast: more.cast || [],
+      rated: more.rated || "",
+      languages: more.languages || [],
+      awards: more.awards || "",
+      loading: !filmInfo.has(f.film),
+    };
   }
 
   function filmBlock(f) {
     const ref = filmRef(f);
     const done = Store.has(...ref);
-    const meta =
-      typeof FILMS !== "undefined" && FILMS[f.film] ? FILMS[f.film] : {};
+    const d = filmDetails(f);
+    const facts = [
+      d.director ? ["Director", d.director] : null,
+      d.cast.length ? ["Cast", d.cast.slice(0, 4).join(", ")] : null,
+      d.languages.length ? ["Language", d.languages.slice(0, 2).join(", ")] : null,
+      d.awards ? ["Awards", d.awards] : null,
+    ].filter(Boolean);
 
     return `
       <article class="show film-block reveal${done ? " done" : ""}" data-film="${esc(f.film)}">
         <header class="show-head">
           <div class="show-poster">
             ${
-              meta.poster
-                ? `<img src="${meta.poster}" alt="Poster for ${esc(f.title)}" loading="lazy" decoding="async">`
+              d.poster
+                ? `<img src="${esc(d.poster)}" alt="Poster for ${esc(f.title)}" loading="lazy" decoding="async">`
                 : ""
             }
             <span class="stamp">Seen</span>
           </div>
           <div class="show-info">
-            <span class="badge">Film</span>
+            <span class="film-kicker">Film${f.src === "custom" ? " · added by you" : ""}</span>
             <h2>${esc(f.title)}</h2>
             <p class="show-meta">
-              <span>${f.year}</span>
-              ${meta.mins ? `<span>${fmtRuntime(meta.mins)}</span>` : ""}
-              ${meta.score ? `<span class="r-${band(meta.score)}">${meta.score.toFixed(1)}</span>` : ""}
+              ${f.year ? `<span>${esc(f.year)}</span>` : ""}
+              ${d.mins ? `<span>${runtime(d.mins)}</span>` : ""}
+              ${d.rated ? `<span>${esc(d.rated)}</span>` : ""}
+              ${d.genres.length ? `<span>${esc(d.genres.slice(0, 3).join(", "))}</span>` : ""}
+              ${d.score ? `<span class="r-${band(d.score)}">${Number(d.score).toFixed(1)}</span>` : ""}
             </p>
+            ${d.plot ? `<p class="show-blurb film-plot">${esc(d.plot)}</p>` : ""}
+            ${
+              facts.length
+                ? `<dl class="film-facts">${facts
+                    .map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`)
+                    .join("")}</dl>`
+                : d.loading && f.src !== "custom"
+                  ? '<p class="film-loading">Looking up details…</p>'
+                  : ""
+            }
             <div class="show-progress">
               <button class="btn ${done ? "btn-ghost" : "btn-accent"} sm" data-film-toggle="${esc(f.film)}">
                 ${done ? "Watched" : "Mark watched"}
@@ -244,6 +342,26 @@
           </div>
         </header>
       </article>`;
+  }
+
+  let hydrating = false;
+  async function hydrateFilms() {
+    if (hydrating || typeof OMDb === "undefined" || !OMDb.enabled()) return;
+    const todo = (DATA.films || []).filter((f) => !filmInfo.has(f.film) && f.src !== "custom");
+    if (!todo.length) return;
+    hydrating = true;
+    await Promise.all(
+      todo.map(async (f) => {
+        let info = null;
+        try {
+          info = await OMDb.lookup({ title: f.title, year: f.year });
+          if (!info && f.year) info = await OMDb.lookup({ title: f.title });
+        } catch (e) {}
+        filmInfo.set(f.film, info || {});
+      }),
+    );
+    hydrating = false;
+    render();
   }
 
   function redrawArcs() {
@@ -268,14 +386,12 @@
       firstRender = false;
     }
 
-    root.innerHTML =
-      DATA.shows.map(showBlock).join("") +
-      (DATA.films || []).map(filmBlock).join("");
+    root.innerHTML = pageHtml();
 
     root.classList.toggle("hide-watched", state.hideWatched);
     root.classList.toggle("dense", state.dense);
     if (canMarkFiller && typeof Arcs !== "undefined" && DATA.shows[0]) {
-      Arcs.setHost({ uni: UNI, show: DATA.shows[0], rerender: render });
+      Arcs.setHost({ uni: UNI, bucketOf, show: DATA.shows[0], rerender: render });
       redrawArcs();
     }
     const arcsSwitch = document.getElementById("arcsView");
@@ -285,6 +401,7 @@
       arcsSwitch.setAttribute("aria-checked", String(Arcs.enabled()));
     }
     updateSummary();
+    hydrateFilms();
     if (painted)
       root.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
     painted = true;
@@ -448,7 +565,7 @@
       const refs = [];
       show.seasons.forEach((se) =>
         se.episodes.forEach((ep) =>
-          refs.push([FILLER, fillerKey(show.id, se.n, ep.n)]),
+          refs.push([fillerBucket(show.id), fillerKey(show.id, se.n, ep.n)]),
         ),
       );
       Store.setRefs(refs, false);
@@ -465,7 +582,7 @@
         const n = Number(btn.dataset.fillerSeason);
         const se = show.seasons.find((x) => x.n === n);
         const refs = se.episodes.map((ep) => [
-          FILLER,
+          fillerBucket(show.id),
           fillerKey(show.id, n, ep.n),
         ]);
         const allOn = refs.every((r) => Store.has(...r));
@@ -484,10 +601,10 @@
           const se = show.seasons.find((x) => x.n === s);
           const refs = se.episodes
             .filter((ep) => ep.n >= from && ep.n <= to)
-            .map((ep) => [FILLER, fillerKey(show.id, s, ep.n)]);
+            .map((ep) => [fillerBucket(show.id), fillerKey(show.id, s, ep.n)]);
           Store.setRefs(refs, true);
         } else {
-          Store.toggle(FILLER, fillerKey(show.id, s, n));
+          Store.toggle(fillerBucket(show.id), fillerKey(show.id, s, n));
         }
 
         lastPicked = { s, e: n };
@@ -519,7 +636,7 @@
         if (!se) return;
         se.episodes
           .filter((ep) => ep.n >= from && ep.n <= to)
-          .forEach((ep) => refs.push([FILLER, fillerKey(show.id, s, ep.n)]));
+          .forEach((ep) => refs.push([fillerBucket(show.id), fillerKey(show.id, s, ep.n)]));
       } else if (plain) {
         const from = Number(plain[1]);
         const to = Number(plain[2] ?? plain[1]);
@@ -527,7 +644,7 @@
           se.episodes
             .filter((ep) => ep.n >= from && ep.n <= to)
             .forEach((ep) =>
-              refs.push([FILLER, fillerKey(show.id, se.n, ep.n)]),
+              refs.push([fillerBucket(show.id), fillerKey(show.id, se.n, ep.n)]),
             ),
         );
       }
@@ -580,7 +697,7 @@
       const show = DATA.shows.find((s) => s.id === showId);
       const season = show.seasons.find((s) => s.n === n);
       const refs = season.episodes.map((ep) => [
-        FILLER,
+        fillerBucket(show.id),
         fillerKey(show.id, n, ep.n),
       ]);
       const allOn = refs.every((r) => Store.has(...r));
@@ -638,6 +755,7 @@
       });
 
       const { done, total } = tally(showRefs(show));
+      if (!showEl.querySelector(".show-count")) return;
       showEl.querySelector(".show-count").textContent =
         `${done} / ${total} watched`;
       showEl.querySelector(".show-progress .season-bar i").style.width =
@@ -761,6 +879,8 @@
     Store.setRefs(allRefs(), false);
     render();
   });
+
+  window.SeriesPage = { uni: UNI, data: DATA, render };
 
   render();
   syncOngoingBtn();
