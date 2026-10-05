@@ -468,21 +468,19 @@ window.SERIES_COUNTS = {
       {
         "id": 94664,
         "title": "Mushoku Tensei: Jobless Reincarnation",
-        "episodes": 59,
-        "ongoing": true,
+        "episodes": 61,
+        "ongoing": false,
         "poster": "https://image.tmdb.org/t/p/w342/gLKOYIMyKlUHW0SVdskhgf9C0yy.jpg"
       }
     ],
     "primary": 94664,
-    "episodes": 59,
+    "episodes": 61,
     "films": 0,
     "shows": 1,
     "poster": "https://image.tmdb.org/t/p/w342/gLKOYIMyKlUHW0SVdskhgf9C0yy.jpg",
-    "ongoing": true,
-    "ongoingTitles": [
-      "Mushoku Tensei: Jobless Reincarnation"
-    ],
-    "upcoming": 2,
+    "ongoing": false,
+    "ongoingTitles": [],
+    "upcoming": 0,
     "lastAir": "2026-08-24"
   },
   "naruto": {
@@ -686,21 +684,19 @@ window.SERIES_COUNTS = {
       {
         "id": 65942,
         "title": "Re:ZERO -Starting Life in Another World-",
-        "episodes": 83,
-        "ongoing": true,
+        "episodes": 85,
+        "ongoing": false,
         "poster": "https://image.tmdb.org/t/p/w342/oHqYrPAsIiTD5m4DuxumV4er8BU.jpg"
       }
     ],
     "primary": 65942,
-    "episodes": 83,
+    "episodes": 85,
     "films": 0,
     "shows": 1,
     "poster": "https://image.tmdb.org/t/p/w342/oHqYrPAsIiTD5m4DuxumV4er8BU.jpg",
-    "ongoing": true,
-    "ongoingTitles": [
-      "Re:ZERO -Starting Life in Another World-"
-    ],
-    "upcoming": 2,
+    "ongoing": false,
+    "ongoingTitles": [],
+    "upcoming": 0,
     "lastAir": "2026-08-26"
   },
   "rickandmorty": {

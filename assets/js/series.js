@@ -256,6 +256,8 @@
 
     root.classList.toggle("hide-watched", state.hideWatched);
     root.classList.toggle("dense", state.dense);
+    if (canMarkFiller && typeof Arcs !== "undefined" && DATA.shows[0])
+      Arcs.render(DATA.shows[0], UNI);
     updateSummary();
     if (typeof initReveal === "function") initReveal();
   }
