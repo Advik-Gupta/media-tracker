@@ -1397,3 +1397,11 @@
   .rnd-modal.show { transform: none; }
   .topbar-inner > a.btn:not(.btn-accent) { display: none; }
 }
+
+.add-modal .wl-sugg-row { display: flex; align-items: center; gap: 8px; }
+.add-modal .wl-sugg-row .wl-sugg { flex: 1; min-width: 0; }
+.add-modal .wl-sugg-row.owned .wl-sugg-cta { color: var(--muted); }
+@media (max-width: 560px) {
+  .add-modal .wl-sugg-row { flex-wrap: wrap; }
+  .add-modal .wl-sugg-row .wl-sugg { flex-basis: 100%; }
+}

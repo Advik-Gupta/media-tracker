@@ -40,7 +40,9 @@
     return null;
   }
 
-  const known = builtIn(id);
+  const saved = UserVault.entry(id);
+  const own = saved && saved.uni === UserVault.uniOf(id);
+  const known = own ? null : builtIn(id);
   const uni = known ? known.uni : UserVault.uniOf(id);
   const showIds = known ? known.meta.perShow.map((s) => String(s.id)) : [id];
 

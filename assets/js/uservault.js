@@ -3,6 +3,7 @@ const UserVault = (() => {
   const DATA_KEY = "mediavault.showdata";
   const META_KEY = "mediavault.showdata.meta";
   const WISH_KEY = "mediavault.mywishlist";
+  const ARCS_KEY = "mediavault.arcs";
 
   const read = (key, fallback) => {
     try {
@@ -130,13 +131,21 @@ const UserVault = (() => {
 
     list() {
       const v = read(LIST_KEY, []);
-      return Array.isArray(v) ? v : [];
+      if (!Array.isArray(v)) return [];
+      const seen = new Set();
+      return v.filter((x) => {
+        if (!x || x.id == null || seen.has(String(x.id))) return false;
+        seen.add(String(x.id));
+        return true;
+      });
+    },
+
+    entry(tmdbId) {
+      return this.list().find((x) => String(x.id) === String(tmdbId)) || null;
     },
 
     has(tmdbId) {
-      return this.list().some(
-        (x) => String(x.id) === String(tmdbId) || x.uni === this.uniFor(tmdbId),
-      );
+      return this.list().some((x) => String(x.id) === String(tmdbId));
     },
 
     data(uni) {
@@ -170,8 +179,8 @@ const UserVault = (() => {
 
     add(entry, data) {
       const list = this.list();
-      const uni = this.uniFor(entry.id);
-      if (list.some((x) => x.uni === uni)) return false;
+      const uni = entry.uni || uniOf(entry.id);
+      if (list.some((x) => String(x.id) === String(entry.id))) return false;
 
       list.unshift({
         id: Number(entry.id),
@@ -190,6 +199,9 @@ const UserVault = (() => {
     },
 
     remove(uni) {
+      const entry = this.list().find((x) => x.uni === uni) || null;
+      const snapshot = { entry, data: this.data(uni), buckets: {}, flags: {}, arcs: null, orders: {} };
+
       write(LIST_KEY, this.list().filter((x) => x.uni !== uni));
       const all = read(DATA_KEY, {});
       delete all[uni];
@@ -197,7 +209,71 @@ const UserVault = (() => {
       const meta = read(META_KEY, {});
       delete meta[uni];
       write(META_KEY, meta);
+
+      if (typeof Store !== "undefined") {
+        const progress = Store.exportAll();
+        for (const bucket of [uni, `__filler_${uni}`]) {
+          if (progress[bucket]) {
+            snapshot.buckets[bucket] = progress[bucket];
+            delete progress[bucket];
+          }
+        }
+        const flags = progress.__flags || {};
+        for (const key of Object.keys(flags)) {
+          if (key.split(":").slice(1).join(":") === uni) {
+            snapshot.flags[key] = flags[key];
+            delete flags[key];
+          }
+        }
+      }
+
+      if (entry) {
+        const arcs = read(ARCS_KEY, {});
+        if (arcs[entry.id]) {
+          snapshot.arcs = arcs[entry.id];
+          delete arcs[entry.id];
+          write(ARCS_KEY, arcs);
+        }
+      }
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k || !k.startsWith("mediavault.order.")) continue;
+          const ids = read(k, []);
+          if (Array.isArray(ids) && ids.includes(uni)) {
+            snapshot.orders[k] = ids;
+            write(k, ids.filter((x) => x !== uni));
+          }
+        }
+        localStorage.removeItem(`mediavault.collapsed.${uni}`);
+      } catch (e) {}
+
       if (typeof Store !== "undefined") Store.touch();
+      return snapshot;
+    },
+
+    restore(snapshot) {
+      if (!snapshot || !snapshot.entry) return false;
+      const list = this.list();
+      if (!list.some((x) => String(x.id) === String(snapshot.entry.id))) {
+        list.unshift(snapshot.entry);
+        write(LIST_KEY, list);
+      }
+      if (snapshot.data) this.setData(snapshot.entry.uni, snapshot.data);
+      if (typeof Store !== "undefined") {
+        const progress = Store.exportAll();
+        Object.assign(progress, snapshot.buckets);
+        if (Object.keys(snapshot.flags).length)
+          progress.__flags = Object.assign(progress.__flags || {}, snapshot.flags);
+      }
+      if (snapshot.arcs) {
+        const arcs = read(ARCS_KEY, {});
+        arcs[snapshot.entry.id] = snapshot.arcs;
+        write(ARCS_KEY, arcs);
+      }
+      for (const [k, ids] of Object.entries(snapshot.orders)) write(k, ids);
+      if (typeof Store !== "undefined") Store.touch();
+      return true;
     },
 
     asUniverses(kind) {

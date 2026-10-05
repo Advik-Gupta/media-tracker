@@ -27,6 +27,7 @@
   function saveSavedLists(list) {
     try {
       localStorage.setItem(SAVED_KEY, JSON.stringify(list));
+      if (typeof Store !== "undefined") Store.touch();
     } catch {}
   }
   function rememberList(list) {

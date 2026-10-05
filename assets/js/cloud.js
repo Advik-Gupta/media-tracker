@@ -60,7 +60,7 @@ const Cloud = (() => {
     return ready;
   }
 
-  async function pull() {
+  async function pull(opts = {}) {
     if (!client || !user) return { ok: false };
 
     const { data, error } = await client
@@ -86,6 +86,9 @@ const Cloud = (() => {
     } finally {
       pulling = false;
     }
+    if (opts.reload !== false && document.readyState !== "loading") {
+      window.location.reload();
+    }
     return { ok: true, kept: "remote" };
   }
 
@@ -108,12 +111,19 @@ const Cloud = (() => {
   function schedulePush() {
     if (!client || !user || pulling) return;
     clearTimeout(pushTimer);
-    pushTimer = setTimeout(() => push(), PUSH_DELAY);
+    pushTimer = setTimeout(() => {
+      pushTimer = null;
+      push();
+    }, PUSH_DELAY);
   }
 
   if (typeof Store !== "undefined" && Store.onChange) {
     Store.onChange(() => schedulePush());
   }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && client && user && !pushTimer) pull();
+  });
 
   window.addEventListener("beforeunload", () => {
     if (!client || !user || !token || pulling) return;

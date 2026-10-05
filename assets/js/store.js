@@ -193,13 +193,23 @@ const Store = (() => {
       "watchvault.omdb.v1",
     ],
 
+    _deviceOnly: ["mediavault.mode", "mediavault.installDismissed"],
+
+    _synced(key) {
+      return (
+        !!key &&
+        key.startsWith("mediavault.") &&
+        !this._refetchable.includes(key) &&
+        !this._deviceOnly.includes(key)
+      );
+    },
+
     exportBundle() {
       const prefs = {};
       try {
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
-          if (!k || !k.startsWith("mediavault.")) continue;
-          if (this._refetchable.includes(k)) continue;
+          if (!this._synced(k)) continue;
           prefs[k] = localStorage.getItem(k);
         }
       } catch (e) {}
@@ -225,9 +235,15 @@ const Store = (() => {
 
       let n = 0;
       try {
-        for (const [k, v] of Object.entries(obj.prefs || {})) {
-          if (!k.startsWith("mediavault.")) continue;
-          if (this._refetchable.includes(k)) continue;
+        const incoming = obj.prefs || {};
+        const stale = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (this._synced(k) && !(k in incoming)) stale.push(k);
+        }
+        stale.forEach((k) => localStorage.removeItem(k));
+        for (const [k, v] of Object.entries(incoming)) {
+          if (!this._synced(k)) continue;
           localStorage.setItem(k, v);
           n += 1;
         }

@@ -220,15 +220,13 @@
 
   function removeUserShow(uni) {
     const kind = uni.kind || "show";
-    const entry = UserVault.list().find((x) => x.uni === uni.id);
-    const data = UserVault.data(uni.id);
-    UserVault.remove(uni.id);
+    const snapshot = UserVault.remove(uni.id);
     renderGrid(kind);
-    if (typeof toast === "function" && entry) {
-      toast(`Removed ${uni.name}`, {
+    if (typeof toast === "function" && snapshot.entry) {
+      toast(`Removed ${uni.name} and its progress`, {
         label: "Undo",
         action: () => {
-          UserVault.add(entry, data);
+          UserVault.restore(snapshot);
           renderGrid(kind);
         },
       });
@@ -473,7 +471,7 @@
 
     let list = (SELF_SERVE ? [...mine, ...trackedBuiltIn] : UNIVERSES)
       .filter((u) => (u.kind || "movie") === kind)
-      .filter((u) => !gone.has(u.id))
+      .filter((u) => u.userAdded || !gone.has(u.id))
       .filter((u) => !u.fromList)
       .filter((u) => !COUNTRY_LISTS.has(u.id))
       .filter(
@@ -572,6 +570,7 @@
   function saveOrder(kind, ids) {
     try {
       localStorage.setItem(ORDER_KEY(kind), JSON.stringify(ids));
+      Store.touch();
     } catch (e) {}
   }
 

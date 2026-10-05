@@ -68,14 +68,6 @@
     if (e.key === "Escape" && !modal.hidden) close();
   });
 
-  const have = new Set(
-    typeof UserVault !== "undefined"
-      ? UserVault.list()
-          .filter((x) => x.kind === MODE)
-          .map((x) => x.name.toLowerCase())
-      : [],
-  );
-
   let timer = null;
   let lastQuery = "";
 
@@ -129,22 +121,57 @@
       return;
     }
 
-    hint.textContent = "Pick one to see it before adding.";
     lastHits = new Map(hits.map((d) => [String(d.id), d]));
-    results.innerHTML = hits.map(row).join("");
+    drawRows();
+  }
+  let lastHits = new Map();
+
+  const viewHrefFor = (id) => {
+    const entry = UserVault.entry(id);
+    const folder = (entry ? entry.kind : MODE) === "anime" ? "anime" : "shows";
+    return `pages/${folder}/view.html?id=${id}`;
+  };
+
+  function drawRows() {
+    hint.textContent = "Pick one to see it before adding.";
+    results.innerHTML = [...lastHits.values()].map(row).join("");
     results
       .querySelectorAll("[data-add]")
       .forEach((b) =>
         b.addEventListener("click", () => preview(lastHits.get(b.dataset.add))),
       );
+    results.querySelectorAll("[data-remove]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const hit = lastHits.get(b.dataset.remove);
+        dropShow(b.dataset.remove, hit ? hit.name : "");
+        drawRows();
+      }),
+    );
   }
-  let lastHits = new Map();
+
+  function dropShow(id, name) {
+    const entry = UserVault.entry(id);
+    if (!entry) return;
+    const snapshot = UserVault.remove(entry.uni);
+    if (window.vaultHidden) window.vaultHidden.refresh();
+    if (typeof toast === "function") {
+      toast(`Removed ${name || entry.name} and its progress`, {
+        label: "Undo",
+        action: () => {
+          UserVault.restore(snapshot);
+          if (window.vaultHidden) window.vaultHidden.refresh();
+          if (lastHits.size && results.querySelector(".wl-sugg-row")) drawRows();
+        },
+      });
+    }
+  }
 
   function row(d) {
     const year = (d.first_air_date || "").slice(0, 4);
-    const owned = have.has((d.name || "").toLowerCase());
+    const owned = UserVault.has(d.id);
     return `
-      <button class="wl-sugg" data-add="${d.id}" data-name="${esc(d.name)}" ${owned ? "disabled" : ""}>
+      <div class="wl-sugg-row${owned ? " owned" : ""}">
+      <button class="wl-sugg" data-add="${d.id}">
         <span class="wl-sugg-thumb${d.poster_path ? "" : " ph"}">
           ${
             d.poster_path
@@ -156,8 +183,15 @@
           <b class="wl-sugg-title">${esc(d.name)}</b>
           <span class="wl-sugg-sub">${year}${d.vote_average ? ` · ${d.vote_average.toFixed(1)}` : ""}</span>
         </span>
-        <span class="wl-sugg-cta">${owned ? "Already here" : "Preview"}</span>
-      </button>`;
+        <span class="wl-sugg-cta">${owned ? "In your list" : "Preview"}</span>
+      </button>
+      ${
+        owned
+          ? `<a class="btn sm" href="${viewHrefFor(d.id)}">Open</a>
+             <button class="btn sm danger" data-remove="${d.id}">Remove</button>`
+          : ""
+      }
+      </div>`;
   }
 
   function offline(q) {
@@ -178,15 +212,6 @@
     if (!d) return;
     const id = String(d.id);
     const name = d.name;
-
-    try {
-      const queue = JSON.parse(
-        localStorage.getItem("mediavault.addqueue") || "[]",
-      );
-      if (!queue.some((x) => x.id === id))
-        queue.push({ id, name, at: Date.now() });
-      localStorage.setItem("mediavault.addqueue", JSON.stringify(queue));
-    } catch (e) {}
 
     hint.textContent = "";
     renderPreview(d, null, null, true);
@@ -259,8 +284,7 @@
   function addAction(d, detail, seasons, mount) {
     if (!mount) return;
     const id = String(d.id);
-    const uni = UserVault.uniOf(id);
-    const viewHref = `pages/${MODE === "anime" ? "anime" : "shows"}/view.html?id=${id}`;
+    const viewHref = viewHrefFor(id);
 
     if (UserVault.has(id)) {
       mount.innerHTML = `
@@ -270,10 +294,8 @@
           <button class="btn sm" data-drop="1">Remove</button>
         </div>`;
       mount.querySelector("[data-drop]").addEventListener("click", () => {
-        UserVault.remove(uni);
-        have.delete((d.name || "").toLowerCase());
+        dropShow(id, d.name);
         addAction(d, detail, seasons, mount);
-        if (window.vaultHidden) window.vaultHidden.refresh();
       });
       return;
     }
@@ -288,7 +310,7 @@
         <button class="btn btn-accent" data-save="1">
           + Add to my ${NOUN === "anime" ? "anime" : "shows"}
         </button>
-        <span class="add-note">Saved in this browser only.</span>
+        <span class="add-note">Saved here, and to your account if you are signed in.</span>
       </div>`;
 
     mount.querySelector("[data-save]").addEventListener("click", () => {
@@ -308,7 +330,6 @@
 
       if (!ok) return addAction(d, detail, seasons, mount);
 
-      have.add((d.name || "").toLowerCase());
       if (typeof toast === "function") toast(`Added ${d.name}`);
       if (window.vaultHidden) window.vaultHidden.refresh();
       addAction(d, detail, seasons, mount);
