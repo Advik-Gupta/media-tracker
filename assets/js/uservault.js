@@ -243,6 +243,16 @@ const UserVault = (() => {
       if (typeof Store !== "undefined") Store.touch();
     },
 
+    showStats(tmdbId) {
+      if (!this.entry(tmdbId)) return null;
+      const host = this.hostOf(tmdbId);
+      const stats = this.pageStats(host);
+      if (!stats) return null;
+      const at = this.members(host).findIndex((m) => String(m.id) === String(tmdbId));
+      const part = at > -1 ? stats.parts[at] : null;
+      return part && !part.unknown && !part.films ? part : null;
+    },
+
     pageStats(hostId) {
       const host = this.entry(hostId);
       if (!host || typeof Store === "undefined") return null;

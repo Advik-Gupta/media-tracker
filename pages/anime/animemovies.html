@@ -40,25 +40,25 @@
     <meta name="apple-mobile-web-app-title" content="Media Vault" />
     <link rel="stylesheet" href="assets/css/libraries.css?v=1723bbfb" />
 
-    <title>Top 100 Anime Movies - Media Vault</title>
-    <meta name="description" content="Top 100 Anime Movies - The best of animated cinema." />
+    <title>Top Anime Movies - Media Vault</title>
+    <meta name="description" content="Top Anime Movies - The best of animated cinema." />
     <link rel="stylesheet" href="assets/css/base.css?v=e64651e1" />
-    <link rel="stylesheet" href="assets/css/universes.css?v=51372fb5" />
+    <link rel="stylesheet" href="assets/css/universes.css?v=bf467d08" />
     <link rel="stylesheet" href="assets/css/tracker.css?v=ae928430" />
     <link rel="icon" href="assets/img/brand/logo.svg" type="image/svg+xml" />
   </head>
-  <body data-mode="movie" data-kind="list" data-universe="animemovies" class="u-animemovies">
+  <body data-mode="anime" data-kind="animelist" data-universe="animemovies" class="u-animemovies">
     <div class="page">
       <header class="topbar">
         <div class="wrap topbar-inner">
-          <a class="brand" href="index.html">
+          <a class="brand" href="pages/anime.html">
             <svg class="brand-mark" viewBox="0 0 32 32" fill="none" stroke-width="3.4" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M6 25V7l10 12.5L26 7v18" stroke="currentColor"/><path d="M6 7l10 12.5L26 7" stroke="var(--accent)"/></svg>
             <span>Media Vault</span>
           </a>
-          <span class="crumb">/ Top 100 Anime Movies</span>
+          <span class="crumb">/ Top Anime Movies</span>
           <span class="topbar-spacer"></span>
           <span id="acctChip"></span>
-          <a class="nav-link" href="pages/watchlist.html">My List</a>
+          <a class="nav-link" href="pages/anime/mylist.html">My List</a>
           <button
             class="btn btn-ghost"
             id="jumpNext"
@@ -70,10 +70,10 @@
       </header>
 
       <section class="hero wrap">
-        <p class="eyebrow reveal">Top 100 Anime Movies</p>
+        <p class="eyebrow reveal">Top Anime Movies</p>
         <h1 class="reveal" style="--d: 60ms">
-          Top 100<br /><span class="hero-accent"
-            >Anime Movies</span
+          The best<br /><span class="hero-accent"
+            >anime films</span
           >
         </h1>
         <p class="lede reveal" style="--d: 130ms">The best of animated cinema. Position in the list drives the tier, so the top is the short version.</p>
@@ -202,7 +202,7 @@
                 Mark everything in view as watched
               </button>
               <button class="btn btn-ghost danger" id="resetUniverse">
-                Reset Top 100 Anime Movies progress
+                Reset Top Anime Movies progress
               </button>
             </div>
           </div>
@@ -217,8 +217,8 @@
       <footer class="footer">
         <div class="wrap footer-inner">
           <a class="foot-link" href="pages/analytics.html">Analytics</a>
-          <span>100 titles - progress stored locally</span>
-          <span><a href="index.html">← All universes</a></span>
+          <span>92 films - progress stored locally</span>
+          <span><a href="pages/anime.html">← All anime</a></span>
         </div>
       </footer>
     </div>
@@ -234,12 +234,13 @@
     <script src="assets/js/cloud.js?v=86fc6f90"></script>
     <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
     <script src="assets/js/lightbox.js?v=d5f48017"></script>
-    <script src="assets/js/data/_films.js?v=f0504df5"></script>
+    <script src="assets/js/data/_films.js?v=c39e0f8a"></script>
     <script src="assets/js/data/series/_counts.js?v=82fe4d27"></script>
-    <script src="assets/js/data/universes.js?v=a539ba72"></script>
+    <script src="assets/js/data/universes.js?v=66e64e19"></script>
+    <script src="assets/js/uservault.js?v=fc7c73e9"></script>
     <script src="assets/js/modes.js?v=cf73c97d"></script>
-    <script src="assets/js/data/animemovies.js?v=666ca756"></script>
-    <script src="assets/js/tracker.js?v=89965151"></script>
+    <script src="assets/js/data/animemovies.js?v=1fed92d4"></script>
+    <script src="assets/js/tracker.js?v=14adab25"></script>
     <script src="assets/js/account.js?v=8a75cf76"></script>
   </body>
 </html>

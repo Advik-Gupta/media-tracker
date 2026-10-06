@@ -76,6 +76,43 @@
     return { total, done, pct: total ? (done / total) * 100 : 0, mins: 0 };
   }
 
+  const EP_DONE = /^e(\d+)-\d+x\d+$/;
+  const seriesDone = new Map();
+  if (Store.onChange) Store.onChange(() => seriesDone.clear());
+
+  function finishedSeries(tmdb) {
+    if (seriesDone.has(tmdb)) return seriesDone.get(tmdb);
+    let out = false;
+    if (typeof UserVault !== "undefined" && UserVault.has(tmdb)) {
+      const mine = UserVault.showStats(tmdb);
+      out = !!(mine && mine.total > 0 && mine.done >= mine.total);
+    } else {
+      for (const [id, meta] of Object.entries(window.SERIES_COUNTS || {})) {
+        const show = (meta.perShow || []).find((s) => s.id === tmdb);
+        if (!show || !show.episodes) continue;
+        const all = Store.exportAll();
+        const bucket = all[id] || {};
+        const filler = all[`__filler_${id}`] || {};
+        const prefix = `e${tmdb}-`;
+        const n = Object.keys(bucket).filter(
+          (k) => k.startsWith(prefix) && !filler[k] && EP_DONE.test(k),
+        ).length;
+        out = n >= show.episodes;
+        break;
+      }
+    }
+    seriesDone.set(tmdb, out);
+    return out;
+  }
+
+  function itemDone(uni, it) {
+    if (Store.has(...progressRef(uni.id, it))) return true;
+    const reg = typeof FILMS !== "undefined" ? FILMS[it.film] : null;
+    const tmdb = it.tmdb || (reg && reg.tmdb);
+    if (!tmdb || (it.type !== "show" && !(reg && reg.type === "tv"))) return false;
+    return finishedSeries(tmdb);
+  }
+
   function statsFor(uni) {
     if (uni.userAdded && uni.tmdbId != null && typeof UserVault !== "undefined") {
       const ps = UserVault.pageStats(uni.tmdbId);
@@ -103,12 +140,9 @@
       };
 
     const items = countable(list);
-    const done = items.filter((it) =>
-      Store.has(...progressRef(uni.id, it)),
-    ).length;
+    const done = items.filter((it) => itemDone(uni, it)).length;
     const mins = items.reduce(
-      (sum, it) =>
-        sum + (Store.has(...progressRef(uni.id, it)) ? it.mins || 0 : 0),
+      (sum, it) => sum + (itemDone(uni, it) ? it.mins || 0 : 0),
       0,
     );
     return {

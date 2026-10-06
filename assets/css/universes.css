@@ -200,3 +200,5 @@ body.u-korea { --accent: #e3a83b; --accent-2: #6b4a12; --on-accent: #1a1512; }
 [data-theme="light"] body.u-korea { --accent: color-mix(in srgb, #e3a83b 68%, #000); --on-accent: #fff; }
 body.u-a24 { --accent: #e3a83b; --accent-2: #6b4a12; --on-accent: #1a1512; }
 [data-theme="light"] body.u-a24 { --accent: color-mix(in srgb, #e3a83b 68%, #000); --on-accent: #fff; }
+body.u-topanime { --accent: #e5533d; --accent-2: #6e2116; --on-accent: #1a1512; }
+[data-theme="light"] body.u-topanime { --accent: color-mix(in srgb, #e5533d 68%, #000); --on-accent: #fff; }

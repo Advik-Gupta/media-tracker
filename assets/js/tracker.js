@@ -21,7 +21,13 @@
   const ERAS = CAT.eras;
 
   const refOf = (it) => progressRef(UNIVERSE, it);
-  const isWatched = (it) => Store.has(...refOf(it));
+  const isWatched = (it) => {
+    if (Store.has(...refOf(it))) return true;
+    const reg = typeof FILMS !== "undefined" ? FILMS[it.film] : null;
+    if (it.type !== "show" && !(reg && reg.type === "tv")) return false;
+    const tracked = trackedProgress(it);
+    return !!(tracked && tracked.total > 0 && tracked.done >= tracked.total);
+  };
   const sameWork = (a, b) => {
     const x = refOf(a),
       y = refOf(b);
@@ -264,9 +270,24 @@
 
   const EP_RE = /^e(\d+)-\d+x\d+$/;
 
+  const mineCache = new Map();
+  if (Store.onChange) Store.onChange(() => mineCache.clear());
+
   function trackedProgress(it) {
     const tmdb = it.tmdb || (typeof FILMS !== "undefined" && FILMS[it.film] && FILMS[it.film].tmdb);
     if (!tmdb) return null;
+
+    if (typeof UserVault !== "undefined" && UserVault.has(tmdb)) {
+      if (!mineCache.has(tmdb)) mineCache.set(tmdb, UserVault.showStats(tmdb));
+      const mine = mineCache.get(tmdb);
+      if (mine && mine.total > 0)
+        return {
+          done: mine.done,
+          total: mine.total,
+          pct: Math.min(100, (mine.done / mine.total) * 100),
+          href: null,
+        };
+    }
 
     const hit = SERIES_BY_TMDB.get(tmdb);
     if (!hit || !hit.show.episodes) return null;

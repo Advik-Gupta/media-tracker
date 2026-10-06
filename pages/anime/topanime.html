@@ -2,28 +2,63 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <% if (base) { %><base href="<%= base %>" /><% } %>
+    <base href="../../" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <%- include("partials/head") %>
-    <title><%= u.name %> - Media Vault</title>
-    <meta name="description" content="<%= u.page.desc %>" />
-    <link rel="stylesheet" href="assets/css/base.css" />
-    <link rel="stylesheet" href="assets/css/universes.css" />
-    <link rel="stylesheet" href="assets/css/tracker.css" />
+    <meta name="color-scheme" content="dark light" />
+    <style>@view-transition { navigation: auto; }</style>
+    <meta name="theme-color" content="#121110" />
+    <script>
+      (function () {
+        var t = "system";
+        try { t = localStorage.getItem("mediavault.theme") || "system"; } catch (e) {}
+        var light = t === "light" || (t === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.documentElement.dataset.theme = light ? "light" : "dark";
+        document.documentElement.dataset.themePref = t;
+      })();
+      (function () {
+        var p = location.pathname;
+        var here = /\/pages\/shows(\/|\.html)/.test(p) ? 1 : /\/pages\/anime(\/|\.html)/.test(p) ? 2 : 0;
+        if (/\/pages\/(account|analytics|sharelist)\.html/.test(p)) return;
+        var was = null;
+        try {
+          was = sessionStorage.getItem("mv.lib");
+          sessionStorage.setItem("mv.lib", String(here));
+        } catch (e) {}
+        if (was !== null && Number(was) !== here)
+          document.documentElement.dataset.nav = here > Number(was) ? "forward" : "back";
+        document.documentElement.dataset.lib = ["movie", "show", "anime"][here];
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Inter:wght@400;450;500;600;650;700&family=Agdasima:wght@400;700&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="assets/img/pwa/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Media Vault" />
+    <link rel="stylesheet" href="assets/css/libraries.css?v=1723bbfb" />
+
+    <title>Top 100 Anime - Media Vault</title>
+    <meta name="description" content="Top 100 Anime - a ranked list." />
+    <link rel="stylesheet" href="assets/css/base.css?v=e64651e1" />
+    <link rel="stylesheet" href="assets/css/universes.css?v=bf467d08" />
+    <link rel="stylesheet" href="assets/css/tracker.css?v=ae928430" />
     <link rel="icon" href="assets/img/brand/logo.svg" type="image/svg+xml" />
   </head>
-  <body data-mode="<%= vault.mode %>" data-kind="<%= u.kind || 'movie' %>" data-universe="<%= u.id %>" class="u-<%= u.id %>">
+  <body data-mode="anime" data-kind="animelist" data-universe="topanime" class="u-topanime">
     <div class="page">
       <header class="topbar">
         <div class="wrap topbar-inner">
-          <a class="brand" href="<%= vault.home %>">
-            <%- include("partials/logo") %>
+          <a class="brand" href="pages/anime.html">
+            <svg class="brand-mark" viewBox="0 0 32 32" fill="none" stroke-width="3.4" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M6 25V7l10 12.5L26 7v18" stroke="currentColor"/><path d="M6 7l10 12.5L26 7" stroke="var(--accent)"/></svg>
             <span>Media Vault</span>
           </a>
-          <span class="crumb">/ <%= u.name %></span>
+          <span class="crumb">/ Top 100 Anime</span>
           <span class="topbar-spacer"></span>
           <span id="acctChip"></span>
-          <% if (vault.list) { %><a class="nav-link" href="<%= vault.list %>"><%= vault.listLabel %></a><% } %>
+          <a class="nav-link" href="pages/anime/mylist.html">My List</a>
           <button
             class="btn btn-ghost"
             id="jumpNext"
@@ -35,13 +70,13 @@
       </header>
 
       <section class="hero wrap">
-        <p class="eyebrow reveal"><%= u.page.eyebrow %></p>
+        <p class="eyebrow reveal">Top 100 Anime</p>
         <h1 class="reveal" style="--d: 60ms">
-          <%= u.page.h1a %><br /><span class="hero-accent"
-            ><%= u.page.h1b %></span
+          The hundred<br /><span class="hero-accent"
+            >that matter most</span
           >
         </h1>
-        <p class="lede reveal" style="--d: 130ms"><%= u.page.lede %></p>
+        <p class="lede reveal" style="--d: 130ms">The highest-regarded anime, series and a handful of films, in ranked order. Position in the list drives the tier, so the top is the short version.</p>
 
         <div class="countdown reveal" id="countdown" style="--d: 200ms"></div>
       </section>
@@ -74,13 +109,10 @@
             <span class="topbar-spacer"></span>
             <div class="ctrl-buttons">
               <div class="viewswitch" role="group" aria-label="View">
-                <% if ((u.kind || 'movie') === 'movie') { %>
-                <button data-view="timeline">Timeline</button>
-                <button data-view="rows">Compact</button>
-                <% } else { %>
+                
                 <button data-view="grid">Grid</button>
                 <button data-view="rows">List</button>
-                <% } %>
+                
               </div>
               <input
                 class="search"
@@ -100,16 +132,16 @@
               <span class="filter-label">Sort</span>
               <div class="chips" id="sortChips">
                 <button class="chip active" data-sort="watch">
-                  <%= u.page.sortLabels.watch %>
+                  List order
                 </button>
                 <button class="chip" data-sort="release">
-                  <%= u.page.sortLabels.release %>
+                  Release date
                 </button>
                 <button class="chip" data-sort="chrono">
-                  <%= u.page.sortLabels.chrono %>
+                  Year
                 </button>
                 <button class="chip" data-sort="relevance">
-                  <%= u.page.sortLabels.relevance %>
+                  Tier
                 </button>
                 <button class="chip" data-sort="rating">
                   Rating
@@ -135,7 +167,7 @@
             </div>
 
             <div class="filter-group">
-              <span class="filter-label"><%- u.page.filterLabel %></span>
+              <span class="filter-label">Decade</span>
               <div class="chips" id="phaseChips"></div>
             </div>
 
@@ -170,7 +202,7 @@
                 Mark everything in view as watched
               </button>
               <button class="btn btn-ghost danger" id="resetUniverse">
-                Reset <%= u.name %> progress
+                Reset Top 100 Anime progress
               </button>
             </div>
           </div>
@@ -185,8 +217,8 @@
       <footer class="footer">
         <div class="wrap footer-inner">
           <a class="foot-link" href="pages/analytics.html">Analytics</a>
-          <span><%= u.page.footer %></span>
-          <span><a href="<%= vault.home %>">← <%= vault.back %></a></span>
+          <span>98 titles - progress stored locally</span>
+          <span><a href="pages/anime.html">← All anime</a></span>
         </div>
       </footer>
     </div>
@@ -197,18 +229,18 @@
       <div id="sheetBody"></div>
     </aside>
 
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/store.js"></script>
-    <script src="assets/js/cloud.js"></script>
-    <script src="assets/js/data/merges.js"></script>
-    <script src="assets/js/lightbox.js"></script>
-    <script src="assets/js/data/_films.js"></script>
-    <script src="assets/js/data/series/_counts.js"></script>
-    <script src="assets/js/data/universes.js"></script>
-    <script src="assets/js/uservault.js"></script>
-    <script src="assets/js/modes.js"></script>
-    <script src="assets/js/data/<%= u.id %>.js"></script>
-    <script src="assets/js/tracker.js"></script>
-    <script src="assets/js/account.js"></script>
+    <script src="assets/js/config.js?v=76725673"></script>
+    <script src="assets/js/store.js?v=f7b0d8d2"></script>
+    <script src="assets/js/cloud.js?v=86fc6f90"></script>
+    <script src="assets/js/data/merges.js?v=cecf1ad9"></script>
+    <script src="assets/js/lightbox.js?v=d5f48017"></script>
+    <script src="assets/js/data/_films.js?v=c39e0f8a"></script>
+    <script src="assets/js/data/series/_counts.js?v=82fe4d27"></script>
+    <script src="assets/js/data/universes.js?v=66e64e19"></script>
+    <script src="assets/js/uservault.js?v=fc7c73e9"></script>
+    <script src="assets/js/modes.js?v=cf73c97d"></script>
+    <script src="assets/js/data/topanime.js?v=dd65b7d6"></script>
+    <script src="assets/js/tracker.js?v=14adab25"></script>
+    <script src="assets/js/account.js?v=8a75cf76"></script>
   </body>
 </html>
