@@ -137,6 +137,11 @@
 
     el.querySelector("[data-promote]").addEventListener("click", async (e) => {
       const btn = e.currentTarget;
+      if (UserVault.has(item.id)) {
+        UserVault.removeWish(item.id);
+        if (typeof toast === "function") toast(`${item.name} is already in your ${NOUN}`);
+        return;
+      }
       btn.disabled = true;
       btn.textContent = "Adding…";
       msg.hidden = true;
@@ -186,16 +191,33 @@
     return el;
   }
 
+  let painted = false;
+  let pruning = false;
+
   function paint() {
+    const owned = UserVault.wishlist(MODE).filter((x) => UserVault.has(x.id));
+    if (owned.length && !pruning) {
+      pruning = true;
+      owned.forEach((x) => UserVault.removeWish(x.id));
+      pruning = false;
+    }
     const items = UserVault.wishlist(MODE);
     grid.innerHTML = "";
     empty.hidden = items.length > 0;
-    items.forEach((item) => grid.appendChild(card(item)));
+    items.forEach((item) => {
+      const el = card(item);
+      if (painted) el.classList.add("in");
+      grid.appendChild(el);
+    });
+    if (!painted && typeof initReveal === "function") initReveal(grid);
+    painted = true;
   }
 
   paint();
 
   if (typeof Store !== "undefined" && Store.onChange) {
-    Store.onChange(() => paint());
+    Store.onChange(() => {
+      if (!pruning) paint();
+    });
   }
 })();

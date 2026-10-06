@@ -428,6 +428,9 @@ const UserVault = (() => {
       });
 
       write(LIST_KEY, list);
+      const wishes = read(WISH_KEY, []);
+      if (Array.isArray(wishes) && wishes.some((x) => String(x.id) === String(entry.id)))
+        write(WISH_KEY, wishes.filter((x) => String(x.id) !== String(entry.id)));
       if (data) this.setData(uni, data);
       if (typeof Store !== "undefined") Store.touch();
       return true;
