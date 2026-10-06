@@ -24,7 +24,7 @@
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
     );
 
-  const aired = (ep) => ep.d && new Date(ep.d) <= new Date();
+  const aired = (ep) => (ep.d ? new Date(ep.d) <= new Date() : ep.r != null);
 
   const fillerKey = (showId, s, e) => `e${showId}-${s}x${e}`;
   const isFiller = (showId, s, e) =>

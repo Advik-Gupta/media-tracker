@@ -74,7 +74,7 @@
   input.addEventListener("input", () => {
     clearTimeout(timer);
     const q = input.value.trim();
-    if (q.length < 2) {
+    if (q.length < 2 && !/^\d+$/.test(q)) {
       results.innerHTML = "";
       hint.textContent = "Type a name - results appear once you stop typing.";
       return;
@@ -87,7 +87,7 @@
     if (e.key === "Enter") {
       clearTimeout(timer);
       const q = input.value.trim();
-      if (q.length >= 2) search(q);
+      if (q.length >= 2 || /^\d+$/.test(q)) search(q);
     }
   });
 
@@ -100,6 +100,33 @@
     results.innerHTML = "";
 
     if (proxyDown) return offline(q);
+
+    if (/^\d+$/.test(q)) {
+      let detail = null;
+      try {
+        const r = await fetch(`${API}/show/${q}`);
+        if (r.ok) detail = await r.json();
+      } catch (e) {}
+      if (!detail || !detail.name) {
+        hint.textContent = `No show found with id ${q}.`;
+        return;
+      }
+      lastHits = new Map([
+        [
+          String(q),
+          {
+            id: Number(q),
+            name: detail.name,
+            first_air_date: detail.first_air_date || "",
+            poster_path: detail.poster_path || "",
+            vote_average: detail.vote_average || 0,
+            overview: detail.overview || "",
+          },
+        ],
+      ]);
+      drawRows();
+      return;
+    }
 
     let data = null;
     try {

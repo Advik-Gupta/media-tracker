@@ -96,7 +96,7 @@ const UserVault = (() => {
       let aired = 0;
       (sh.seasons || []).forEach((se) =>
         se.episodes.forEach((ep) => {
-          if (ep.d && new Date(ep.d).getTime() <= now) aired += 1;
+          if (ep.d ? new Date(ep.d).getTime() <= now : ep.r != null) aired += 1;
         }),
       );
       episodes += aired;
@@ -284,7 +284,7 @@ const UserVault = (() => {
           const partOf = (epN) => edges.findIndex((e, i) => i > 0 && epN > edges[i - 1] && epN <= e);
           se.episodes.forEach((ep) => {
             if (cuts.length && gone.has(`s:${show.id}:${se.n}p${partOf(ep.n)}`)) return;
-            if (!(ep.d && new Date(ep.d).getTime() <= now)) return;
+            if (!(ep.d ? new Date(ep.d).getTime() <= now : ep.r != null)) return;
             const key = `e${show.id}-${se.n}x${ep.n}`;
             if (filler[key]) return;
             total += 1;

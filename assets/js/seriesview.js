@@ -266,6 +266,28 @@
       .join(" · ");
     ledeEl.textContent = show.overview || "";
 
+    const addBtn = document.getElementById("addToLibrary");
+    if (addBtn && !saved && !addBtn.dataset.bound) {
+      addBtn.dataset.bound = "1";
+      addBtn.hidden = false;
+      addBtn.textContent = `+ Add to my ${VAULT === "anime" ? "anime" : "shows"}`;
+      addBtn.addEventListener("click", () => {
+        const host = (data.shows || []).find((sh) => String(sh.id) === String(id)) || show;
+        const ok = UserVault.add(
+          {
+            id: Number(id),
+            uni,
+            name: host.title,
+            kind: VAULT,
+            poster: host.poster || "",
+            year: host.year || "",
+          },
+          known ? null : { shows: [host], films: [] },
+        );
+        if (ok) location.reload();
+      });
+    }
+
     statusEl.hidden = !stale;
     if (stale) {
       statusEl.innerHTML =
