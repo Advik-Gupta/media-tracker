@@ -166,6 +166,75 @@
     else bar.append(search, theme);
   });
 
+  /* ---------- phone top bar: everything but the essentials goes in a menu ---------- */
+
+  document.querySelectorAll(".topbar-inner").forEach((bar) => {
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = "icon-btn topbar-more";
+    more.setAttribute("aria-label", "More");
+    more.setAttribute("aria-haspopup", "true");
+    more.setAttribute("aria-expanded", "false");
+    more.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+    const panel = document.createElement("div");
+    panel.className = "topbar-menu";
+    panel.hidden = true;
+    bar.append(more);
+    document.body.append(panel);
+
+    const keep = (el) =>
+      el === more ||
+      el.classList.contains("brand") ||
+      el.classList.contains("crumb") ||
+      el.classList.contains("topbar-spacer") ||
+      el.classList.contains("search-trigger") ||
+      el.classList.contains("mode-links") ||
+      el.classList.contains("btn-accent");
+    const marks = new Map();
+    const phone = window.matchMedia("(max-width: 640px)");
+
+    const setOpen = (open) => {
+      panel.hidden = !open;
+      more.setAttribute("aria-expanded", String(open));
+    };
+
+    function arrange() {
+      if (phone.matches) {
+        [...bar.children].forEach((el) => {
+          if (keep(el)) return;
+          const mark = document.createComment("menu-item");
+          el.before(mark);
+          marks.set(el, mark);
+          panel.append(el);
+        });
+      } else {
+        marks.forEach((mark, el) => {
+          mark.replaceWith(el);
+        });
+        marks.clear();
+        setOpen(false);
+      }
+      more.hidden = !phone.matches || !panel.children.length;
+    }
+    arrange();
+    phone.addEventListener("change", arrange);
+    new MutationObserver(() => {
+      if (phone.matches) more.hidden = !panel.querySelector("a, button");
+    }).observe(panel, { childList: true, subtree: true });
+
+    more.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setOpen(panel.hidden);
+    });
+    document.addEventListener("click", (e) => {
+      if (!panel.hidden && !panel.contains(e.target)) setOpen(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") setOpen(false);
+    });
+  });
+
   const PAGES = [
     { name: "Movies", sub: "Franchises, lists and artists", href: "index.html" },
     { name: "Shows", sub: "Television, season by season", href: "pages/shows.html" },

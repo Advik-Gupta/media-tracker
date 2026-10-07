@@ -243,6 +243,41 @@ const UserVault = (() => {
       if (typeof Store !== "undefined") Store.touch();
     },
 
+    async ensureData() {
+      const missing = this.list().filter((x) => !this.data(uniOf(x.id)));
+      if (!missing.length) return 0;
+      let fetched = 0;
+      const queue = missing.slice();
+      const worker = async () => {
+        while (queue.length) {
+          const entry = queue.shift();
+          try {
+            const [dr, sr] = await Promise.all([
+              fetch(`/api/show/${entry.id}`),
+              fetch(`/api/show/${entry.id}/seasons`),
+            ]);
+            if (!dr.ok || !sr.ok) continue;
+            const detail = await dr.json();
+            const seasons = await sr.json();
+            if (!detail || !Array.isArray(seasons) || !seasons.length) continue;
+            const hit = {
+              id: Number(entry.id),
+              name: detail.name || entry.name,
+              first_air_date: detail.first_air_date || "",
+              vote_average: detail.vote_average,
+              poster_path: detail.poster_path,
+              backdrop_path: detail.backdrop_path,
+              overview: "",
+            };
+            this.setData(uniOf(entry.id), transform(hit, detail, seasons));
+            fetched += 1;
+          } catch (e) {}
+        }
+      };
+      await Promise.all([worker(), worker(), worker()]);
+      return fetched;
+    },
+
     showStats(tmdbId) {
       if (!this.entry(tmdbId)) return null;
       const host = this.hostOf(tmdbId);

@@ -11,6 +11,16 @@
   }
   Store.migrateMerges();
 
+  /* Episode lists are not synced between devices, so on a new device the
+     cards have nothing to count. Fetch what is missing, then redraw. */
+  if (typeof UserVault !== "undefined" && UserVault.ensureData) {
+    UserVault.ensureData().then((fetched) => {
+      if (!fetched) return;
+      window.SERIES_COUNTS = Object.assign({}, window.SERIES_COUNTS, UserVault.counts());
+      if (window.vaultHidden) window.vaultHidden.refresh();
+    });
+  }
+
   const KINDS = {};
   if (document.getElementById("listGrid")) KINDS.list = "listGrid";
   if (document.getElementById("movieGrid")) KINDS.movie = "movieGrid";
@@ -441,7 +451,7 @@
             const others = (meta.perShow || []).slice(1).map((s) => s.title);
             return `<span class="uni-count" title="Also here: ${others.join(", ")}">+${others.length} more</span>`;
           })()}
-          ${isOngoing(uni) ? '<span class="uni-live" title="Still releasing">◉ Ongoing</span>' : ""}
+          ${isOngoing(uni) ? '<span class="uni-live" title="Still releasing">◉<em> Ongoing</em></span>' : ""}
           <span class="uni-arrow">→</span>
         </div>
       </div>`;
@@ -631,6 +641,7 @@
 
   function paintOngoing(kind, grid, list) {
     const track = grid.closest(".carousel") || grid;
+    track.style.display = !grid.children.length && list.length ? "none" : "";
     let block = track.parentElement.querySelector(`[data-ongoing="${kind}"]`);
     if (!list.length) {
       if (block) block.remove();
